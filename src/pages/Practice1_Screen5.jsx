@@ -111,7 +111,7 @@ function Practice1_Screen5({ setContextNotes }) {
         subtitle="Завершаем практику коротким, но полным разбором реального ценового ряда: считаем доходность, волатильность и формулируем корректный аналитический вывод."
       />
 
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="grid items-start gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="content-block">
           <MathText
             as="p"
@@ -141,7 +141,7 @@ function Practice1_Screen5({ setContextNotes }) {
         ]}
       />
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid items-start gap-4 lg:grid-cols-2">
         <section className="content-block">
           <h3 className="section-title">Python: считаем ключевые показатели</h3>
           <MathText
@@ -171,7 +171,7 @@ function Practice1_Screen5({ setContextNotes }) {
         <ReturnsBarChart />
       </PlotViewer>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid items-start gap-4 lg:grid-cols-2">
         <IdeaCard title="Корректная формулировка вывода">
           <p>
             На рассматриваемом интервале акции Apple показали отрицательную итоговую доходность и
@@ -185,6 +185,45 @@ function Practice1_Screen5({ setContextNotes }) {
           полноценного инвестиционного вывода. Корректный аналитик обязан указывать ограничения
           выборки, а не скрывать их.
         </AlertBox>
+      </section>
+
+      <section className="grid items-start gap-4 lg:grid-cols-2">
+        <section className="content-block">
+          <h3 className="section-title">Что еще полезно сказать теоретически</h3>
+          <MathText
+            as="p"
+            text="Даже самый аккуратный мини-анализ не заменяет длинного инвестиционного исследования. Он дает локальный срез поведения ряда, но не отвечает на вопросы о структурном тренде, фундаментальных драйверах бизнеса и сценариях будущего."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <MathText
+            as="p"
+            text="Поэтому корректный вывод в инвестиционном анализе почти всегда имеет границы применимости: нужно явно понимать, к какому интервалу, набору данных и предпосылкам он относится."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+        </section>
+
+        <section className="content-block">
+          <h3 className="section-title">Полезные функции Python</h3>
+          <div className="mt-4">
+            <CodeBlock
+              code={`metrics = {
+    "total_return": total_return,
+    "mean_daily_return": mean_daily_return,
+    "daily_volatility": daily_volatility,
+    "max_daily_drop": max_daily_drop,
+}
+
+best_day = aapl.loc[aapl["return"].idxmax(), ["date", "return"]]
+worst_day = aapl.loc[aapl["return"].idxmin(), ["date", "return"]]
+
+print({key: round(value, 4) for key, value in metrics.items()})
+print()
+print("Лучший день:", best_day.to_dict())
+print("Худший день:", worst_day.to_dict())`}
+              title="Python: idxmax(), idxmin(), to_dict()"
+            />
+          </div>
+        </section>
       </section>
 
       <KeyIdea title="Итог практики 1">

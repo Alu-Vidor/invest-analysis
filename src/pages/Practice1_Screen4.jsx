@@ -113,7 +113,7 @@ function Practice1_Screen4({ setContextNotes }) {
         subtitle="Работаем с реальным рыночным рядом: загружаем данные Apple, считаем доходности и видим, как код соединяет таблицу, формулу и интерпретацию."
       />
 
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="grid items-start gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="content-block">
           <MathText
             as="p"
@@ -130,7 +130,7 @@ function Practice1_Screen4({ setContextNotes }) {
         </IdeaCard>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid items-start gap-4 lg:grid-cols-2">
         <section className="content-block">
           <h3 className="section-title">Реальный ряд: Apple, 22-31 января 2024 года</h3>
           <MathText
@@ -166,7 +166,7 @@ function Practice1_Screen4({ setContextNotes }) {
         ]}
       />
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid items-start gap-4 lg:grid-cols-2">
         <section className="content-block">
           <h3 className="section-title">Переход к доходностям</h3>
           <MathText
@@ -180,10 +180,55 @@ function Practice1_Screen4({ setContextNotes }) {
           </div>
         </section>
 
-        <AlertBox title="Что такое волатильность">
-          Волатильностью называют статистическую меру изменчивости доходности. На вводном уровне ее
-          удобно понимать как количественное выражение неустойчивости ценовой динамики.
-        </AlertBox>
+        <section className="space-y-4">
+          <AlertBox title="Что такое волатильность">
+            Волатильностью называют статистическую меру изменчивости доходности. На вводном уровне
+            ее удобно понимать как количественное выражение неустойчивости ценовой динамики.
+          </AlertBox>
+          <IdeaCard title="Почему волатильность не равна убытку">
+            <p>
+              Высокая волатильность означает большие колебания, но не указывает заранее их
+              направление. Цена может резко расти и резко падать; обе ситуации увеличивают
+              волатильность.
+            </p>
+          </IdeaCard>
+        </section>
+      </section>
+
+      <section className="grid items-start gap-4 lg:grid-cols-2">
+        <section className="content-block">
+          <h3 className="section-title">Еще немного теории о временных рядах</h3>
+          <MathText
+            as="p"
+            text="Ряд цен сам по себе неудобен для статистического сравнения разных активов, потому что абсолютные уровни цен могут сильно различаться. Именно поэтому в анализе чаще переходят от уровней P_t к доходностям r_t."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <MathText
+            as="p"
+            text="После такого перехода можно сравнивать не сами цены, а относительные изменения, что делает выводы более сопоставимыми и математически осмысленными."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+        </section>
+
+        <section className="content-block">
+          <h3 className="section-title">Полезные функции Python</h3>
+          <div className="mt-4">
+            <CodeBlock
+              code={`aapl["abs_return"] = aapl["return"].abs()
+
+top_moves = aapl.nlargest(3, "abs_return")[["date", "return", "abs_return"]]
+latest_rows = aapl.tail(3)
+summary = aapl["return"].agg(["mean", "std", "min", "max"])
+
+print(top_moves.round(4))
+print()
+print(latest_rows.round(4))
+print()
+print(summary.round(4))`}
+              title="Python: abs(), nlargest(), tail(), agg()"
+            />
+          </div>
+        </section>
       </section>
 
       <KeyIdea title="Ключевой вывод">

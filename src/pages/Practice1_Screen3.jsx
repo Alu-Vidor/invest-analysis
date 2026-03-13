@@ -97,7 +97,7 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
         subtitle="Показываем, как цифровые сегменты бизнеса становятся самостоятельным объектом оценки и почему структура выручки важна не меньше ее общего объема."
       />
 
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="grid items-start gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="content-block">
           <MathText
             as="p"
@@ -114,7 +114,7 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
         </IdeaCard>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid items-start gap-4 md:grid-cols-2">
         <article className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900">
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">Цифровой сегмент</h3>
           <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
@@ -166,7 +166,7 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
         <ServicesShareChart />
       </PlotViewer>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid items-start gap-4 lg:grid-cols-2">
         <section className="content-block">
           <h3 className="section-title">Python: считаем долю цифрового сегмента</h3>
           <div className="mt-4">
@@ -179,6 +179,41 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
           устойчивость роста. Для цифровой экономики это особенно важно, потому что платформенные и
           сервисные доходы могут вести себя иначе, чем продажи физических товаров.
         </AlertBox>
+      </section>
+
+      <section className="grid items-start gap-4 lg:grid-cols-2">
+        <section className="content-block">
+          <h3 className="section-title">Дополнение к теории</h3>
+          <MathText
+            as="p"
+            text="Для цифровой компании рост выручки сам по себе еще не гарантирует инвестиционной силы бизнеса. Аналитик дополнительно смотрит на повторяемость дохода, долю подписочной модели, устойчивость клиентской базы и зависимость от одного сегмента."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <MathText
+            as="p"
+            text="Чем выше доля регулярных сервисных доходов, тем легче прогнозировать будущие потоки. Именно поэтому сегментный анализ особенно важен для цифровой экономики."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+        </section>
+
+        <section className="content-block">
+          <h3 className="section-title">Полезные функции Python</h3>
+          <div className="mt-4">
+            <CodeBlock
+              code={`apple_segments["services_share_pct"] = (
+    apple_segments["services_share"] * 100
+).round(1)
+
+leaders = apple_segments.sort_values("services_share_pct", ascending=False)
+late_quarters = apple_segments.query("quarter != 'Q1 FY24'")
+
+print(leaders[["quarter", "services_share_pct"]])
+print()
+print(late_quarters.tail(2))`}
+              title="Python: sort_values(), query(), tail()"
+            />
+          </div>
+        </section>
       </section>
 
       <KeyIdea title="Ключевой вывод">

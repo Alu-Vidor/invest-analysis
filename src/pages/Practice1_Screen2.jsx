@@ -80,7 +80,7 @@ function Practice1_Screen2({ setContextNotes }) {
         subtitle="Вводим четыре базовых понятия, без которых инвестиционное решение нельзя считать полным и корректно интерпретируемым."
       />
 
-      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+      <section className="grid items-start gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="content-block">
           <MathText
             as="p"
@@ -97,7 +97,7 @@ function Practice1_Screen2({ setContextNotes }) {
         </IdeaCard>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid items-start gap-4 md:grid-cols-2">
         {categoryCards.map((card) => (
           <article
             key={card.title}
@@ -111,7 +111,7 @@ function Practice1_Screen2({ setContextNotes }) {
         ))}
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid items-start gap-4 lg:grid-cols-2">
         <section className="content-block">
           <h3 className="section-title">Математическая запись</h3>
           <MathText
@@ -156,6 +156,18 @@ function Practice1_Screen2({ setContextNotes }) {
       />
 
       <section className="grid gap-4 lg:grid-cols-2">
+        <IdeaCard title="Еще немного теории о ликвидности">
+          <p>
+            Ликвидность не равна доходности и не сводится к риску. Актив может быть надежным, но
+            неудобным для быстрого выхода из позиции. На рынке это часто проявляется через низкий
+            объем торгов, широкий спред и чувствительность цены к крупной заявке.
+          </p>
+          <p className="mt-3">
+            Для инвестора ликвидность особенно важна тогда, когда горизонт короткий или когда
+            предполагается необходимость быстро перераспределить капитал.
+          </p>
+        </IdeaCard>
+
         <IdeaCard title="Как читать эти данные">
           <p>
             Доходность на рассматриваемом интервале оказалась отрицательной, потому что цена
@@ -173,6 +185,42 @@ function Practice1_Screen2({ setContextNotes }) {
             <CodeBlock code={appleCode} title="Python: выделяем доходность, риск и ликвидность" />
           </div>
         </section>
+      </section>
+
+      <section className="grid items-start gap-4 lg:grid-cols-2">
+        <section className="content-block">
+          <h3 className="section-title">Полезные функции Python и pandas</h3>
+          <MathText
+            as="p"
+            text="В анализе рыночных данных особенно полезны функции round(), sorted() и методы pandas agg(), assign(), query(). Они позволяют быстро перейти от сырых наблюдений к интерпретируемой сводке."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <div className="mt-4">
+            <CodeBlock
+              code={`summary = (
+    aapl.assign(daily_range=aapl["close"] - aapl["close"].mean())
+        .agg(
+            avg_close=("close", "mean"),
+            min_close=("close", "min"),
+            max_close=("close", "max"),
+            avg_volume=("volume", "mean"),
+        )
+)
+
+print(summary.round(2))
+print(sorted(aapl["close"].tolist())[:3])`}
+              title="Python: полезные приемы сводки"
+            />
+          </div>
+        </section>
+
+        <IdeaCard title="Зачем эти функции в учебнике">
+          <p>
+            Они помогают не просто “посчитать что-нибудь”, а оформить исследование аккуратно:
+            получить сводку, добавить вычисляемый столбец и быстро отфильтровать данные по
+            условию.
+          </p>
+        </IdeaCard>
       </section>
 
       <KeyIdea title="Ключевой вывод">

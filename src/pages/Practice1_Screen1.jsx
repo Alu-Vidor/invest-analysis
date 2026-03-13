@@ -120,7 +120,7 @@ function Practice1_Screen1({ setContextNotes }) {
         subtitle="Переходим от общего экономического сюжета к строгой записи: выделяем денежные потоки, время, ограничения и показываем, как решение превращается в структуру данных."
       />
 
-      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+      <section className="grid items-start gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="content-block">
           <MathText
             as="p"
@@ -144,7 +144,7 @@ function Practice1_Screen1({ setContextNotes }) {
         </IdeaCard>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid items-start gap-4 md:grid-cols-2">
         {definitionCards.map((card) => (
           <article
             key={card.title}
@@ -194,6 +194,26 @@ function Practice1_Screen1({ setContextNotes }) {
       </PlotViewer>
 
       <section className="content-block">
+        <h3 className="section-title">Еще две важные теоретические идеи</h3>
+        <div className="mt-4 grid items-start gap-4 md:grid-cols-2">
+          <IdeaCard title="Знак потока">
+            <p>
+              В инвестиционном анализе знак имеет содержательный смысл. Отрицательный поток
+              означает выбытие денег из распоряжения инвестора, а положительный — их возврат или
+              поступление дохода.
+            </p>
+          </IdeaCard>
+          <IdeaCard title="Почему важен порядок во времени">
+            <p>
+              Два проекта с одинаковой суммой поступлений могут иметь разную ценность, если один
+              возвращает средства раньше, а другой позже. Поэтому временная структура потока
+              является частью самого объекта анализа.
+            </p>
+          </IdeaCard>
+        </div>
+      </section>
+
+      <section className="content-block">
         <h3 className="section-title">Первый шаг в Python</h3>
         <MathText
           as="p"
@@ -203,6 +223,38 @@ function Practice1_Screen1({ setContextNotes }) {
         <div className="mt-4">
           <CodeBlock code={cashFlowCode} title="Python: представляем проект как таблицу потоков" />
         </div>
+      </section>
+
+      <section className="grid items-start gap-4 lg:grid-cols-2">
+        <section className="content-block">
+          <h3 className="section-title">Полезные функции Python</h3>
+          <MathText
+            as="p"
+            text="Даже на первом экране уже полезно увидеть, что анализ строится на небольшом наборе базовых операций. В чистом Python особенно важны функции sum(), min(), max() и enumerate()."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <div className="mt-4">
+            <CodeBlock
+              code={`cash_flows = [-1200, 350, 470, 620]
+
+print(sum(cash_flows))        # сумма потоков
+print(min(cash_flows))        # минимальный поток
+print(max(cash_flows))        # максимальный поток
+
+for period, flow in enumerate(cash_flows):
+    print(period, flow)       # номер периода и значение потока`}
+              title="Python: базовые функции для чтения потока"
+            />
+          </div>
+        </section>
+
+        <IdeaCard title="Зачем это знать">
+          <p>
+            Эти функции кажутся простыми, но именно из них собирается аналитическая логика:
+            сначала мы читаем массив значений, затем ищем его границы, затем привязываем каждое
+            значение ко времени.
+          </p>
+        </IdeaCard>
       </section>
 
       <KeyIdea title="Ключевой вывод">
