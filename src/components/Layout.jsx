@@ -42,10 +42,10 @@ function LayoutContent({ practices, currentPracticeId, children }) {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.12em] text-indigo-600 dark:text-indigo-400">
-                Математическая статистика • 3 курс
+                Учебный курс
               </p>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Интерактивный учебник и лабораторный практикум
+                Математические методы инвестиционного анализа
               </h1>
             </div>
             <ThemeToggle
