@@ -1,91 +1,100 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Scale, Sigma, Target } from 'lucide-react'
+import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
+import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
+import IdeaCard from '../components/IdeaCard'
+import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
-import KeyIdea from '../components/KeyIdea'
-import ComparisonGrid from '../components/ComparisonGrid'
 import PlotViewer from '../components/PlotViewer'
-import HypothesisFlow from '../components/HypothesisFlow'
 
 const contextNotes = [
   {
-    title: 'Почему буква "H"?',
-    text: 'От английского Hypothesis. Индекс $0$ означает «ноль эффекта» или baseline. Альтернативную гипотезу иногда обозначают как $H_A$ вместо $H_1$.',
+    title: 'Временная стоимость денег',
+    text: 'Одинаковая денежная сумма в разные моменты времени неравноценна: деньги сегодня можно вложить, а деньги завтра еще только нужно дождаться.',
   },
   {
-    title: 'Односторонние и двусторонние тесты',
-    text: 'Если нас интересует любое отличие, используем двустороннюю альтернативу: $\\mu_{new} \\neq \\mu_{old}$. Если важно доказать строгое улучшение, формулируем одностороннюю альтернативу: $\\mu_{new} > \\mu_{old}$.',
+    title: 'Ставка дисконтирования',
+    text: 'Ставка отражает альтернативную доходность капитала и служит коэффициентом перевода будущих сумм в стоимость на текущий момент.',
   },
 ]
 
-const comparisonData = {
-  left: {
-    title: '$H_0$ (Null Hypothesis)',
-    sections: [
-      {
-        label: 'Академический смысл',
-        text: 'Эффекта нет. Разницы нет. Выборки совместимы с одной и той же генеральной совокупностью, а наблюдаемое отклонение объясняется случайностью.',
-      },
-      {
-        label: 'Аналогия с судом',
-        text: 'Презумпция невиновности: новый алгоритм, лекарство или дизайн считаются «неизменяющими ситуацию», пока данные не предоставят достаточно сильных улик.',
-      },
-    ],
-    formula: 'H_0: \\mu_1 = \\mu_2',
-  },
-  right: {
-    title: '$H_1$ (Alternative Hypothesis)',
-    sections: [
-      {
-        label: 'Академический смысл',
-        text: 'Эффект есть. Разница статистически значима. Данные плохо согласуются со статус-кво и указывают на реальное отличие между генеральными совокупностями.',
-      },
-      {
-        label: 'Аналогия с судом',
-        text: 'Это позиция обвинения: улик уже достаточно, чтобы отказаться от прежнего состояния мира и признать наличие эффекта.',
-      },
-    ],
-    formula: 'H_1: \\mu_1 \\neq \\mu_2',
-  },
+const factorRows = [
+  { year: 1, factor: 0.8929, future: 1.12 },
+  { year: 2, factor: 0.7972, future: 1.2544 },
+  { year: 3, factor: 0.7118, future: 1.4049 },
+  { year: 4, factor: 0.6355, future: 1.5735 },
+]
+
+const factorCode = `principal = 1_000_000
+rate = 0.12
+years = [1, 2, 3, 4]
+
+for year in years:
+    future_value = principal * (1 + rate) ** year
+    discount_factor = 1 / (1 + rate) ** year
+    print(year, round(future_value, 2), round(discount_factor, 4))`
+
+const utilityCode = `amounts = [4.8, 5.4, 6.1, 8.2]
+rate = 0.12
+
+discounted = [round(value / (1 + rate) ** year, 3) for year, value in enumerate(amounts, start=1)]
+
+print(discounted)
+print("Сумма приведенных потоков:", round(sum(discounted), 3))`
+
+function TimeValueChart() {
+  const futurePoints = factorRows
+    .map((row, index) => {
+      const x = 70 + index * 110
+      const y = 180 - (row.future / 1.6) * 110
+      return `${x},${y}`
+    })
+    .join(' ')
+
+  const discountPoints = factorRows
+    .map((row, index) => {
+      const x = 70 + index * 110
+      const y = 180 - row.factor * 110
+      return `${x},${y}`
+    })
+    .join(' ')
+
+  return (
+    <svg
+      viewBox="0 0 540 240"
+      className="h-full w-full"
+      role="img"
+      aria-label="Рост будущей стоимости и снижение коэффициента дисконтирования"
+    >
+      <line x1="45" y1="185" x2="505" y2="185" stroke="#64748b" strokeWidth="2" />
+      <polyline points={futurePoints} fill="none" stroke="#2563eb" strokeWidth="3" />
+      <polyline points={discountPoints} fill="none" stroke="#f97316" strokeWidth="3" />
+      {factorRows.map((row, index) => {
+        const x = 70 + index * 110
+        const futureY = 180 - (row.future / 1.6) * 110
+        const discountY = 180 - row.factor * 110
+
+        return (
+          <g key={row.year}>
+            <circle cx={x} cy={futureY} r="4" fill="#2563eb" />
+            <circle cx={x} cy={discountY} r="4" fill="#f97316" />
+            <text x={x} y="205" textAnchor="middle" fontSize="12" fill="#334155">
+              {row.year}
+            </text>
+          </g>
+        )
+      })}
+      <text x="350" y="36" fontSize="12" fill="#2563eb">
+        коэффициент наращения
+      </text>
+      <text x="350" y="54" fontSize="12" fill="#f97316">
+        коэффициент дисконтирования
+      </text>
+    </svg>
+  )
 }
-
-const testForms = [
-  {
-    title: 'Двусторонний тест',
-    text: 'Подходит, когда нам важно любое отличие — и рост, и падение.',
-    formula: 'H_0: \\mu = \\mu_0 \\qquad H_1: \\mu \\neq \\mu_0',
-  },
-  {
-    title: 'Правосторонний тест',
-    text: 'Используется, когда бизнес-гипотеза говорит именно о росте метрики.',
-    formula: 'H_0: \\mu \\le \\mu_0 \\qquad H_1: \\mu > \\mu_0',
-  },
-  {
-    title: 'Левосторонний тест',
-    text: 'Нужен, когда нас интересует строгое уменьшение показателя, например времени отклика.',
-    formula: 'H_0: \\mu \\ge \\mu_0 \\qquad H_1: \\mu < \\mu_0',
-  },
-]
-
-const reportTemplates = [
-  {
-    title: 'Параметрическая гипотеза',
-    text: 'Когда проверяем среднее, долю или другой параметр, нулевая гипотеза почти всегда фиксирует конкретное числовое значение.',
-    formula: 'H_0: \\theta = \\theta_0, \\qquad H_1: \\theta \\neq \\theta_0',
-  },
-  {
-    title: 'Гипотеза о распределении',
-    text: 'Когда задача касается формы выборки, гипотеза формулируется как согласие данных с выбранным законом.',
-    formula: 'H_0: F(x)=F_0(x), \\qquad H_1: F(x) \\neq F_0(x)',
-  },
-  {
-    title: 'Отчетная формулировка',
-    text: 'В академическом отчете лучше писать не общие слова, а явно указывать объект проверки и тип альтернативы.',
-    formula: 'H_0:\\ \\text{данные согласуются с нормальным распределением}',
-  },
-]
 
 function Practice2_Screen2({ setContextNotes }) {
   useEffect(() => {
@@ -95,145 +104,106 @@ function Practice2_Screen2({ setContextNotes }) {
   return (
     <article className="space-y-6">
       <CourseHeader
-        badge="Практика 2 -> ИНТУИЦИЯ"
-        title="Формулируем гипотезы: $H_0$ и $H_1$"
-        subtitle="Математическая презумпция невиновности."
+        badge="Практика 2 · Денежные потоки и дисконтирование"
+        title="Временная стоимость денег"
+        subtitle="Вводим фундаментальный принцип инвестиционного анализа: одна и та же сумма имеет разную ценность в зависимости от момента времени."
       />
 
-      <section className="content-block space-y-6">
+      <section className="content-block space-y-4">
         <MathText
           as="p"
-          text="Любой статистический тест начинается с формулировки двух взаимоисключающих утверждений. Мы не можем просто сказать алгоритму «найди инсайты». Мы должны задать строгую систему координат: что считаем статус-кво и какое именно отклонение считаем доказательством эффекта."
+          text="Если капитал можно вложить под ставку $r$, то деньги сегодня и деньги в будущем нельзя считать эквивалентными без специального пересчета. Именно это и выражает принцип временной стоимости денег."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
+        <MathText
+          as="p"
+          text="Наращение отвечает на вопрос, во что превратится текущая сумма через $t$ периодов. Дисконтирование отвечает на обратный вопрос: сколько стоит будущая сумма в момент времени $0$."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <MathBlock formula={String.raw`FV_t = PV \cdot (1+r)^t`} />
+          <MathBlock formula={String.raw`PV = \frac{FV_t}{(1+r)^t}`} />
+        </div>
+        <MathText
+          as="p"
+          text="Коэффициент $(1+r)^t$ называют коэффициентом наращения, а величину $(1+r)^{-t}$ — коэффициентом дисконтирования. Чем больше ставка и чем дальше будущий платеж, тем меньше его текущая ценность."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+      </section>
 
-        <ComparisonGrid left={comparisonData.left} right={comparisonData.right} />
-
-        <PlotViewer
-          title="Визуальная логика проверки гипотез"
-          caption="Сначала фиксируем статус-кво, затем задаём тип отклонения и только после этого переводим задачу в тестовую статистику."
-        >
-          <HypothesisFlow />
-        </PlotViewer>
-
-        <section className="grid gap-5 lg:grid-cols-3">
-          <article className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-900/70">
-            <div className="flex items-center gap-2 text-slate-900 dark:text-white">
-              <Scale size={18} />
-              <h3 className="text-base font-semibold">Шаг 1. Формулируем</h3>
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-              Явно задаем параметр интереса: среднее, долю, дисперсию или форму распределения.
-            </p>
-          </article>
-
-          <article className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-900/70">
-            <div className="flex items-center gap-2 text-slate-900 dark:text-white">
-              <Sigma size={18} />
-              <h3 className="text-base font-semibold">Шаг 2. Строим статистику</h3>
-            </div>
-            <MathText
-              as="p"
-              text="Выбираем число, которое будет измерять расхождение между данными и $H_0$."
-              className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200"
-            />
-          </article>
-
-          <article className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-900/70">
-            <div className="flex items-center gap-2 text-slate-900 dark:text-white">
-              <Target size={18} />
-              <h3 className="text-base font-semibold">Шаг 3. Сравниваем</h3>
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-              Смотрим, насколько далеко полученное значение уходит от нуля эффекта.
-            </p>
-          </article>
-        </section>
-
-        <section className="rounded-[1.5rem] border border-indigo-200 bg-indigo-50/70 p-6 dark:border-indigo-900/50 dark:bg-indigo-950/20">
-          <h3 className="text-lg font-semibold tracking-tight text-indigo-900 dark:text-indigo-200">
-            Математический шаблон проверки
-          </h3>
-          <MathText
-            as="p"
-            text="Почти любой тест можно мыслить как вычисление статистики $T(X)$ и сравнение ее с ожидаемым поведением при условии, что $H_0$ верна."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <MathBlock formula={String.raw`T(X)=\frac{\text{оценка из выборки}-\text{значение по }H_0}{\text{стандартная ошибка}}`} />
-          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-            Чем больше по модулю статистика, тем труднее объяснить данные случайным шумом.
+      <section className="grid items-start gap-4 md:grid-cols-2">
+        <IdeaCard title="Экономический смысл ставки">
+          <p>
+            Ставка $r$ — это не только банковский процент. В инвестиционном анализе она отражает
+            альтернативную доходность капитала: если деньги не вложить в проект, их можно
+            использовать в другой возможности с сопоставимым риском.
           </p>
-        </section>
+        </IdeaCard>
 
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-            Три стандартные формы альтернативы
-          </h3>
-          <div className="grid gap-4 lg:grid-cols-3">
-            {testForms.map((item) => (
-              <article
-                key={item.title}
-                className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900"
-              >
-                <h4 className="text-base font-semibold text-slate-900 dark:text-white">{item.title}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">{item.text}</p>
-                <MathBlock formula={item.formula} />
-              </article>
-            ))}
-          </div>
-        </section>
+        <IdeaCard title="Почему будущий рубль дешевле текущего">
+          <p>
+            Будущая сумма уступает текущей по двум причинам: ее нельзя использовать немедленно, и
+            ее получение сопровождается неопределенностью. Поэтому дисконтирование одновременно
+            учитывает фактор времени и цену ожидания.
+          </p>
+        </IdeaCard>
+      </section>
 
-        <section className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-700 dark:bg-slate-900">
-          <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-            Как писать гипотезу в отчете
-          </h3>
+      <ComparisonTable
+        columns={factorRows.map((row) => `Год ${row.year}`)}
+        rows={[
+          {
+            label: 'Коэффициент наращения при 12%',
+            values: factorRows.map((row) => row.future.toFixed(4)),
+          },
+          {
+            label: 'Коэффициент дисконтирования при 12%',
+            values: factorRows.map((row) => row.factor.toFixed(4)),
+            highlight: true,
+          },
+        ]}
+      />
+
+      <PlotViewer
+        title="Как меняются коэффициенты во времени"
+        caption="Коэффициент наращения растет с увеличением горизонта, а коэффициент дисконтирования убывает. Именно поэтому удаленные во времени денежные поступления имеют меньший вклад в текущую стоимость проекта."
+      >
+        <TimeValueChart />
+      </PlotViewer>
+
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Python: считаем будущую стоимость и коэффициенты</h3>
+        <MathText
+          as="p"
+          text="Ниже один и тот же капитал в 1 млн руб. переводится в будущую стоимость на горизонтах от одного до четырех лет. Одновременно выводится и коэффициент дисконтирования для каждого периода."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <ExecutablePythonBlock
+          code={factorCode}
+          title="Python: временная стоимость денег по периодам"
+          note="Измените ставку или горизонт и посмотрите, как быстро меняются коэффициенты при более дорогом капитале."
+        />
+      </section>
+
+      <section className="space-y-4">
+        <section className="content-block space-y-4">
+          <h3 className="section-title">Связь с проектным анализом</h3>
           <MathText
             as="p"
-            text="Хорошая гипотеза всегда отвечает на два вопроса: какой объект мы проверяем и что именно считаем отклонением от нормы. Ниже три академически корректных шаблона, которые понадобятся дальше в Практике 2."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+            text="Если проект приносит 4.8, 5.4, 6.1 и 8.2 млн руб. в будущие годы, то сравнивать эти поступления с первоначальными вложениями напрямую нельзя. Сначала каждый поток нужно привести к сопоставимому моменту времени."
+            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-          <div className="mt-4 grid gap-4 lg:grid-cols-3">
-            {reportTemplates.map((item) => (
-              <article
-                key={item.title}
-                className="rounded-[1.25rem] border border-slate-200 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-950/70"
-              >
-                <h4 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-900 dark:text-white">
-                  {item.title}
-                </h4>
-                <MathText
-                  as="p"
-                  text={item.text}
-                  className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200"
-                />
-                <MathBlock formula={item.formula} />
-              </article>
-            ))}
-          </div>
+          <ExecutablePythonBlock
+            code={utilityCode}
+            title="Python: первые приведенные значения потоков"
+            note="Этот фрагмент показывает, как список будущих платежей переводится в приведенные значения еще до расчета NPV."
+          />
         </section>
 
-        <details className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft open:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:open:bg-slate-900/90">
-          <summary className="cursor-pointer text-sm font-semibold uppercase tracking-[0.08em] text-slate-900 dark:text-white">
-            <MathText text="Мини-интерактив: как выбрать знак в $H_1$?" />
-          </summary>
-          <div className="mt-4 space-y-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-            <p>
-              Если заранее неважно, в какую сторону уйдет метрика, выбирайте двустороннюю
-              альтернативу. Если бизнес-цель заранее сформулирована как «увеличить» или
-              «уменьшить», можно использовать односторонний тест.
-            </p>
-            <MathText
-              as="p"
-              text="Ключевой принцип: знак в $H_1$ должен быть определен до просмотра данных, иначе тест перестает быть честным."
-            />
-          </div>
-        </details>
-
-        <KeyIdea title="Мы никогда не доказываем $H_0$.">
-          <MathText
-            as="p"
-            text="Статистический тест не выносит вердикт «нулевая гипотеза истинна». Он лишь проверяет, хватило ли улик, чтобы ее отвергнуть. Поэтому корректная формулировка всегда звучит так: либо отвергаем $H_0$, либо не отвергаем $H_0$."
-          />
+        <KeyIdea title="Ключевой вывод">
+          Временная стоимость денег — это не дополнительная техника, а центральный принцип
+          инвестиционного анализа. Без нее денежные потоки разных лет нельзя корректно складывать,
+          сравнивать и интерпретировать.
         </KeyIdea>
       </section>
 
@@ -244,13 +214,11 @@ function Practice2_Screen2({ setContextNotes }) {
         >
           Назад
         </Link>
-
         <Link
           to="/practice/2/screen/3"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          Далее: 3. Ошибки I и II рода
-          <ArrowRight size={16} />
+          Далее: 3. Операции наращения и дисконтирования
         </Link>
       </nav>
     </article>
