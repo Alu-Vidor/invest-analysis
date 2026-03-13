@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import AlertBox from '../components/AlertBox'
-import CodeBlock from '../components/CodeBlock'
+import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import IdeaCard from '../components/IdeaCard'
@@ -55,6 +55,56 @@ print("Итоговая доходность:", round(total_return, 4))
 print("Средняя дневная доходность:", round(mean_daily_return, 4))
 print("Дневная волатильность:", round(daily_volatility, 4))
 print("Максимальное дневное снижение:", round(max_daily_drop, 4))`
+
+
+const metricsCode = `metrics = {
+    "total_return": total_return,
+    "mean_daily_return": mean_daily_return,
+    "daily_volatility": daily_volatility,
+    "max_daily_drop": max_daily_drop,
+}
+
+best_day = aapl.loc[aapl["return"].idxmax(), ["date", "return"]]
+worst_day = aapl.loc[aapl["return"].idxmin(), ["date", "return"]]
+
+print({key: round(value, 4) for key, value in metrics.items()})
+print()
+print("?????? ????:", best_day.to_dict())
+print("?????? ????:", worst_day.to_dict())`
+
+const metricsPlaygroundCode = `import pandas as pd
+
+aapl = pd.DataFrame(
+    {
+        "date": pd.to_datetime([
+            "2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25",
+            "2024-01-26", "2024-01-29", "2024-01-30", "2024-01-31"
+        ]),
+        "close": [193.89, 195.18, 194.50, 194.17, 192.42, 191.73, 188.04, 184.40],
+    }
+)
+
+aapl["return"] = aapl["close"].pct_change()
+
+total_return = aapl["close"].iloc[-1] / aapl["close"].iloc[0] - 1
+mean_daily_return = aapl["return"].mean()
+daily_volatility = aapl["return"].std(ddof=1)
+max_daily_drop = aapl["return"].min()
+
+metrics = {
+    "total_return": total_return,
+    "mean_daily_return": mean_daily_return,
+    "daily_volatility": daily_volatility,
+    "max_daily_drop": max_daily_drop,
+}
+
+best_day = aapl.loc[aapl["return"].idxmax(), ["date", "return"]]
+worst_day = aapl.loc[aapl["return"].idxmin(), ["date", "return"]]
+
+print({key: round(value, 4) for key, value in metrics.items()})
+print()
+print("?????? ????:", best_day.to_dict())
+print("?????? ????:", worst_day.to_dict())`
 
 const dailyReturns = [
   { date: '23 Jan', value: 0.0067 },
@@ -150,7 +200,13 @@ function Practice1_Screen5({ setContextNotes }) {
             className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
           <div className="mt-4">
-            <CodeBlock code={miniAnalysisCode} title="Python: первый мини-анализ реального ряда" />
+                        <ExecutablePythonBlock
+              code={miniAnalysisCode}
+              title="Python: ?????? ????-?????? ????????? ????"
+              packages={['pandas']}
+              defaultOpen
+              note="???? ???? ????? ????????????? ????? ?? ????????: ????????, ???????? ????? ??????? ??? ???????? ???????? ??????????."
+            />
           </div>
         </section>
 
@@ -205,22 +261,12 @@ function Practice1_Screen5({ setContextNotes }) {
         <section className="content-block">
           <h3 className="section-title">Полезные функции Python</h3>
           <div className="mt-4">
-            <CodeBlock
-              code={`metrics = {
-    "total_return": total_return,
-    "mean_daily_return": mean_daily_return,
-    "daily_volatility": daily_volatility,
-    "max_daily_drop": max_daily_drop,
-}
-
-best_day = aapl.loc[aapl["return"].idxmax(), ["date", "return"]]
-worst_day = aapl.loc[aapl["return"].idxmin(), ["date", "return"]]
-
-print({key: round(value, 4) for key, value in metrics.items()})
-print()
-print("Лучший день:", best_day.to_dict())
-print("Худший день:", worst_day.to_dict())`}
+                        <ExecutablePythonBlock
+              code={metricsCode}
               title="Python: idxmax(), idxmin(), to_dict()"
+              playgroundCode={metricsPlaygroundCode}
+              packages={['pandas']}
+              note="??? ???????? ??????? ????????? ?????? ?????????? ??????, ????? ????? ???? ????? ?????? ?????? ? ?????? ???."
             />
           </div>
         </section>

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import CodeBlock from '../components/CodeBlock'
+import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import KeyIdea from '../components/KeyIdea'
@@ -46,6 +46,54 @@ apple_segments["services_growth"] = (
 ).round(3)
 
 print(apple_segments)`
+
+
+const servicesToolsCode = `apple_segments["services_share_pct"] = (
+    apple_segments["services_share"] * 100
+).round(1)
+
+leaders = apple_segments.sort_values("services_share_pct", ascending=False)
+recent = apple_segments.tail(2)
+later_quarters = apple_segments.query("quarter != 'Q1 FY24'")
+
+print(leaders[["quarter", "services_share_pct"]])
+print()
+print(recent)
+print()
+print(later_quarters[["quarter", "services_growth"]])`
+
+const servicesToolsPlaygroundCode = `import pandas as pd
+
+apple_segments = pd.DataFrame(
+    {
+        "quarter": ["Q1 FY24", "Q2 FY24", "Q3 FY24", "Q4 FY24"],
+        "total_revenue_billion_usd": [119.58, 90.75, 85.78, 94.93],
+        "services_revenue_billion_usd": [23.12, 23.87, 24.21, 24.97],
+    }
+)
+
+apple_segments["services_share"] = (
+    apple_segments["services_revenue_billion_usd"]
+    / apple_segments["total_revenue_billion_usd"]
+).round(3)
+
+apple_segments["services_growth"] = (
+    apple_segments["services_revenue_billion_usd"].pct_change()
+).round(3)
+
+apple_segments["services_share_pct"] = (
+    apple_segments["services_share"] * 100
+).round(1)
+
+leaders = apple_segments.sort_values("services_share_pct", ascending=False)
+recent = apple_segments.tail(2)
+later_quarters = apple_segments.query("quarter != 'Q1 FY24'")
+
+print(leaders[["quarter", "services_share_pct"]])
+print()
+print(recent)
+print()
+print(later_quarters[["quarter", "services_growth"]])`
 
 function ServicesShareChart() {
   return (
@@ -196,7 +244,12 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
             text="В Python удобно сначала собрать таблицу по кварталам, затем добавить вычисляемые столбцы. Так логика анализа остается прозрачной: мы видим исходные данные, формулу и итоговый результат в одной структуре."
             className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-          <CodeBlock code={servicesCode} title="Python: анализ сервисной выручки" />
+                    <ExecutablePythonBlock
+            code={servicesCode}
+            title="Python: ?????? ????????? ???????"
+            packages={['pandas']}
+            note="?????????? ??????????? ???? ? ????? ????? ??? ?????? ???????? ??? ???????? ????? ??????? ? ???????."
+          />
         </section>
 
         <section className="content-block space-y-4">
@@ -231,21 +284,12 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
 
         <section className="content-block space-y-4">
           <h3 className="section-title">Полезные функции Python</h3>
-          <CodeBlock
-            code={`apple_segments["services_share_pct"] = (
-    apple_segments["services_share"] * 100
-).round(1)
-
-leaders = apple_segments.sort_values("services_share_pct", ascending=False)
-recent = apple_segments.tail(2)
-later_quarters = apple_segments.query("quarter != 'Q1 FY24'")
-
-print(leaders[["quarter", "services_share_pct"]])
-print()
-print(recent)
-print()
-print(later_quarters[["quarter", "services_growth"]])`}
+                    <ExecutablePythonBlock
+            code={servicesToolsCode}
             title="Python: sort_values(), tail(), query()"
+            playgroundCode={servicesToolsPlaygroundCode}
+            packages={['pandas']}
+            note="???????? ??????? ??????? ??? ??????, ? ? ????????????? ??????? ??? ??? ???????????? ??????? `apple_segments`."
           />
         </section>
       </section>

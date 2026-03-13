@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import AlertBox from '../components/AlertBox'
-import CodeBlock from '../components/CodeBlock'
+import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import IdeaCard from '../components/IdeaCard'
@@ -56,6 +56,68 @@ print(aapl[["date", "close", "return"]].round(4))
 print()
 print("Средняя дневная доходность:", round(mean_return, 4))
 print("Дневная волатильность:", round(volatility, 4))`
+
+
+const returnsPlaygroundCode = `import pandas as pd
+
+aapl = pd.DataFrame(
+    {
+        "date": pd.to_datetime([
+            "2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25",
+            "2024-01-26", "2024-01-29", "2024-01-30", "2024-01-31"
+        ]),
+        "close": [193.89, 195.18, 194.50, 194.17, 192.42, 191.73, 188.04, 184.40],
+        "volume": [60133900, 42355600, 53631300, 54822100, 44594000, 47145600, 55859400, 55467800],
+    }
+)
+
+aapl["return"] = aapl["close"].pct_change()
+
+mean_return = aapl["return"].mean()
+volatility = aapl["return"].std(ddof=1)
+
+print(aapl[["date", "close", "return"]].round(4))
+print()
+print("??????? ??????? ??????????:", round(mean_return, 4))
+print("??????? ?????????????:", round(volatility, 4))`
+
+const returnsToolsCode = `aapl["abs_return"] = aapl["return"].abs()
+
+largest_moves = aapl.nlargest(3, "abs_return")[["date", "return", "abs_return"]]
+latest_rows = aapl.tail(3)
+summary = aapl["return"].agg(["mean", "std", "min", "max"])
+
+print(largest_moves.round(4))
+print()
+print(latest_rows.round(4))
+print()
+print(summary.round(4))`
+
+const returnsToolsPlaygroundCode = `import pandas as pd
+
+aapl = pd.DataFrame(
+    {
+        "date": pd.to_datetime([
+            "2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25",
+            "2024-01-26", "2024-01-29", "2024-01-30", "2024-01-31"
+        ]),
+        "close": [193.89, 195.18, 194.50, 194.17, 192.42, 191.73, 188.04, 184.40],
+        "volume": [60133900, 42355600, 53631300, 54822100, 44594000, 47145600, 55859400, 55467800],
+    }
+)
+
+aapl["return"] = aapl["close"].pct_change()
+aapl["abs_return"] = aapl["return"].abs()
+
+largest_moves = aapl.nlargest(3, "abs_return")[["date", "return", "abs_return"]]
+latest_rows = aapl.tail(3)
+summary = aapl["return"].agg(["mean", "std", "min", "max"])
+
+print(largest_moves.round(4))
+print()
+print(latest_rows.round(4))
+print()
+print(summary.round(4))`
 
 function PriceVolumeChart() {
   const maxPrice = Math.max(...appleSeries.map((item) => item.close))
@@ -155,7 +217,12 @@ function Practice1_Screen4({ setContextNotes }) {
             text="Ниже используется короткий фрагмент реального ряда AAPL. На нем удобно показать, как из одной и той же таблицы извлекаются сразу несколько характеристик: уровень цены, объем торгов и дальнейшие производные показатели."
             className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-          <CodeBlock code={priceCode} title="Python: загружаем реальный ценовой ряд" />
+                    <ExecutablePythonBlock
+            code={priceCode}
+            title="Python: ????????? ???????? ??????? ???"
+            packages={['pandas']}
+            note="??? ????? ????? ? ??????: ????? ???????? ???? ??? ???????? ????? ??????????, ? ????? ??????? ? ???????????."
+          />
         </section>
 
         <PlotViewer
@@ -229,24 +296,23 @@ function Practice1_Screen4({ setContextNotes }) {
             text="В коде переход от цены к доходности делается одной строкой через `pct_change()`. После этого можно сразу рассчитать среднюю дневную доходность и выборочную волатильность, не теряя связи с исходной таблицей."
             className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-          <CodeBlock code={returnsCode} title="Python: доходности и волатильность" />
+                    <ExecutablePythonBlock
+            code={returnsCode}
+            title="Python: ?????????? ? ?????????????"
+            playgroundCode={returnsPlaygroundCode}
+            packages={['pandas']}
+            note="????????? ??????? ??????? ??????? `aapl`, ? ????? ????????? ???????? ???????? ? ???????? ???????????."
+          />
         </section>
 
         <section className="content-block space-y-4">
           <h3 className="section-title">Полезные функции Python</h3>
-          <CodeBlock
-            code={`aapl["abs_return"] = aapl["return"].abs()
-
-largest_moves = aapl.nlargest(3, "abs_return")[["date", "return", "abs_return"]]
-latest_rows = aapl.tail(3)
-summary = aapl["return"].agg(["mean", "std", "min", "max"])
-
-print(largest_moves.round(4))
-print()
-print(latest_rows.round(4))
-print()
-print(summary.round(4))`}
+                    <ExecutablePythonBlock
+            code={returnsToolsCode}
             title="Python: abs(), nlargest(), tail(), agg()"
+            playgroundCode={returnsToolsPlaygroundCode}
+            packages={['pandas']}
+            note="? ????????????? ????? ??? ???????????? ? ????, ? ??????????, ??????? ????? ????? ??????????? ?????????? ???????? ? ????."
           />
         </section>
       </section>

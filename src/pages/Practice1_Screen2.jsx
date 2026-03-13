@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import CodeBlock from '../components/CodeBlock'
+import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import IdeaCard from '../components/IdeaCard'
@@ -66,6 +66,36 @@ average_volume = int(aapl["volume"].mean())
 print("Доходность периода:", round(period_return, 4))
 print("Диапазон цен:", price_range)
 print("Средний объем:", average_volume)`
+
+
+const summaryCode = `summary_frame = (
+    aapl.assign(daily_range=aapl["close"] - aapl["close"].mean())
+        [["close", "volume", "daily_range"]]
+        .agg(["mean", "min", "max"])
+)
+
+print(summary_frame.round(2))
+print(sorted(aapl["close"].tolist())[:3])`
+
+const summaryPlaygroundCode = `import pandas as pd
+
+aapl = pd.DataFrame(
+    {
+        "date": ["2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25", "2024-01-26", "2024-01-29", "2024-01-30", "2024-01-31"],
+        "close": [193.89, 195.18, 194.50, 194.17, 192.42, 191.73, 188.04, 184.40],
+        "volume": [60133900, 42355600, 53631300, 54822100, 44594000, 47145600, 55859400, 55467800],
+    }
+)
+
+summary_frame = (
+    aapl.assign(daily_range=aapl["close"] - aapl["close"].mean())
+        [["close", "volume", "daily_range"]]
+        .agg(["mean", "min", "max"])
+)
+
+print(summary_frame.round(2))
+print()
+print(sorted(aapl["close"].tolist())[:3])`
 
 function Practice1_Screen2({ setContextNotes }) {
   useEffect(() => {
@@ -202,7 +232,12 @@ function Practice1_Screen2({ setContextNotes }) {
         <section className="content-block">
           <h3 className="section-title">Python: собираем категории из реального ряда</h3>
           <div className="mt-4">
-            <CodeBlock code={appleCode} title="Python: выделяем доходность, риск и ликвидность" />
+                        <ExecutablePythonBlock
+              code={appleCode}
+              title="Python: ???????? ??????????, ???? ? ???????????"
+              packages={['pandas']}
+              note="????? ??????? ????? ???????? ???????? ??? ???????? ????? ???, ????? ???????, ??? ???????? ?????? ?? ??????????."
+            />
           </div>
         </section>
       </section>
@@ -216,20 +251,12 @@ function Practice1_Screen2({ setContextNotes }) {
             className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
           <div className="mt-4">
-            <CodeBlock
-              code={`summary = (
-    aapl.assign(daily_range=aapl["close"] - aapl["close"].mean())
-        .agg(
-            avg_close=("close", "mean"),
-            min_close=("close", "min"),
-            max_close=("close", "max"),
-            avg_volume=("volume", "mean"),
-        )
-)
-
-print(summary.round(2))
-print(sorted(aapl["close"].tolist())[:3])`}
-              title="Python: полезные приемы сводки"
+                        <ExecutablePythonBlock
+              code={summaryCode}
+              title="Python: ???????? ?????? ??????"
+              playgroundCode={summaryPlaygroundCode}
+              packages={['pandas']}
+              note="? ????????? ??? ???????? ???????? ??????? `aapl`, ??????? ????? ????? ?????????????????? ?? ???????? ??????????."
             />
           </div>
         </section>
