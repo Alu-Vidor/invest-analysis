@@ -264,7 +264,7 @@ function PracticePage({ practiceNumber, screenNumber, setContext, setContextNote
     return <Practice2_Screen8 setContextNotes={setContextNotes} />
   }
 
-  if (practiceNumber >= 3 && practiceNumber <= 6) {
+  if (practiceNumber >= 3 && practiceNumber <= 7) {
     return (
       <ComingSoonPracticeScreen
         practiceNumber={practiceNumber}
