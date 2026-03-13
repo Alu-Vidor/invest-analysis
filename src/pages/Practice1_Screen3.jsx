@@ -236,7 +236,7 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
         <ServicesShareChart />
       </PlotViewer>
 
-      <section className="grid items-start gap-4 lg:grid-cols-2">
+      <section className="space-y-4">
         <section className="content-block space-y-4">
           <h3 className="section-title">Python: считаем долю и темп роста сегмента</h3>
           <MathText
@@ -244,11 +244,11 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
             text="В Python удобно сначала собрать таблицу по кварталам, затем добавить вычисляемые столбцы. Так логика анализа остается прозрачной: мы видим исходные данные, формулу и итоговый результат в одной структуре."
             className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-                    <ExecutablePythonBlock
+          <ExecutablePythonBlock
             code={servicesCode}
-            title="Python: ?????? ????????? ???????"
+            title="Python: анализ сервисной выручки"
             packages={['pandas']}
-            note="?????????? ??????????? ???? ? ????? ????? ??? ?????? ???????? ??? ???????? ????? ??????? ? ???????."
+            note="Попробуйте пересчитать доли и темпы роста для других периодов или добавить новый квартал в таблицу."
           />
         </section>
 
@@ -267,7 +267,7 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
         </section>
       </section>
 
-      <section className="grid items-start gap-4 lg:grid-cols-2">
+      <section className="space-y-4">
         <section className="content-block space-y-4">
           <h3 className="section-title">Что важно теоретически</h3>
           <MathText
@@ -284,12 +284,12 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
 
         <section className="content-block space-y-4">
           <h3 className="section-title">Полезные функции Python</h3>
-                    <ExecutablePythonBlock
+          <ExecutablePythonBlock
             code={servicesToolsCode}
             title="Python: sort_values(), tail(), query()"
             playgroundCode={servicesToolsPlaygroundCode}
             packages={['pandas']}
-            note="???????? ??????? ??????? ??? ??????, ? ? ????????????? ??????? ??? ??? ???????????? ??????? `apple_segments`."
+            note="Короткий сниппет показан для чтения, а в интерактивном запуске ему уже подготовлена таблица `apple_segments`."
           />
         </section>
       </section>

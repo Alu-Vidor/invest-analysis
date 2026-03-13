@@ -78,8 +78,8 @@ volatility = aapl["return"].std(ddof=1)
 
 print(aapl[["date", "close", "return"]].round(4))
 print()
-print("??????? ??????? ??????????:", round(mean_return, 4))
-print("??????? ?????????????:", round(volatility, 4))`
+print("Средняя дневная доходность:", round(mean_return, 4))
+print("Дневная волатильность:", round(volatility, 4))`
 
 const returnsToolsCode = `aapl["abs_return"] = aapl["return"].abs()
 
@@ -209,7 +209,7 @@ function Practice1_Screen4({ setContextNotes }) {
         </article>
       </section>
 
-      <section className="grid items-start gap-4 lg:grid-cols-2">
+      <section className="space-y-4">
         <section className="content-block space-y-4">
           <h3 className="section-title">Реальный ряд: Apple, 22-31 января 2024 года</h3>
           <MathText
@@ -217,11 +217,11 @@ function Practice1_Screen4({ setContextNotes }) {
             text="Ниже используется короткий фрагмент реального ряда AAPL. На нем удобно показать, как из одной и той же таблицы извлекаются сразу несколько характеристик: уровень цены, объем торгов и дальнейшие производные показатели."
             className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-                    <ExecutablePythonBlock
+          <ExecutablePythonBlock
             code={priceCode}
-            title="Python: ????????? ???????? ??????? ???"
+            title="Python: загружаем реальный ценовой ряд"
             packages={['pandas']}
-            note="??? ????? ????? ? ??????: ????? ???????? ???? ??? ???????? ????? ??????????, ? ????? ??????? ? ???????????."
+            note="Это точка входа в анализ: можно изменить цены или добавить новые наблюдения, а затем перейти к доходностям."
           />
         </section>
 
@@ -288,7 +288,7 @@ function Practice1_Screen4({ setContextNotes }) {
         </IdeaCard>
       </section>
 
-      <section className="grid items-start gap-4 lg:grid-cols-2">
+      <section className="space-y-4">
         <section className="content-block space-y-4">
           <h3 className="section-title">Python: считаем доходности и волатильность</h3>
           <MathText
@@ -296,23 +296,23 @@ function Practice1_Screen4({ setContextNotes }) {
             text="В коде переход от цены к доходности делается одной строкой через `pct_change()`. После этого можно сразу рассчитать среднюю дневную доходность и выборочную волатильность, не теряя связи с исходной таблицей."
             className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-                    <ExecutablePythonBlock
+          <ExecutablePythonBlock
             code={returnsCode}
-            title="Python: ?????????? ? ?????????????"
+            title="Python: доходности и волатильность"
             playgroundCode={returnsPlaygroundCode}
             packages={['pandas']}
-            note="????????? ??????? ??????? ??????? `aapl`, ? ????? ????????? ???????? ???????? ? ???????? ???????????."
+            note="Песочница сначала создает таблицу `aapl`, а затем выполняет короткий фрагмент с расчетом доходностей."
           />
         </section>
 
         <section className="content-block space-y-4">
           <h3 className="section-title">Полезные функции Python</h3>
-                    <ExecutablePythonBlock
+          <ExecutablePythonBlock
             code={returnsToolsCode}
             title="Python: abs(), nlargest(), tail(), agg()"
             playgroundCode={returnsToolsPlaygroundCode}
             packages={['pandas']}
-            note="? ????????????? ????? ??? ???????????? ? ????, ? ??????????, ??????? ????? ????? ??????????? ?????????? ???????? ? ????."
+            note="В интерактивном блоке уже подготовлены и цены, и доходности, поэтому можно сразу исследовать наибольшие движения в ряду."
           />
         </section>
       </section>

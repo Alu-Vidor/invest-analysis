@@ -69,8 +69,8 @@ worst_day = aapl.loc[aapl["return"].idxmin(), ["date", "return"]]
 
 print({key: round(value, 4) for key, value in metrics.items()})
 print()
-print("?????? ????:", best_day.to_dict())
-print("?????? ????:", worst_day.to_dict())`
+print("Лучший день:", best_day.to_dict())
+print("Худший день:", worst_day.to_dict())`
 
 const metricsPlaygroundCode = `import pandas as pd
 
@@ -103,8 +103,8 @@ worst_day = aapl.loc[aapl["return"].idxmin(), ["date", "return"]]
 
 print({key: round(value, 4) for key, value in metrics.items()})
 print()
-print("?????? ????:", best_day.to_dict())
-print("?????? ????:", worst_day.to_dict())`
+print("Лучший день:", best_day.to_dict())
+print("Худший день:", worst_day.to_dict())`
 
 const dailyReturns = [
   { date: '23 Jan', value: 0.0067 },
@@ -191,7 +191,7 @@ function Practice1_Screen5({ setContextNotes }) {
         ]}
       />
 
-      <section className="grid items-start gap-4 lg:grid-cols-2">
+      <section className="space-y-4">
         <section className="content-block">
           <h3 className="section-title">Python: считаем ключевые показатели</h3>
           <MathText
@@ -200,12 +200,12 @@ function Practice1_Screen5({ setContextNotes }) {
             className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
           <div className="mt-4">
-                        <ExecutablePythonBlock
+            <ExecutablePythonBlock
               code={miniAnalysisCode}
-              title="Python: ?????? ????-?????? ????????? ????"
+              title="Python: первый мини-анализ реального ряда"
               packages={['pandas']}
               defaultOpen
-              note="???? ???? ????? ????????????? ????? ?? ????????: ????????, ???????? ????? ??????? ??? ???????? ???????? ??????????."
+              note="Этот блок можно редактировать прямо на странице: например, добавить новую метрику или изменить интервал наблюдения."
             />
           </div>
         </section>
@@ -227,7 +227,7 @@ function Practice1_Screen5({ setContextNotes }) {
         <ReturnsBarChart />
       </PlotViewer>
 
-      <section className="grid items-start gap-4 lg:grid-cols-2">
+      <section className="space-y-4">
         <IdeaCard title="Корректная формулировка вывода">
           <p>
             На рассматриваемом интервале акции Apple показали отрицательную итоговую доходность и
@@ -243,7 +243,7 @@ function Practice1_Screen5({ setContextNotes }) {
         </AlertBox>
       </section>
 
-      <section className="grid items-start gap-4 lg:grid-cols-2">
+      <section className="space-y-4">
         <section className="content-block">
           <h3 className="section-title">Что еще полезно сказать теоретически</h3>
           <MathText
@@ -261,12 +261,12 @@ function Practice1_Screen5({ setContextNotes }) {
         <section className="content-block">
           <h3 className="section-title">Полезные функции Python</h3>
           <div className="mt-4">
-                        <ExecutablePythonBlock
+            <ExecutablePythonBlock
               code={metricsCode}
               title="Python: idxmax(), idxmin(), to_dict()"
               playgroundCode={metricsPlaygroundCode}
               packages={['pandas']}
-              note="??? ???????? ??????? ????????? ?????? ?????????? ??????, ????? ????? ???? ????? ?????? ?????? ? ?????? ???."
+              note="Под короткий сниппет подложена полная подготовка данных, чтобы можно было сразу искать лучший и худший дни."
             />
           </div>
         </section>
