@@ -80,21 +80,41 @@ function Practice1_Screen2({ setContextNotes }) {
         subtitle="Вводим четыре базовых понятия, без которых инвестиционное решение нельзя считать полным и корректно интерпретируемым."
       />
 
-      <section className="grid items-start gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="content-block">
-          <MathText
-            as="p"
-            text="Инвестиционная альтернатива почти никогда не описывается одним показателем. Даже если известна ожидаемая доходность, необходимо учитывать риск, ликвидность и горизонт. Только в этом случае решение приобретает профессиональную полноту."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-        </section>
+      <section className="content-block space-y-4">
+        <MathText
+          as="p"
+          text="Инвестиционная альтернатива почти никогда не описывается одним показателем. Даже если известна ожидаемая доходность, необходимо учитывать риск, ликвидность и горизонт. Только в этом случае решение приобретает профессиональную полноту."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="Инвестиционный анализ уже на базовом уровне имеет многокритериальную природу. Одинаковая доходность еще не означает одинакового качества решения: важны неопределенность результата, возможность быстро выйти из позиции и соответствие выбранному горизонту."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="Поэтому профессиональный язык анализа строится не вокруг одного показателя, а вокруг системы взаимосвязанных категорий. Именно они затем переходят в математическую запись, таблицы и код."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+      </section>
 
-        <IdeaCard title="Проблема одномерного взгляда">
-          <p>
+      <section className="grid items-start gap-4 md:grid-cols-2">
+        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Проблема одномерного взгляда</h3>
+          <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
             Два актива могут дать одинаковую ожидаемую доходность, но один будет очень волатилен,
             а другой легко продаваем. Для инвестора это уже не одно и то же решение.
           </p>
-        </IdeaCard>
+        </article>
+
+        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Почему категории работают вместе</h3>
+          <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+            Доходность отвечает за результат, риск — за неопределенность, ликвидность — за условия
+            выхода, а горизонт — за временную рамку решения. Лишь вместе они дают корректную основу
+            для сравнения инвестиционных альтернатив.
+          </p>
+        </article>
       </section>
 
       <section className="grid items-start gap-4 md:grid-cols-2">

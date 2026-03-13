@@ -13,11 +13,11 @@ import PlotViewer from '../components/PlotViewer'
 const contextNotes = [
   {
     title: 'Временной ряд',
-    text: 'Это последовательность наблюдений, упорядоченных по времени. Для инвестиционного анализа временные ряды цен и доходностей являются базовым типом данных.',
+    text: 'Это последовательность наблюдений, упорядоченных по времени. Для инвестора базовыми временными рядами являются цены, доходности и объемы торгов.',
   },
   {
-    title: 'Доходность актива',
-    text: 'Доходность измеряет относительное изменение цены между двумя моментами времени. Она используется вместо абсолютного изменения, чтобы сравнивать разные активы и периоды.',
+    title: 'Воспроизводимость',
+    text: 'Аналитический результат считается воспроизводимым, если тот же код на тех же данных приводит к тем же числам и выводам.',
   },
 ]
 
@@ -110,42 +110,57 @@ function Practice1_Screen4({ setContextNotes }) {
       <CourseHeader
         badge="Практика 1 · Python и рабочая среда"
         title="Python как инструмент инвестиционного аналитика"
-        subtitle="Работаем с реальным рыночным рядом: загружаем данные Apple, считаем доходности и видим, как код соединяет таблицу, формулу и интерпретацию."
+        subtitle="Переходим от таблицы цен к воспроизводимому анализу: загружаем реальные данные Apple, строим доходности и вводим волатильность как статистическую меру риска."
       />
 
-      <section className="grid items-start gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="content-block">
-          <MathText
-            as="p"
-            text="Python в инвестиционном анализе нужен не ради самого программирования, а как единая среда для хранения данных, вычисления показателей и формулировки вывода. Это делает анализ воспроизводимым и избавляет от ручных операций."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-        </section>
+      <section className="content-block space-y-4">
+        <MathText
+          as="p"
+          text="Python нужен инвестиционному аналитику не сам по себе, а как среда, в которой данные, формулы, визуализация и вывод оказываются частями одного процесса. Это позволяет не только считать показатели, но и проверять, откуда они возникли."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="Если обозначить цену актива в момент $t$ через $P_t$, то ценовой ряд можно записать как последовательность $\\{P_t\\}_{t=1}^{n}$. Именно с такой последовательностью аналитик работает в коде: загружает ее, преобразует и затем переводит в язык доходностей."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathBlock formula={String.raw`\{P_t\}_{t=1}^{n}`} />
+      </section>
 
-        <IdeaCard title="Что такое воспроизводимость">
-          <p>
-            Результат называется воспроизводимым, если другой человек может получить те же числа и
-            выводы на тех же данных, используя тот же код.
+      <section className="grid items-start gap-4 md:grid-cols-2">
+        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-700 dark:bg-slate-900">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Временной ряд</h3>
+          <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+            Временной ряд представляет собой упорядоченную по времени последовательность
+            наблюдений. В инвестиционном анализе это могут быть цены, доходности, объемы торгов,
+            дивиденды и любые другие характеристики, меняющиеся от периода к периоду.
           </p>
-        </IdeaCard>
+        </article>
+
+        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-700 dark:bg-slate-900">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Воспроизводимость</h3>
+          <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+            Анализ считается воспроизводимым, если другой исследователь может получить те же
+            результаты на тех же данных. Для профессиональной работы это принципиально: решение
+            должно опираться не на ручные догадки, а на проверяемую цепочку вычислений.
+          </p>
+        </article>
       </section>
 
       <section className="grid items-start gap-4 lg:grid-cols-2">
-        <section className="content-block">
+        <section className="content-block space-y-4">
           <h3 className="section-title">Реальный ряд: Apple, 22-31 января 2024 года</h3>
           <MathText
             as="p"
-            text="Временной ряд — это последовательность наблюдений, упорядоченных по времени. В инвестиционном анализе базовыми примерами являются ряды цен, доходностей и объемов торгов."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+            text="Ниже используется короткий фрагмент реального ряда AAPL. На нем удобно показать, как из одной и той же таблицы извлекаются сразу несколько характеристик: уровень цены, объем торгов и дальнейшие производные показатели."
+            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-          <div className="mt-4">
-            <CodeBlock code={priceCode} title="Python: загружаем реальный ценовой ряд" />
-          </div>
+          <CodeBlock code={priceCode} title="Python: загружаем реальный ценовой ряд" />
         </section>
 
         <PlotViewer
           title="Цена и объем AAPL"
-          caption="Линия показывает цену закрытия, а серые столбцы — объем торгов. Уже на этой стадии видно, что цена и ликвидность читаются из одной и той же таблицы."
+          caption="Линия показывает цену закрытия, а серые столбцы — объем торгов. Уже на этом этапе видно, что аналитик работает не с абстрактной формулой, а с конкретной структурой наблюдений во времени."
         >
           <PriceVolumeChart />
         </PlotViewer>
@@ -166,74 +181,80 @@ function Practice1_Screen4({ setContextNotes }) {
         ]}
       />
 
-      <section className="grid items-start gap-4 lg:grid-cols-2">
-        <section className="content-block">
-          <h3 className="section-title">Переход к доходностям</h3>
-          <MathText
-            as="p"
-            text="Доходность между двумя соседними моментами времени вычисляется как относительное изменение цены. Именно эта величина удобна для дальнейшего статистического анализа."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <MathBlock formula={String.raw`r_t = \frac{P_t - P_{t-1}}{P_{t-1}}`} />
-          <div className="mt-4">
-            <CodeBlock code={returnsCode} title="Python: считаем доходности и волатильность" />
-          </div>
-        </section>
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Переход к доходностям и волатильности</h3>
+        <MathText
+          as="p"
+          text="Абсолютные уровни цен неудобны для сравнения: акция по цене 20 долларов и акция по цене 200 долларов могут двигаться одинаково в относительном смысле, но по-разному в абсолютных изменениях. Поэтому аналитик переходит от уровней $P_t$ к доходностям $r_t$."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathBlock formula={String.raw`r_t = \frac{P_t - P_{t-1}}{P_{t-1}}`} />
+        <MathText
+          as="p"
+          text="После этого можно считать среднее значение доходности и меру ее разброса. На вводном уровне именно разброс доходностей удобнее всего связывать с риском краткосрочного поведения ряда."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <MathBlock formula={String.raw`\bar{r} = \frac{1}{n} \sum_{t=1}^{n} r_t`} />
+          <MathBlock formula={String.raw`s = \sqrt{\frac{1}{n-1}\sum_{t=1}^{n}(r_t-\bar{r})^2}`} />
+        </div>
+        <MathText
+          as="p"
+          text="Здесь $\\bar{r}$ — средняя доходность выборки, а $s$ — выборочная волатильность, то есть стандартное отклонение доходностей. Именно эту величину Python вычисляет с помощью `std(ddof=1)`."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+      </section>
 
-        <section className="space-y-4">
-          <AlertBox title="Что такое волатильность">
-            Волатильностью называют статистическую меру изменчивости доходности. На вводном уровне
-            ее удобно понимать как количественное выражение неустойчивости ценовой динамики.
-          </AlertBox>
-          <IdeaCard title="Почему волатильность не равна убытку">
-            <p>
-              Высокая волатильность означает большие колебания, но не указывает заранее их
-              направление. Цена может резко расти и резко падать; обе ситуации увеличивают
-              волатильность.
-            </p>
-          </IdeaCard>
-        </section>
+      <section className="grid items-start gap-4 md:grid-cols-2">
+        <AlertBox title="Что такое волатильность">
+          Волатильность — это статистическая мера изменчивости доходности. Чем сильнее доходности
+          отклоняются от своего среднего уровня, тем выше волатильность и тем менее ровным выглядит
+          поведение актива на выбранном горизонте.
+        </AlertBox>
+
+        <IdeaCard title="Почему волатильность не равна убытку">
+          <p>
+            Высокая волатильность означает большие колебания, но не задает их направление. Ряд
+            может быть волатильным и при резком росте, и при резком снижении. Поэтому волатильность
+            интерпретируется как мера неустойчивости, а не как готовый знак плохого результата.
+          </p>
+        </IdeaCard>
       </section>
 
       <section className="grid items-start gap-4 lg:grid-cols-2">
-        <section className="content-block">
-          <h3 className="section-title">Еще немного теории о временных рядах</h3>
+        <section className="content-block space-y-4">
+          <h3 className="section-title">Python: считаем доходности и волатильность</h3>
           <MathText
             as="p"
-            text="Ряд цен сам по себе неудобен для статистического сравнения разных активов, потому что абсолютные уровни цен могут сильно различаться. Именно поэтому в анализе чаще переходят от уровней P_t к доходностям r_t."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+            text="В коде переход от цены к доходности делается одной строкой через `pct_change()`. После этого можно сразу рассчитать среднюю дневную доходность и выборочную волатильность, не теряя связи с исходной таблицей."
+            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-          <MathText
-            as="p"
-            text="После такого перехода можно сравнивать не сами цены, а относительные изменения, что делает выводы более сопоставимыми и математически осмысленными."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
+          <CodeBlock code={returnsCode} title="Python: доходности и волатильность" />
         </section>
 
-        <section className="content-block">
+        <section className="content-block space-y-4">
           <h3 className="section-title">Полезные функции Python</h3>
-          <div className="mt-4">
-            <CodeBlock
-              code={`aapl["abs_return"] = aapl["return"].abs()
+          <CodeBlock
+            code={`aapl["abs_return"] = aapl["return"].abs()
 
-top_moves = aapl.nlargest(3, "abs_return")[["date", "return", "abs_return"]]
+largest_moves = aapl.nlargest(3, "abs_return")[["date", "return", "abs_return"]]
 latest_rows = aapl.tail(3)
 summary = aapl["return"].agg(["mean", "std", "min", "max"])
 
-print(top_moves.round(4))
+print(largest_moves.round(4))
 print()
 print(latest_rows.round(4))
 print()
 print(summary.round(4))`}
-              title="Python: abs(), nlargest(), tail(), agg()"
-            />
-          </div>
+            title="Python: abs(), nlargest(), tail(), agg()"
+          />
         </section>
       </section>
 
       <KeyIdea title="Ключевой вывод">
-        Python становится инструментом аналитика тогда, когда данные рынка, формулы доходности и
-        итоговый комментарий оказываются частью одного воспроизводимого процесса.
+        Python становится рабочим инструментом аналитика тогда, когда ряд цен переводится в
+        воспроизводимую последовательность вычислений: таблица, доходности, волатильность,
+        визуализация и корректная интерпретация образуют единый аналитический контур.
       </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

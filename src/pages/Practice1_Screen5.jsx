@@ -111,23 +111,23 @@ function Practice1_Screen5({ setContextNotes }) {
         subtitle="Завершаем практику коротким, но полным разбором реального ценового ряда: считаем доходность, волатильность и формулируем корректный аналитический вывод."
       />
 
-      <section className="grid items-start gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="content-block">
-          <MathText
-            as="p"
-            text="Мини-анализ — это небольшое исследование, в котором уже присутствуют все основные стадии работы аналитика: данные, формула, расчет, визуализация и интерпретация. На учебном уровне этого достаточно, чтобы сформировать правильную структуру мышления."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <MathBlock formula={String.raw`R = \frac{P_{\mathrm{end}} - P_{\mathrm{start}}}{P_{\mathrm{start}}}`} />
-        </section>
-
-        <IdeaCard title="Что мы анализируем">
-          <p>
-            Возьмем реальные цены закрытия Apple за несколько торговых дней и посмотрим, какой
-            вывод можно сделать из короткого рыночного интервала без притворства, будто этого
-            достаточно для глобального прогноза.
-          </p>
-        </IdeaCard>
+      <section className="content-block space-y-4">
+        <MathText
+          as="p"
+          text="Мини-анализ — это небольшое исследование, в котором уже присутствуют все основные стадии работы аналитика: данные, формула, расчет, визуализация и интерпретация. На учебном уровне этого достаточно, чтобы сформировать правильную структуру мышления."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="Если цена в начале интервала обозначена через $P_{\\mathrm{start}}$, а цена в конце через $P_{\\mathrm{end}}$, то итоговая доходность периода выражается как относительное изменение стоимости. Эта запись связывает исходный ряд и итоговый аналитический вывод."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathBlock formula={String.raw`R = \frac{P_{\mathrm{end}} - P_{\mathrm{start}}}{P_{\mathrm{start}}}`} />
+        <MathText
+          as="p"
+          text="При этом учебный мини-анализ не следует подменять полноценной инвестиционной рекомендацией. Короткая выборка полезна для освоения метода, но недостаточна для серьезного заключения без более длинного горизонта и дополнительного контекста."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
       </section>
 
       <ComparisonTable

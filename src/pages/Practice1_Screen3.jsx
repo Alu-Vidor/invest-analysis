@@ -1,22 +1,21 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import AlertBox from '../components/AlertBox'
 import CodeBlock from '../components/CodeBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
-import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
+import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
 
 const contextNotes = [
   {
     title: 'Цифровая экономика',
-    text: 'Это среда, в которой существенная часть стоимости создается через цифровые платформы, сервисы, данные и сетевые эффекты.',
+    text: 'Это среда, в которой стоимость компании все чаще формируется цифровыми сервисами, платформами, данными и сетевыми эффектами.',
   },
   {
-    title: 'Сегментная отчетность',
-    text: 'Публичные компании нередко раскрывают выручку по направлениям бизнеса. Для аналитика это важный источник понимания структуры роста.',
+    title: 'Сегментный анализ',
+    text: 'Инвестор оценивает не только общий объем выручки, но и ее внутреннюю структуру: какие направления формируют более устойчивый и прогнозируемый денежный поток.',
   },
 ]
 
@@ -38,7 +37,12 @@ apple_segments = pd.DataFrame(
 )
 
 apple_segments["services_share"] = (
-    apple_segments["services_revenue_billion_usd"] / apple_segments["total_revenue_billion_usd"]
+    apple_segments["services_revenue_billion_usd"]
+    / apple_segments["total_revenue_billion_usd"]
+).round(3)
+
+apple_segments["services_growth"] = (
+    apple_segments["services_revenue_billion_usd"].pct_change()
 ).round(3)
 
 print(apple_segments)`
@@ -68,10 +72,10 @@ function ServicesShareChart() {
           </g>
         )
       })}
-      <text x="370" y="34" fontSize="12" fill="#2563eb">
+      <text x="360" y="34" fontSize="12" fill="#2563eb">
         services
       </text>
-      <text x="370" y="52" fontSize="12" fill="#64748b">
+      <text x="360" y="52" fontSize="12" fill="#64748b">
         total revenue
       </text>
     </svg>
@@ -84,7 +88,7 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
     if (setContext) {
       setContext({
         title: 'Инвестиционный анализ в цифровой экономике',
-        text: 'Цифровая экономика меняет структуру бизнеса и делает данные о сегментах, сервисах и платформах важной частью инвестиционного анализа.',
+        text: 'В цифровой экономике инвестор анализирует не только масштаб бизнеса, но и структуру выручки, повторяемость доходов и роль сервисных сегментов.',
       })
     }
   }, [setContext, setContextNotes])
@@ -94,49 +98,67 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
       <CourseHeader
         badge="Практика 1 · Основы инвестиционного анализа"
         title="Инвестиционный анализ в цифровой экономике"
-        subtitle="Показываем, как цифровые сегменты бизнеса становятся самостоятельным объектом оценки и почему структура выручки важна не меньше ее общего объема."
+        subtitle="Показываем, почему в современной компании важно анализировать не только общий объем выручки, но и ее состав, устойчивость и повторяемость."
       />
 
-      <section className="grid items-start gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="content-block">
-          <MathText
-            as="p"
-            text="В цифровой экономике стоимость компании все чаще создается не только физическими активами, но и платформами, сервисами, данными и экосистемными эффектами. Поэтому инвестиционный анализ должен учитывать не только общий объем выручки, но и ее внутреннюю структуру."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-        </section>
-
-        <IdeaCard title="Что такое сервисная выручка">
-          <p>
-            Это выручка, которую компания получает не от продажи устройства как товара, а от
-            цифровых сервисов: подписок, облачных услуг, платформенных комиссий и контента.
-          </p>
-        </IdeaCard>
+      <section className="content-block space-y-4">
+        <MathText
+          as="p"
+          text="В цифровой экономике стоимость компании все чаще создается платформами, сервисами, программными продуктами и экосистемными связями. Поэтому инвестору уже недостаточно знать только общую выручку: необходимо понимать, какая ее часть формируется более устойчивыми и повторяемыми источниками."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="Если обозначить сервисную выручку через $S_t$, а общую выручку компании через $R_t$, то ключевой характеристикой структуры бизнеса становится доля сервисного сегмента."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathBlock formula={String.raw`s_t = \frac{S_t}{R_t}`} />
+        <MathText
+          as="p"
+          text="Показатель $s_t$ не заменяет анализ абсолютных величин, но помогает увидеть, насколько заметную роль играют цифровые сервисы в формировании дохода. Если сервисная составляющая велика и устойчива, будущие денежные потоки компании обычно легче прогнозировать."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="Для динамического анализа полезно рассматривать и темп роста сервисной выручки. Он показывает, как меняется цифровой сегмент от периода к периоду и не исчерпывается простым наблюдением за уровнем продаж."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathBlock formula={String.raw`g_t = \frac{S_t - S_{t-1}}{S_{t-1}}`} />
       </section>
 
       <section className="grid items-start gap-4 md:grid-cols-2">
-        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900">
-          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Цифровой сегмент</h3>
+        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-700 dark:bg-slate-900">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Сервисная выручка</h3>
           <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-            Часть бизнеса, основанная на цифровых сервисах, программных продуктах, платформенной
-            инфраструктуре или данных пользователей.
+            Сервисной выручкой называют доходы от подписок, цифрового контента, облачных услуг,
+            платформенных комиссий и других нематериальных сервисов. В отличие от разовой продажи
+            устройства, такие поступления нередко повторяются и поэтому особенно важны для оценки
+            устойчивости бизнеса.
           </p>
         </article>
-        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900">
+
+        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-700 dark:bg-slate-900">
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">Сегментный анализ</h3>
           <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-            Анализ компании через отдельные направления ее бизнеса. Он позволяет понять, какие
-            компоненты формируют устойчивость роста и где сосредоточена ценность.
+            Сегментный анализ рассматривает компанию через отдельные направления бизнеса. Он нужен
+            затем, чтобы отделить масштаб от качества роста: одинаковая общая выручка может иметь
+            разную инвестиционную ценность, если в одном случае она формируется повторяемыми
+            сервисами, а в другом зависит от более цикличных продаж.
           </p>
         </article>
       </section>
 
-      <section className="content-block">
+      <section className="content-block space-y-4">
         <h3 className="section-title">Реальный пример: Apple, 2024 финансовый год</h3>
         <MathText
           as="p"
-          text="Apple публично раскрывает выручку сегмента Services. Для инвестиционного анализа это важно: цифровые сервисы имеют отличную структуру маржинальности и устойчивости по сравнению с продажей устройств."
-          className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          text="Apple раскрывает квартальную выручку сегмента Services в официальной отчетности. Для инвестора это важный источник информации: цифровой сегмент позволяет проверить, какова доля более регулярных доходов внутри крупной технологической компании."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="В этой задаче мы не строим полноценную оценку компании, а решаем более локальную, но содержательную подзадачу: сравниваем кварталы по абсолютной сервисной выручке и по доле $s_t = S_t / R_t$."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
 
@@ -161,64 +183,77 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
 
       <PlotViewer
         title="Доля Services в квартальной выручке Apple"
-        caption="На графике видно, что цифровой сегмент Services стабильно занимает значимую долю выручки компании. Для аналитика это сигнал, что структура бизнеса и качество источников дохода не менее важны, чем общий масштаб продаж."
+        caption="На графике видно, что сервисный сегмент занимает заметную и устойчивую долю в структуре доходов компании. Для аналитика это важнее, чем единичное число общей выручки, потому что именно структура помогает судить о качестве роста."
       >
         <ServicesShareChart />
       </PlotViewer>
 
       <section className="grid items-start gap-4 lg:grid-cols-2">
-        <section className="content-block">
-          <h3 className="section-title">Python: считаем долю цифрового сегмента</h3>
-          <div className="mt-4">
-            <CodeBlock code={servicesCode} title="Python: анализ сегментной выручки" />
-          </div>
+        <section className="content-block space-y-4">
+          <h3 className="section-title">Python: считаем долю и темп роста сегмента</h3>
+          <MathText
+            as="p"
+            text="В Python удобно сначала собрать таблицу по кварталам, затем добавить вычисляемые столбцы. Так логика анализа остается прозрачной: мы видим исходные данные, формулу и итоговый результат в одной структуре."
+            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <CodeBlock code={servicesCode} title="Python: анализ сервисной выручки" />
         </section>
 
-        <AlertBox title="Что дает такой анализ">
-          Общая выручка говорит о масштабе бизнеса, но сегментная структура показывает качество и
-          устойчивость роста. Для цифровой экономики это особенно важно, потому что платформенные и
-          сервисные доходы могут вести себя иначе, чем продажи физических товаров.
-        </AlertBox>
+        <section className="content-block space-y-4">
+          <h3 className="section-title">Как читать результат</h3>
+          <MathText
+            as="p"
+            text="Если сервисная выручка растет даже тогда, когда общая выручка колеблется, это означает, что цифровой сегмент вносит стабилизирующий вклад в бизнес-модель. Для инвестиционного анализа такое наблюдение важно, потому что устойчивые сегменты поддерживают качество будущих потоков."
+            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <MathText
+            as="p"
+            text="При этом одна только высокая доля $s_t$ еще не гарантирует инвестиционную привлекательность. Аналитик всегда связывает структуру выручки с рентабельностью, конкуренцией, темпом роста и общей стратегией компании."
+            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+        </section>
       </section>
 
       <section className="grid items-start gap-4 lg:grid-cols-2">
-        <section className="content-block">
-          <h3 className="section-title">Дополнение к теории</h3>
+        <section className="content-block space-y-4">
+          <h3 className="section-title">Что важно теоретически</h3>
           <MathText
             as="p"
-            text="Для цифровой компании рост выручки сам по себе еще не гарантирует инвестиционной силы бизнеса. Аналитик дополнительно смотрит на повторяемость дохода, долю подписочной модели, устойчивость клиентской базы и зависимость от одного сегмента."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+            text="Цифровой сегмент особенно ценен тогда, когда его доходы повторяются: подписка, облачный сервис или комиссия платформы создают не случайный разовый поток, а регулярную последовательность поступлений. В этом состоит их особая роль в инвестиционном анализе."
+            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
           <MathText
             as="p"
-            text="Чем выше доля регулярных сервисных доходов, тем легче прогнозировать будущие потоки. Именно поэтому сегментный анализ особенно важен для цифровой экономики."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+            text="Поэтому в цифровой экономике анализ структуры выручки становится инструментом принятия решений на основе данных. Он помогает отличать рост, построенный на устойчивой клиентской базе, от роста, который опирается только на временный всплеск продаж."
+            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
         </section>
 
-        <section className="content-block">
+        <section className="content-block space-y-4">
           <h3 className="section-title">Полезные функции Python</h3>
-          <div className="mt-4">
-            <CodeBlock
-              code={`apple_segments["services_share_pct"] = (
+          <CodeBlock
+            code={`apple_segments["services_share_pct"] = (
     apple_segments["services_share"] * 100
 ).round(1)
 
 leaders = apple_segments.sort_values("services_share_pct", ascending=False)
-late_quarters = apple_segments.query("quarter != 'Q1 FY24'")
+recent = apple_segments.tail(2)
+later_quarters = apple_segments.query("quarter != 'Q1 FY24'")
 
 print(leaders[["quarter", "services_share_pct"]])
 print()
-print(late_quarters.tail(2))`}
-              title="Python: sort_values(), query(), tail()"
-            />
-          </div>
+print(recent)
+print()
+print(later_quarters[["quarter", "services_growth"]])`}
+            title="Python: sort_values(), tail(), query()"
+          />
         </section>
       </section>
 
       <KeyIdea title="Ключевой вывод">
-        В цифровой экономике аналитик оценивает не только размер бизнеса, но и архитектуру его
-        доходов. Сегментная структура становится важной частью инвестиционного вывода.
+        В цифровой экономике инвестор оценивает не только масштаб бизнеса, но и архитектуру его
+        доходов. Сегментный анализ и расчет доли сервисной выручки помогают увидеть, насколько
+        устойчивыми и прогнозируемыми являются будущие денежные потоки компании.
       </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
