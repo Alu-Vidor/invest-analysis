@@ -1,78 +1,71 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import AlertBox from '../components/AlertBox'
 import CodeBlock from '../components/CodeBlock'
-import ComparisonGrid from '../components/ComparisonGrid'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
-import PlotViewer from '../components/PlotViewer'
 
 const contextNotes = [
   {
-    title: 'Категории решения',
-    text: 'Доходность отвечает на вопрос «сколько получим», риск - «насколько это устойчиво», ликвидность - «как быстро выйдем», горизонт - «когда нам нужны деньги».',
+    title: 'Четыре базовые категории',
+    text: 'Доходность показывает размер результата, риск — степень неопределенности, ликвидность — скорость выхода из позиции, горизонт — допустимую длину вложения.',
   },
   {
-    title: 'Типичная ошибка',
-    text: 'Если оценивать проекты только по доходности, можно выбрать вариант, который математически выгоден, но практически не подходит инвестору.',
+    title: 'Почему одного числа недостаточно',
+    text: 'Высокая доходность без учета риска и ликвидности может привести к формально красивому, но практически слабому решению.',
   },
 ]
 
-const projects = [
-  { name: 'A', return: 0.18, risk: 0.09, liquidity: 7, horizon: 1 },
-  { name: 'B', return: 0.25, risk: 0.21, liquidity: 45, horizon: 2 },
-  { name: 'C', return: 0.31, risk: 0.34, liquidity: 180, horizon: 4 },
+const categoryCards = [
+  {
+    title: 'Доходность',
+    text: 'Относительное изменение стоимости вложения за выбранный период. Она отвечает на вопрос, насколько эффективно использован капитал.',
+  },
+  {
+    title: 'Риск',
+    text: 'Изменчивость возможных результатов относительно ожидаемого значения. Чем выше разброс, тем менее предсказуем итог.',
+  },
+  {
+    title: 'Ликвидность',
+    text: 'Способность быстро превратить актив в деньги без существенной потери стоимости. Для рыночных инструментов она часто связана с объемом торгов.',
+  },
+  {
+    title: 'Горизонт',
+    text: 'Период, на который инвестор готов вложить средства. Оценка инструмента на недельном и пятилетнем горизонтах может различаться.',
+  },
 ]
 
-const compareCode = `import pandas as pd
+const appleJanuaryData = [
+  { date: '22 Jan', close: 193.89, volume: 60133900 },
+  { date: '23 Jan', close: 195.18, volume: 42355600 },
+  { date: '24 Jan', close: 194.50, volume: 53631300 },
+  { date: '25 Jan', close: 194.17, volume: 54822100 },
+  { date: '26 Jan', close: 192.42, volume: 44594000 },
+  { date: '29 Jan', close: 191.73, volume: 47145600 },
+  { date: '30 Jan', close: 188.04, volume: 55859400 },
+  { date: '31 Jan', close: 184.40, volume: 55467800 },
+]
 
-projects = pd.DataFrame(
+const appleCode = `import pandas as pd
+
+aapl = pd.DataFrame(
     {
-        "project": ["A", "B", "C"],
-        "expected_return": [0.18, 0.25, 0.31],
-        "risk": [0.09, 0.21, 0.34],
-        "liquidity_days": [7, 45, 180],
-        "horizon_years": [1, 2, 4],
+        "date": ["2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25", "2024-01-26", "2024-01-29", "2024-01-30", "2024-01-31"],
+        "close": [193.89, 195.18, 194.50, 194.17, 192.42, 191.73, 188.04, 184.40],
+        "volume": [60133900, 42355600, 53631300, 54822100, 44594000, 47145600, 55859400, 55467800],
     }
 )
 
-projects["return_per_unit_of_risk"] = (
-    projects["expected_return"] / projects["risk"]
-).round(2)
+period_return = aapl["close"].iloc[-1] / aapl["close"].iloc[0] - 1
+price_range = (aapl["close"].min(), aapl["close"].max())
+average_volume = int(aapl["volume"].mean())
 
-print(projects)`
-
-function RiskReturnPlot() {
-  return (
-    <svg viewBox="0 0 520 240" className="h-full w-full" role="img" aria-label="Риск и доходность проектов">
-      <line x1="60" y1="190" x2="480" y2="190" stroke="#64748b" strokeWidth="2" />
-      <line x1="60" y1="190" x2="60" y2="30" stroke="#64748b" strokeWidth="2" />
-      <text x="485" y="195" fontSize="12" fill="#475569">
-        risk
-      </text>
-      <text x="28" y="35" fontSize="12" fill="#475569">
-        return
-      </text>
-
-      {projects.map((project) => {
-        const x = 60 + project.risk * 1000
-        const y = 190 - project.return * 400
-        return (
-          <g key={project.name}>
-            <circle cx={x} cy={y} r="10" fill="#2563eb" opacity="0.85" />
-            <text x={x} y={y - 16} textAnchor="middle" fontSize="12" fill="#0f172a">
-              {project.name}
-            </text>
-          </g>
-        )
-      })}
-    </svg>
-  )
-}
+print("Доходность периода:", round(period_return, 4))
+print("Диапазон цен:", price_range)
+print("Средний объем:", average_volume)`
 
 function Practice1_Screen2({ setContextNotes }) {
   useEffect(() => {
@@ -84,115 +77,108 @@ function Practice1_Screen2({ setContextNotes }) {
       <CourseHeader
         badge="Практика 1 · Основы инвестиционного анализа"
         title="Базовые категории: доходность, риск, ликвидность, горизонт"
-        subtitle="Разбираем, по каким координатам инвестор сравнивает альтернативы и почему одного показателя здесь принципиально недостаточно."
+        subtitle="Вводим четыре базовых понятия, без которых инвестиционное решение нельзя считать полным и корректно интерпретируемым."
       />
 
       <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="content-block">
           <MathText
             as="p"
-            text="Доходность, риск, ликвидность и горизонт образуют минимальную систему координат инвестиционного решения. Если аналитик опускает хотя бы одну из них, вывод становится односторонним. Например, проект с максимальной ожидаемой доходностью $R$ может оказаться неприемлемым по риску $\sigma$ или по сроку удержания $T$."
+            text="Инвестиционная альтернатива почти никогда не описывается одним показателем. Даже если известна ожидаемая доходность, необходимо учитывать риск, ликвидность и горизонт. Только в этом случае решение приобретает профессиональную полноту."
             className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
         </section>
 
-        <IdeaCard title="Вопрос для обсуждения">
+        <IdeaCard title="Проблема одномерного взгляда">
           <p>
-            Что выберет финансовый директор: проект с доходностью 31% и горизонтом 4 года или
-            проект с доходностью 18% и горизонтом 1 год?
-          </p>
-          <p className="mt-3">
-            Ответ зависит от цели компании, цены капитала и ограничений по ликвидности. Значит,
-            решение всегда контекстно.
+            Два актива могут дать одинаковую ожидаемую доходность, но один будет очень волатилен,
+            а другой легко продаваем. Для инвестора это уже не одно и то же решение.
           </p>
         </IdeaCard>
       </section>
 
-      <ComparisonGrid
-        left={{
-          title: 'Если смотреть только на доходность',
-          sections: [
-            { label: 'Вывод', text: 'Лучшим кажется проект с наибольшим ожидаемым ростом стоимости.' },
-            { label: 'Риск', text: 'Игнорируется вероятность неблагоприятного исхода и разброс результатов.' },
-            { label: 'Практика', text: 'Такой подход может привести к переоценке агрессивных проектов.' },
-          ],
-          formula: String.raw`R = \frac{V_1 - V_0}{V_0}`,
-        }}
-        right={{
-          title: 'Если учитывать систему категорий',
-          sections: [
-            { label: 'Вывод', text: 'Проект оценивается в многомерном пространстве ограничений и целей.' },
-            { label: 'Риск', text: 'Высокая доходность сопоставляется с ценой неопределенности.' },
-            { label: 'Практика', text: 'Решение становится ближе к реальным условиям бизнеса и инвестора.' },
-          ],
-          formula: String.raw`D = g\left(R,\; \sigma,\; L,\; T\right)`,
-        }}
-      />
+      <section className="grid gap-4 md:grid-cols-2">
+        {categoryCards.map((card) => (
+          <article
+            key={card.title}
+            className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900"
+          >
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">{card.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+              {card.text}
+            </p>
+          </article>
+        ))}
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <section className="content-block">
+          <h3 className="section-title">Математическая запись</h3>
+          <MathText
+            as="p"
+            text="Доходность удобно задавать как относительное изменение стоимости. Риск на базовом уровне можно понимать как разброс возможных значений вокруг ожидаемого результата."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <MathBlock formula={String.raw`R = \frac{V_1 - V_0}{V_0}`} />
+          <MathBlock formula={String.raw`\sigma^2 = \sum_{i=1}^{m} p_i \left(r_i - \mathbb{E}[R]\right)^2`} />
+        </section>
+
+        <IdeaCard title="Как связаны категории">
+          <p>
+            Доходность без риска — неполная картина. Риск без горизонта — тоже неполная картина.
+            В инвестиционном анализе значения приобретают смысл только в системе.
+          </p>
+        </IdeaCard>
+      </section>
+
+      <section className="content-block">
+        <h3 className="section-title">Реальный пример: Apple в конце января 2024 года</h3>
+        <MathText
+          as="p"
+          text="Ниже приведен короткий реальный фрагмент торгов AAPL. На нем удобно показать, как четыре категории читаются из одних и тех же данных: доходность — по изменению цены, риск — по диапазону колебаний, ликвидность — по объему торгов, горизонт — по длине наблюдаемого интервала."
+          className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+      </section>
 
       <ComparisonTable
-        columns={projects.map((project) => project.name)}
+        columns={appleJanuaryData.map((row) => row.date)}
         rows={[
           {
-            label: 'Ожидаемая доходность',
-            values: projects.map((project) => `${(project.return * 100).toFixed(0)}%`),
-          },
-          {
-            label: 'Риск',
-            values: projects.map((project) => `${(project.risk * 100).toFixed(0)}%`),
+            label: 'Цена закрытия, USD',
+            values: appleJanuaryData.map((row) => row.close.toFixed(2)),
             highlight: true,
           },
           {
-            label: 'Ликвидность, дней',
-            values: projects.map((project) => project.liquidity),
-          },
-          {
-            label: 'Горизонт, лет',
-            values: projects.map((project) => project.horizon),
+            label: 'Объем торгов, млн акций',
+            values: appleJanuaryData.map((row) => (row.volume / 1_000_000).toFixed(1)),
           },
         ]}
       />
 
-      <PlotViewer
-        title="Карта «риск-доходность»"
-        caption="На плоскости видно, что более высокая доходность обычно достигается ценой роста риска. Эта визуализация хорошо работает в аудитории: студент сразу видит компромисс, а не просто читает о нем."
-      >
-        <RiskReturnPlot />
-      </PlotViewer>
-
       <section className="grid gap-4 lg:grid-cols-2">
+        <IdeaCard title="Как читать эти данные">
+          <p>
+            Доходность на рассматриваемом интервале оказалась отрицательной, потому что цена
+            снизилась с 193.89 до 184.40 доллара.
+          </p>
+          <p className="mt-3">
+            Риск проявляется в колебаниях внутри периода, а ликвидность — в стабильно высоком
+            обороте: каждый день торгуются десятки миллионов акций.
+          </p>
+        </IdeaCard>
+
         <section className="content-block">
-          <h3 className="section-title">Формализация категорий</h3>
-          <MathText
-            as="p"
-            text="Даже на вводном уровне важно не потерять математическую строгость. Доходность можно записать как $R = \\frac{V_1 - V_0}{V_0}$, а риск - как разброс возможных результатов вокруг ожидаемого значения."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <MathBlock formula={String.raw`\sigma^2 = \sum_{i=1}^{m} p_i \left(r_i - \mathbb{E}[R]\right)^2`} />
+          <h3 className="section-title">Python: собираем категории из реального ряда</h3>
+          <div className="mt-4">
+            <CodeBlock code={appleCode} title="Python: выделяем доходность, риск и ликвидность" />
+          </div>
         </section>
-
-        <AlertBox title="Методическое предупреждение">
-          На этом этапе не нужно притворяться, будто студент уже умеет выбирать оптимальный
-          проект по сложному критерию. Цель экрана другая: показать, что инвестиционное решение
-          принципиально многокритериально и потому требует данных и вычислений.
-        </AlertBox>
-      </section>
-
-      <section className="content-block">
-        <h3 className="section-title">Python: читаем таблицу как аналитик</h3>
-        <MathText
-          as="p"
-          text="Ниже код делает только один содержательный шаг: соединяет ключевые категории в одну таблицу и добавляет показатель $\\frac{R}{\\sigma}$ как грубую иллюстрацию компромисса между доходностью и риском."
-          className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
-        <div className="mt-4">
-          <CodeBlock code={compareCode} title="Python: сравниваем проекты по четырем категориям" />
-        </div>
       </section>
 
       <KeyIdea title="Ключевой вывод">
-        Профессиональный инвестиционный анализ начинается там, где проект перестают описывать
-        одним числом. Система категорий делает решение сопоставимым, а значит пригодным для
-        аргументации и автоматизации.
+        Доходность, риск, ликвидность и горизонт образуют минимальный понятийный каркас
+        инвестиционного анализа. Без него невозможно ни корректно читать данные, ни обосновывать
+        рекомендацию.
       </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

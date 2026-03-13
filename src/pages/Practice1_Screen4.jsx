@@ -6,81 +6,96 @@ import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
+import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
-import TaskBlock from '../components/TaskBlock'
 
 const contextNotes = [
   {
-    title: 'Зачем Python аналитику',
-    text: 'Python объединяет данные, вычисления и интерпретацию. Это делает анализ воспроизводимым и уменьшает зависимость от ручных операций.',
+    title: 'Временной ряд',
+    text: 'Это последовательность наблюдений, упорядоченных по времени. Для инвестиционного анализа временные ряды цен и доходностей являются базовым типом данных.',
   },
   {
-    title: 'Что важно педагогически',
-    text: 'Студенту нужно показывать не абстрактный стек библиотек, а конкретные рабочие шаги: загрузили данные, проверили, посчитали, объяснили результат.',
+    title: 'Доходность актива',
+    text: 'Доходность измеряет относительное изменение цены между двумя моментами времени. Она используется вместо абсолютного изменения, чтобы сравнивать разные активы и периоды.',
   },
 ]
 
-const prices = [100, 104, 103, 108, 111]
+const appleSeries = [
+  { date: '22 Jan', close: 193.89, volume: 60133900 },
+  { date: '23 Jan', close: 195.18, volume: 42355600 },
+  { date: '24 Jan', close: 194.50, volume: 53631300 },
+  { date: '25 Jan', close: 194.17, volume: 54822100 },
+  { date: '26 Jan', close: 192.42, volume: 44594000 },
+  { date: '29 Jan', close: 191.73, volume: 47145600 },
+  { date: '30 Jan', close: 188.04, volume: 55859400 },
+  { date: '31 Jan', close: 184.40, volume: 55467800 },
+]
 
-const pricesCode = `import pandas as pd
+const priceCode = `import pandas as pd
 
-prices = pd.Series(
-    [100, 104, 103, 108, 111],
-    index=pd.to_datetime(["2026-03-01", "2026-03-02", "2026-03-03", "2026-03-04", "2026-03-05"]),
-    name="price",
-)
-
-print(prices)`
-
-const returnsCode = `returns = prices.pct_change().dropna()
-
-print(returns.round(4))
-print()
-print("Средняя доходность:", round(returns.mean(), 4))
-print("Стандартное отклонение:", round(returns.std(ddof=1), 4))`
-
-const inspectCode = `summary = pd.DataFrame(
+aapl = pd.DataFrame(
     {
-        "price": prices,
-        "return": prices.pct_change(),
+        "date": pd.to_datetime([
+            "2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25",
+            "2024-01-26", "2024-01-29", "2024-01-30", "2024-01-31"
+        ]),
+        "close": [193.89, 195.18, 194.50, 194.17, 192.42, 191.73, 188.04, 184.40],
+        "volume": [60133900, 42355600, 53631300, 54822100, 44594000, 47145600, 55859400, 55467800],
     }
 )
 
-print(summary)
-print()
-print(summary.describe().round(4))`
+print(aapl.head())`
 
-function PriceLinePlot() {
-  const max = Math.max(...prices)
-  const min = Math.min(...prices)
-  const points = prices
-    .map((price, index) => {
-      const x = 60 + index * 100
-      const y = 170 - ((price - min) / (max - min || 1)) * 90
+const returnsCode = `aapl["return"] = aapl["close"].pct_change()
+
+mean_return = aapl["return"].mean()
+volatility = aapl["return"].std(ddof=1)
+
+print(aapl[["date", "close", "return"]].round(4))
+print()
+print("Средняя дневная доходность:", round(mean_return, 4))
+print("Дневная волатильность:", round(volatility, 4))`
+
+function PriceVolumeChart() {
+  const maxPrice = Math.max(...appleSeries.map((item) => item.close))
+  const minPrice = Math.min(...appleSeries.map((item) => item.close))
+  const maxVolume = Math.max(...appleSeries.map((item) => item.volume))
+
+  const pricePoints = appleSeries
+    .map((item, index) => {
+      const x = 60 + index * 55
+      const y = 110 - ((item.close - minPrice) / (maxPrice - minPrice || 1)) * 70
       return `${x},${y}`
     })
     .join(' ')
 
   return (
-    <svg viewBox="0 0 520 220" className="h-full w-full" role="img" aria-label="Динамика цены актива">
-      <line x1="40" y1="180" x2="490" y2="180" stroke="#64748b" strokeWidth="2" />
-      <polyline points={points} fill="none" stroke="#2563eb" strokeWidth="3" />
-      {prices.map((price, index) => {
-        const x = 60 + index * 100
-        const y = 170 - ((price - min) / (max - min || 1)) * 90
+    <svg viewBox="0 0 520 240" className="h-full w-full" role="img" aria-label="Цена и объем торгов Apple в конце января 2024 года">
+      <line x1="45" y1="190" x2="490" y2="190" stroke="#64748b" strokeWidth="2" />
+      <polyline points={pricePoints} fill="none" stroke="#2563eb" strokeWidth="3" />
+      {appleSeries.map((item, index) => {
+        const x = 60 + index * 55
+        const priceY = 110 - ((item.close - minPrice) / (maxPrice - minPrice || 1)) * 70
+        const volumeHeight = (item.volume / maxVolume) * 55
+        const volumeY = 180 - volumeHeight
+
         return (
-          <g key={price + index}>
-            <circle cx={x} cy={y} r="5" fill="#2563eb" />
-            <text x={x} y={200} textAnchor="middle" fontSize="12" fill="#334155">
-              D{index + 1}
-            </text>
-            <text x={x} y={y - 10} textAnchor="middle" fontSize="12" fill="#0f172a">
-              {price}
+          <g key={item.date}>
+            <rect x={x - 12} y={volumeY} width="24" height={volumeHeight} rx="6" fill="#cbd5e1" />
+            <circle cx={x} cy={priceY} r="4" fill="#2563eb" />
+            <text x={x} y="206" textAnchor="middle" fontSize="10" fill="#334155">
+              {item.date}
             </text>
           </g>
         )
       })}
+      <text x="384" y="26" fontSize="12" fill="#2563eb">
+        close price
+      </text>
+      <text x="384" y="44" fontSize="12" fill="#64748b">
+        volume
+      </text>
     </svg>
   )
 }
@@ -95,117 +110,85 @@ function Practice1_Screen4({ setContextNotes }) {
       <CourseHeader
         badge="Практика 1 · Python и рабочая среда"
         title="Python как инструмент инвестиционного аналитика"
-        subtitle="Показываем Python как рабочую среду принятия решений: от первичного ряда цен к понятным метрикам и интерпретации."
+        subtitle="Работаем с реальным рыночным рядом: загружаем данные Apple, считаем доходности и видим, как код соединяет таблицу, формулу и интерпретацию."
       />
 
       <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="content-block">
           <MathText
             as="p"
-            text="В учебной и профессиональной практике Python ценен не сам по себе, а как среда, в которой данные, формулы и выводы находятся в одном контуре. Если аналитик вычисляет доходности $r_t$, оценивает среднее и риск, а затем формулирует рекомендацию в том же сценарии, анализ становится воспроизводимым."
+            text="Python в инвестиционном анализе нужен не ради самого программирования, а как единая среда для хранения данных, вычисления показателей и формулировки вывода. Это делает анализ воспроизводимым и избавляет от ручных операций."
             className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
         </section>
 
-        <IdeaCard title="Что делаем на экране">
+        <IdeaCard title="Что такое воспроизводимость">
           <p>
-            Не перечисляем библиотеки ради библиотек, а идем по рабочему циклу аналитика:
-            загрузить ряд, получить доходности, проверить сводку и объяснить результат.
+            Результат называется воспроизводимым, если другой человек может получить те же числа и
+            выводы на тех же данных, используя тот же код.
           </p>
         </IdeaCard>
       </section>
 
-      <TaskBlock
-        title="Рабочий цикл аналитика в Python"
-        items={[
+      <section className="grid gap-4 lg:grid-cols-2">
+        <section className="content-block">
+          <h3 className="section-title">Реальный ряд: Apple, 22-31 января 2024 года</h3>
+          <MathText
+            as="p"
+            text="Временной ряд — это последовательность наблюдений, упорядоченных по времени. В инвестиционном анализе базовыми примерами являются ряды цен, доходностей и объемов торгов."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <div className="mt-4">
+            <CodeBlock code={priceCode} title="Python: загружаем реальный ценовой ряд" />
+          </div>
+        </section>
+
+        <PlotViewer
+          title="Цена и объем AAPL"
+          caption="Линия показывает цену закрытия, а серые столбцы — объем торгов. Уже на этой стадии видно, что цена и ликвидность читаются из одной и той же таблицы."
+        >
+          <PriceVolumeChart />
+        </PlotViewer>
+      </section>
+
+      <ComparisonTable
+        columns={appleSeries.map((item) => item.date)}
+        rows={[
           {
-            title: 'Шаг 1. Получить данные в явном виде',
-            content: 'Ряд цен или потоков должен быть загружен так, чтобы каждая дата и каждое значение были доступны для проверки.',
+            label: 'Цена закрытия, USD',
+            values: appleSeries.map((item) => item.close.toFixed(2)),
+            highlight: true,
           },
           {
-            title: 'Шаг 2. Построить производные показатели',
-            content: 'Из цен получить доходности, из потоков - агрегаты, из таблиц - нужные признаки.',
-          },
-          {
-            title: 'Шаг 3. Сверить вычисление с экономическим смыслом',
-            content: 'Число само по себе ничего не гарантирует. Нужно понять, что именно оно означает для решения.',
+            label: 'Объем торгов, млн акций',
+            values: appleSeries.map((item) => (item.volume / 1_000_000).toFixed(1)),
           },
         ]}
       />
 
       <section className="grid gap-4 lg:grid-cols-2">
         <section className="content-block">
-          <h3 className="section-title">Шаг 1. Загружаем ряд цен</h3>
+          <h3 className="section-title">Переход к доходностям</h3>
           <MathText
             as="p"
-            text="Начинаем с малого и прозрачного примера. Это лучше, чем сразу давать «готовый пайплайн»: студент видит, как формируется объект анализа."
+            text="Доходность между двумя соседними моментами времени вычисляется как относительное изменение цены. Именно эта величина удобна для дальнейшего статистического анализа."
             className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
+          <MathBlock formula={String.raw`r_t = \frac{P_t - P_{t-1}}{P_{t-1}}`} />
           <div className="mt-4">
-            <CodeBlock code={pricesCode} title="Python: создаем ряд цен" />
+            <CodeBlock code={returnsCode} title="Python: считаем доходности и волатильность" />
           </div>
         </section>
 
-        <PlotViewer
-          title="Ряд цен"
-          caption="Даже простая визуализация полезна: аналитик сначала смотрит на данные глазами, а уже потом переходит к вычислениям."
-        >
-          <PriceLinePlot />
-        </PlotViewer>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-2">
-        <section className="content-block">
-          <h3 className="section-title">Шаг 2. Переходим к доходностям</h3>
-          <MathText
-            as="p"
-            text="Доходность между соседними наблюдениями удобно считать по формуле $r_t = \\frac{P_t - P_{t-1}}{P_{t-1}}$. Именно так ряд цен переводится в ряд относительных изменений."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <div className="mt-4">
-            <CodeBlock code={returnsCode} title="Python: считаем доходности и риск" />
-          </div>
-        </section>
-
-        <ComparisonTable
-          columns={['D2', 'D3', 'D4', 'D5']}
-          rows={[
-            {
-              label: 'Доходность',
-              values: ['4.00%', '-0.96%', '4.85%', '2.78%'],
-              highlight: true,
-            },
-            {
-              label: 'Комментарий',
-              values: ['рост', 'коррекция', 'ускорение', 'умеренный рост'],
-            },
-          ]}
-        />
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-2">
-        <section className="content-block">
-          <h3 className="section-title">Шаг 3. Проверяем сводку</h3>
-          <MathText
-            as="p"
-            text="После вычислений важно посмотреть на объединенную таблицу и сводную статистику. Этот шаг кажется техническим, но именно он часто спасает от неверной интерпретации."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <div className="mt-4">
-            <CodeBlock code={inspectCode} title="Python: собираем сводную таблицу" />
-          </div>
-        </section>
-
-        <AlertBox title="Почему не стоит перескакивать через проверку">
-          Студенты часто хотят сразу получить финальное число. Но пропуск промежуточного контроля
-          приводит к тому, что ошибка в данных превращается в уверенный и красиво оформленный
-          неверный вывод.
+        <AlertBox title="Что такое волатильность">
+          Волатильностью называют статистическую меру изменчивости доходности. На вводном уровне ее
+          удобно понимать как количественное выражение неустойчивости ценовой динамики.
         </AlertBox>
       </section>
 
-      <KeyIdea title="Методический итог">
-        Python встроен в логику занятия тогда, когда каждый фрагмент кода соответствует отдельному
-        шагу аналитического мышления: увидели данные, преобразовали их, проверили, интерпретировали.
+      <KeyIdea title="Ключевой вывод">
+        Python становится инструментом аналитика тогда, когда данные рынка, формулы доходности и
+        итоговый комментарий оказываются частью одного воспроизводимого процесса.
       </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

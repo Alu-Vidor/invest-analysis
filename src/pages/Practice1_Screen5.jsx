@@ -4,79 +4,92 @@ import AlertBox from '../components/AlertBox'
 import CodeBlock from '../components/CodeBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
-import DatasetCard from '../components/DatasetCard'
 import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
-import TaskBlock from '../components/TaskBlock'
 
 const contextNotes = [
   {
-    title: 'Финальная цель',
-    text: 'На этом экране студент должен увидеть полный, но компактный цикл: данные, формула, код, таблица сравнения и вывод для принятия решения.',
+    title: 'Мини-анализ',
+    text: 'Под мини-анализом понимается компактный, но завершенный цикл: загрузка данных, расчет показателей, визуализация и интерпретация результата.',
   },
   {
-    title: 'Что важно в выводе',
-    text: 'Рекомендация должна быть условной: не «проект лучший вообще», а «лучший при данном горизонте, риске и ограничениях инвестора».',
+    title: 'Ограничение выборки',
+    text: 'Короткий временной интервал полезен для обучения, но не достаточен для окончательной инвестиционной рекомендации. Это тоже важная часть корректного вывода.',
   },
 ]
 
-const integratedCode = `import pandas as pd
+const appleSeries = [
+  { date: '22 Jan', close: 193.89 },
+  { date: '23 Jan', close: 195.18 },
+  { date: '24 Jan', close: 194.50 },
+  { date: '25 Jan', close: 194.17 },
+  { date: '26 Jan', close: 192.42 },
+  { date: '29 Jan', close: 191.73 },
+  { date: '30 Jan', close: 188.04 },
+  { date: '31 Jan', close: 184.40 },
+]
 
-projects = pd.DataFrame(
+const miniAnalysisCode = `import pandas as pd
+
+aapl = pd.DataFrame(
     {
-        "project": ["A", "B", "C"],
-        "purchase_price": [100, 100, 100],
-        "expected_price_next_year": [112, 118, 126],
-        "risk_score": [2.4, 5.3, 8.1],
-        "liquidity_days": [3, 20, 120],
-        "horizon_years": [1, 2, 4],
+        "date": pd.to_datetime([
+            "2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25",
+            "2024-01-26", "2024-01-29", "2024-01-30", "2024-01-31"
+        ]),
+        "close": [193.89, 195.18, 194.50, 194.17, 192.42, 191.73, 188.04, 184.40],
     }
 )
 
-projects["expected_return"] = (
-    projects["expected_price_next_year"] - projects["purchase_price"]
-) / projects["purchase_price"]
+aapl["return"] = aapl["close"].pct_change()
 
-candidate_set = projects.query("horizon_years <= 2").copy()
-candidate_set["score"] = candidate_set["expected_return"] / candidate_set["risk_score"]
+total_return = aapl["close"].iloc[-1] / aapl["close"].iloc[0] - 1
+mean_daily_return = aapl["return"].mean()
+daily_volatility = aapl["return"].std(ddof=1)
+max_daily_drop = aapl["return"].min()
 
-recommended = candidate_set.sort_values("score", ascending=False).iloc[0]
+print("Итоговая доходность:", round(total_return, 4))
+print("Средняя дневная доходность:", round(mean_daily_return, 4))
+print("Дневная волатильность:", round(daily_volatility, 4))
+print("Максимальное дневное снижение:", round(max_daily_drop, 4))`
 
-print(candidate_set[["project", "expected_return", "risk_score", "score"]].round(4))
-print()
-print("Рекомендуемый проект:", recommended["project"])`
-
-const interpretationRows = [
-  { name: 'A', return: 0.12, risk: 2.4, horizon: 1, score: 0.05 },
-  { name: 'B', return: 0.18, risk: 5.3, horizon: 2, score: 0.034 },
-  { name: 'C', return: 0.26, risk: 8.1, horizon: 4, score: 0.032 },
+const dailyReturns = [
+  { date: '23 Jan', value: 0.0067 },
+  { date: '24 Jan', value: -0.0035 },
+  { date: '25 Jan', value: -0.0017 },
+  { date: '26 Jan', value: -0.0090 },
+  { date: '29 Jan', value: -0.0036 },
+  { date: '30 Jan', value: -0.0192 },
+  { date: '31 Jan', value: -0.0194 },
 ]
 
-function ScorePlot() {
-  const bars = [
-    { label: 'A', value: 0.05 },
-    { label: 'B', value: 0.034 },
-  ]
-  const max = Math.max(...bars.map((bar) => bar.value))
+function ReturnsBarChart() {
+  const maxAbs = Math.max(...dailyReturns.map((item) => Math.abs(item.value)))
+  const zeroY = 110
 
   return (
-    <svg viewBox="0 0 520 220" className="h-full w-full" role="img" aria-label="Сравнение проектов после фильтрации">
-      <line x1="50" y1="180" x2="470" y2="180" stroke="#64748b" strokeWidth="2" />
-      {bars.map((bar, index) => {
-        const x = 120 + index * 160
-        const height = (bar.value / max) * 95
-        const y = 180 - height
+    <svg viewBox="0 0 520 220" className="h-full w-full" role="img" aria-label="Дневные доходности Apple в конце января 2024 года">
+      <line x1="40" y1={zeroY} x2="490" y2={zeroY} stroke="#64748b" strokeWidth="2" />
+      {dailyReturns.map((item, index) => {
+        const x = 55 + index * 62
+        const barHeight = (Math.abs(item.value) / maxAbs) * 70
+        const y = item.value >= 0 ? zeroY - barHeight : zeroY
+
         return (
-          <g key={bar.label}>
-            <rect x={x} y={y} width="80" height={height} rx="14" fill={index === 0 ? '#059669' : '#2563eb'} />
-            <text x={x + 40} y="200" textAnchor="middle" fontSize="12" fill="#334155">
-              {bar.label}
-            </text>
-            <text x={x + 40} y={y - 10} textAnchor="middle" fontSize="12" fill="#0f172a">
-              {bar.value.toFixed(3)}
+          <g key={item.date}>
+            <rect
+              x={x}
+              y={y}
+              width="34"
+              height={barHeight}
+              rx="10"
+              fill={item.value >= 0 ? '#059669' : '#e11d48'}
+            />
+            <text x={x + 17} y="195" textAnchor="middle" fontSize="10" fill="#334155">
+              {item.date}
             </text>
           </g>
         )
@@ -95,102 +108,89 @@ function Practice1_Screen5({ setContextNotes }) {
       <CourseHeader
         badge="Практика 1 · Python и рабочая среда"
         title="Первый мини-анализ данных в Python"
-        subtitle="Собираем все элементы вместе: данные, ограничения, формулу доходности, код сравнения и итоговую рекомендацию."
+        subtitle="Завершаем практику коротким, но полным разбором реального ценового ряда: считаем доходность, волатильность и формулируем корректный аналитический вывод."
       />
 
       <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="content-block">
           <MathText
             as="p"
-            text="Финальный экран должен показать студенту, что инвестиционный анализ - это последовательность решений. Сначала задается множество допустимых альтернатив, затем рассчитывается доходность $R_i = \\frac{P_{1,i} - P_{0,i}}{P_{0,i}}$, потом вводятся ограничения по горизонту и риску, и только после этого формулируется рекомендация."
+            text="Мини-анализ — это небольшое исследование, в котором уже присутствуют все основные стадии работы аналитика: данные, формула, расчет, визуализация и интерпретация. На учебном уровне этого достаточно, чтобы сформировать правильную структуру мышления."
             className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
-          <MathBlock formula={String.raw`R_i = \frac{P_{1,i} - P_{0,i}}{P_{0,i}}`} />
+          <MathBlock formula={String.raw`R = \frac{P_{\mathrm{end}} - P_{\mathrm{start}}}{P_{\mathrm{start}}}`} />
         </section>
 
-        <IdeaCard title="Учебная интрига">
+        <IdeaCard title="Что мы анализируем">
           <p>
-            Самая высокая ожидаемая доходность не гарантирует победу в сравнении, если проект не
-            проходит по горизонту инвестирования.
+            Возьмем реальные цены закрытия Apple за несколько торговых дней и посмотрим, какой
+            вывод можно сделать из короткого рыночного интервала без притворства, будто этого
+            достаточно для глобального прогноза.
           </p>
         </IdeaCard>
       </section>
 
-      <DatasetCard
-        title="Набор альтернатив"
-        text="Здесь уже не один проект, а портфель кандидатов. Это приближает пример к реальной задаче финансового аналитика, который почти всегда сравнивает несколько вариантов одновременно."
-        code={integratedCode}
-        codeTitle="Python: фильтруем проекты и строим рекомендацию"
-      />
-
       <ComparisonTable
-        columns={interpretationRows.map((row) => row.name)}
+        columns={appleSeries.map((item) => item.date)}
         rows={[
           {
-            label: 'Ожидаемая доходность',
-            values: interpretationRows.map((row) => `${(row.return * 100).toFixed(0)}%`),
-          },
-          {
-            label: 'Риск',
-            values: interpretationRows.map((row) => row.risk),
-          },
-          {
-            label: 'Горизонт, лет',
-            values: interpretationRows.map((row) => row.horizon),
+            label: 'Цена закрытия, USD',
+            values: appleSeries.map((item) => item.close.toFixed(2)),
             highlight: true,
           },
-          {
-            label: 'Условный score',
-            values: interpretationRows.map((row) => row.score.toFixed(3)),
-          },
         ]}
       />
-
-      <TaskBlock
-        title="Логика мини-анализа"
-        items={[
-          {
-            title: 'Ограничиваем множество решений',
-            content: 'Сначала исключаем проекты, не подходящие по горизонту инвестирования.',
-          },
-          {
-            title: 'Сравниваем допустимые альтернативы',
-            content: 'Внутри допустимого множества сопоставляем доходность и риск, а не просто ищем максимум по одной колонке.',
-          },
-          {
-            title: 'Формулируем управленческий вывод',
-            content: 'Рекомендация должна быть объяснима на языке бизнеса и привязана к условиям задачи.',
-          },
-        ]}
-      />
-
-      <PlotViewer
-        title="После фильтра по горизонту"
-        caption="На графике остаются только допустимые проекты A и B. Это полезный методический момент: студенты видят, что сначала работает ограничение, а уже потом критерий сравнения."
-      >
-        <ScorePlot />
-      </PlotViewer>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <section className="content-block">
-          <h3 className="section-title">Как озвучить вывод корректно</h3>
+          <h3 className="section-title">Python: считаем ключевые показатели</h3>
           <MathText
             as="p"
-            text="Грамотная рекомендация формулируется условно: «при ограничении $T \\leq 2$ года проект A оказывается предпочтительным по отношению доходности к риску». Такой язык важен и в академической, и в профессиональной среде."
+            text="Ниже код дает три базовые характеристики ряда: итоговую доходность периода, среднюю дневную доходность и дневную волатильность. Дополнительно фиксируется наибольшее дневное снижение."
+            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
+          />
+          <div className="mt-4">
+            <CodeBlock code={miniAnalysisCode} title="Python: первый мини-анализ реального ряда" />
+          </div>
+        </section>
+
+        <section className="content-block">
+          <h3 className="section-title">Как интерпретировать показатели</h3>
+          <MathText
+            as="p"
+            text="Итоговая доходность отражает, чем закончился интервал в целом. Средняя дневная доходность показывает среднее направление движения внутри периода. Волатильность измеряет изменчивость, а максимальное дневное снижение помогает увидеть масштаб краткосрочного неблагоприятного движения."
             className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
           />
         </section>
+      </section>
 
-        <AlertBox title="Чего не стоит говорить">
-          Нельзя писать «проект A лучший вообще». Это снимает с анализа контекст и создает ложное
-          впечатление универсальности решения. Инвестиционный вывод всегда зависит от условий.
+      <PlotViewer
+        title="Дневные доходности AAPL"
+        caption="График показывает, что внутри короткого интервала положительное движение быстро сменилось серией отрицательных доходностей. Это хороший пример того, как визуализация дополняет числовую сводку."
+      >
+        <ReturnsBarChart />
+      </PlotViewer>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <IdeaCard title="Корректная формулировка вывода">
+          <p>
+            На рассматриваемом интервале акции Apple показали отрицательную итоговую доходность и
+            заметную внутрипериодную изменчивость. Следовательно, для очень короткого горизонта
+            конец января 2024 года нельзя назвать спокойным участком ряда.
+          </p>
+        </IdeaCard>
+
+        <AlertBox title="Почему этого мало для инвестиционной рекомендации">
+          Несколько торговых дней полезны для демонстрации метода, но слишком коротки для
+          полноценного инвестиционного вывода. Корректный аналитик обязан указывать ограничения
+          выборки, а не скрывать их.
         </AlertBox>
       </section>
 
       <KeyIdea title="Итог практики 1">
-        На практике студент должен унести не только набор терминов, но и рабочую схему мышления:
-        перевести задачу в данные, рассчитать показатели, учесть ограничения, визуализировать
-        сравнение и сформулировать вывод на языке принятия решений.
+        Инвестиционный анализ как учебная дисциплина начинается с умения видеть путь от данных к
+        решению: задать объект анализа, выбрать корректные категории, загрузить реальный ряд,
+        посчитать показатели и интерпретировать их без логических натяжек.
       </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
