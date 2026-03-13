@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import CodeBlock from '../components/CodeBlock'
 import IdeaCard from '../components/IdeaCard'
 import MathBlock from '../components/MathBlock'
@@ -19,54 +19,56 @@ import Practice2_Screen8 from './Practice2_Screen8'
 
 const pageContent = {
   2: {
-    title: 'Р Р°СЃРїСЂРµРґРµР»РµРЅРёСЏ Рё РІРµСЂРѕСЏС‚РЅРѕСЃС‚Рё',
+    title: 'Распределения и вероятности',
     recap:
-      'Р Р°Р·Р±РµСЂРµРј, РєР°Рє СЌРјРїРёСЂРёС‡РµСЃРєРѕРµ СЂР°СЃРїСЂРµРґРµР»РµРЅРёРµ РїСЂРёР±Р»РёР¶Р°РµС‚СЃСЏ Рє С‚РµРѕСЂРµС‚РёС‡РµСЃРєРѕРјСѓ Рё РїРѕС‡РµРјСѓ С„РѕСЂРјР° СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РІР°Р¶РЅР° РґР»СЏ РІС‹Р±РѕСЂР° РјРµС‚РѕРґР°.',
+      'Разберем, как эмпирическое распределение приближается к теоретическому и почему форма распределения важна для выбора метода.',
     intuition:
-      'Р”Р°Р¶Рµ РµСЃР»Рё РґРІРµ РІС‹Р±РѕСЂРєРё РёРјРµСЋС‚ РѕРґРёРЅР°РєРѕРІРѕРµ СЃСЂРµРґРЅРµРµ, РёС… С…РІРѕСЃС‚С‹ Рё Р°СЃРёРјРјРµС‚СЂРёСЏ РјРѕРіСѓС‚ СЃРёР»СЊРЅРѕ РѕС‚Р»РёС‡Р°С‚СЊСЃСЏ.',
+      'Даже если две выборки имеют одинаковое среднее, их хвосты и асимметрия могут сильно отличаться.',
     formula: 'P(X = k) = {n \\choose k} p^k (1-p)^{n-k}',
     code: `import numpy as np\n\nsample = np.random.binomial(n=20, p=0.4, size=1000)\nprint(sample.mean())\nprint(sample.var(ddof=1))`,
-    keyIdea: 'РџРµСЂРµРґ РїСЂРѕРІРµСЂРєРѕР№ РіРёРїРѕС‚РµР· РІСЃРµРіРґР° СЃРјРѕС‚СЂРёС‚Рµ РЅР° С„РѕСЂРјСѓ РґР°РЅРЅС‹С…, Р° РЅРµ С‚РѕР»СЊРєРѕ РЅР° РѕРґРЅРѕ С‡РёСЃР»Рѕ.',
+    keyIdea: 'Перед проверкой гипотез всегда смотрите на форму данных, а не только на одно число.',
   },
   3: {
-    title: 'Р”РѕРІРµСЂРёС‚РµР»СЊРЅС‹Рµ РёРЅС‚РµСЂРІР°Р»С‹',
+    title: 'Доверительные интервалы',
     recap:
-      'РџРµСЂРµС…РѕРґРёРј РѕС‚ С‚РѕС‡РµС‡РЅРѕР№ РѕС†РµРЅРєРё Рє РґРёР°РїР°Р·РѕРЅСѓ Р·РЅР°С‡РµРЅРёР№, РІ РєРѕС‚РѕСЂРѕРј РїР°СЂР°РјРµС‚СЂ РЅР°С…РѕРґРёС‚СЃСЏ СЃ Р·Р°РґР°РЅРЅРѕР№ РЅР°РґРµР¶РЅРѕСЃС‚СЊСЋ.',
+      'Переходим от точечной оценки к диапазону значений, в котором параметр находится с заданной надежностью.',
     intuition:
-      'РРЅС‚РµСЂРІР°Р» СѓР¶Рµ РїСЂРё РјР°Р»РµРЅСЊРєРѕР№ РІС‹Р±РѕСЂРєРµ Рё СѓР¶Рµ РїСЂРё Р±РѕР»СЊС€РѕРј С€СѓРјРµ РґР°РЅРЅС‹С…; С€РёСЂРёРЅР° РЅРµСЃРµС‚ РІР°Р¶РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ.',
+      'Интервал уже при маленькой выборке и уже при большом шуме данных; ширина несет важную информацию.',
     formula: '\\bar{x} \\pm z_{1-\\alpha/2}\\frac{\\sigma}{\\sqrt{n}}',
     code: `import scipy.stats as st\n\nx_bar = 12.4\nsigma = 3.1\nn = 40\nz = st.norm.ppf(0.975)\nmargin = z * sigma / (n ** 0.5)\nprint(x_bar - margin, x_bar + margin)`,
-    keyIdea: 'РРЅС‚РµСЂРІР°Р» СЌС‚Рѕ С‡РµСЃС‚РЅС‹Р№ СЏР·С‹Рє РЅРµРѕРїСЂРµРґРµР»РµРЅРЅРѕСЃС‚Рё, РєРѕС‚РѕСЂС‹Р№ РґРѕРїРѕР»РЅСЏРµС‚ С‚РѕС‡РµС‡РЅСѓСЋ РѕС†РµРЅРєСѓ.',
+    keyIdea: 'Интервал это честный язык неопределенности, который дополняет точечную оценку.',
   },
   4: {
-    title: 'РџСЂРѕРІРµСЂРєР° РіРёРїРѕС‚РµР·',
+    title: 'Проверка гипотез',
     recap:
-      'Р¤РѕСЂРјСѓР»РёСЂСѓРµРј РЅСѓР»РµРІСѓСЋ Рё Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅСѓСЋ РіРёРїРѕС‚РµР·С‹ Рё РѕС†РµРЅРёРІР°РµРј, РЅР°СЃРєРѕР»СЊРєРѕ РґР°РЅРЅС‹Рµ СЃРѕРіР»Р°СЃСѓСЋС‚СЃСЏ СЃ H0.',
+      'Формулируем нулевую и альтернативную гипотезы и оцениваем, насколько данные согласуются с H0.',
     intuition:
-      'РњР°Р»РѕРµ p-value РЅРµ РґРѕРєР°Р·С‹РІР°РµС‚ H1, Р° С‚РѕР»СЊРєРѕ СѓРєР°Р·С‹РІР°РµС‚, С‡С‚Рѕ РЅР°Р±Р»СЋРґРµРЅРёРµ СЂРµРґРєРѕРµ РїСЂРё H0.',
+      'Малое p-value не доказывает H1, а только указывает, что наблюдение редкое при H0.',
     formula: 'p\\text{-value} = P(T \\ge t_{obs}\\mid H_0)',
     code: `from scipy import stats\n\nsample = [12, 13, 11, 14, 10, 13, 12]\nt_stat, p_value = stats.ttest_1samp(sample, popmean=10)\nprint(t_stat, p_value)`,
-    keyIdea: 'РЎС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРѕРµ СЂРµС€РµРЅРёРµ СЌС‚Рѕ Р±Р°Р»Р°РЅСЃ СЂРёСЃРєР° РѕС€РёР±РєРё Рё РїСЂР°РєС‚РёС‡РµСЃРєРѕР№ РёРЅС‚РµСЂРїСЂРµС‚Р°С†РёРё.',
+    keyIdea: 'Статистическое решение это баланс риска ошибки и практической интерпретации.',
   },
   5: {
-    title: 'РљРѕСЂСЂРµР»СЏС†РёСЏ Рё СЂРµРіСЂРµСЃСЃРёСЏ',
+    title: 'Корреляция и регрессия',
     recap:
-      'РР·СѓС‡Р°РµРј СЃРІСЏР·СЊ РјРµР¶РґСѓ РїРµСЂРµРјРµРЅРЅС‹РјРё Рё СЃС‚СЂРѕРёРј РїСЂРѕСЃС‚СѓСЋ Р»РёРЅРµР№РЅСѓСЋ РјРѕРґРµР»СЊ РґР»СЏ РїСЂРѕРіРЅРѕР·Р°.',
+      'Изучаем связь между переменными и строим простую линейную модель для прогноза.',
     intuition:
-      'РљРѕСЂСЂРµР»СЏС†РёСЏ РѕРїРёСЃС‹РІР°РµС‚ СЃРѕРІРјРµСЃС‚РЅРѕРµ РёР·РјРµРЅРµРЅРёРµ, РЅРѕ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РґРѕРєР°Р·Р°С‚РµР»СЊСЃС‚РІРѕРј РїСЂРёС‡РёРЅРЅРѕСЃС‚Рё.',
-    formula: 'r = \\frac{\\sum (x_i-\\bar{x})(y_i-\\bar{y})}{\\sqrt{\\sum (x_i-\\bar{x})^2 \\sum (y_i-\\bar{y})^2}}',
+      'Корреляция описывает совместное изменение, но не является доказательством причинности.',
+    formula:
+      'r = \\frac{\\sum (x_i-\\bar{x})(y_i-\\bar{y})}{\\sqrt{\\sum (x_i-\\bar{x})^2 \\sum (y_i-\\bar{y})^2}}',
     code: `import numpy as np\n\nx = np.array([1, 2, 3, 4, 5])\ny = np.array([2, 4, 5, 4, 6])\nprint(np.corrcoef(x, y)[0, 1])`,
-    keyIdea: 'Р›СЋР±Р°СЏ РјРѕРґРµР»СЊ СЃРІСЏР·Рё РґРѕР»Р¶РЅР° СЃРѕРїСЂРѕРІРѕР¶РґР°С‚СЊСЃСЏ Р°РЅР°Р»РёР·РѕРј РѕСЃС‚Р°С‚РєРѕРІ Рё РѕРіСЂР°РЅРёС‡РµРЅРёР№ РґР°РЅРЅС‹С….',
+    keyIdea: 'Любая модель связи должна сопровождаться анализом остатков и ограничений данных.',
   },
   6: {
-    title: 'РќРµРїР°СЂР°РјРµС‚СЂРёС‡РµСЃРєРёРµ РјРµС‚РѕРґС‹',
+    title: 'Непараметрические методы',
     recap:
-      'РљРѕРіРґР° РїСЂРµРґРїРѕР»РѕР¶РµРЅРёСЏ РїР°СЂР°РјРµС‚СЂРёС‡РµСЃРєРёС… С‚РµСЃС‚РѕРІ РЅРµ РІС‹РїРѕР»РЅСЏСЋС‚СЃСЏ, РёСЃРїРѕР»СЊР·СѓРµРј СЂР°РЅРіРѕРІС‹Рµ РєСЂРёС‚РµСЂРёРё.',
+      'Когда предположения параметрических тестов не выполняются, используем ранговые критерии.',
     intuition:
-      'РџРѕСЂСЏРґРѕРє РЅР°Р±Р»СЋРґРµРЅРёР№ С‡Р°СЃС‚Рѕ СѓСЃС‚РѕР№С‡РёРІРµРµ Рє РІС‹Р±СЂРѕСЃР°Рј, С‡РµРј РёС… Р°Р±СЃРѕР»СЋС‚РЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ.',
+      'Порядок наблюдений часто устойчивее к выбросам, чем их абсолютные значения.',
     formula: 'U = n_1n_2 + \\frac{n_1(n_1+1)}{2} - R_1',
     code: `from scipy.stats import mannwhitneyu\n\na = [12, 15, 14, 13, 16]\nb = [9, 11, 10, 12, 8]\nstat, p = mannwhitneyu(a, b, alternative='two-sided')\nprint(stat, p)`,
-    keyIdea: 'РќРµРїР°СЂР°РјРµС‚СЂРёС‡РµСЃРєРёРµ РєСЂРёС‚РµСЂРёРё РґР°СЋС‚ РЅР°РґРµР¶РЅС‹Р№ Р·Р°РїР°СЃРЅРѕР№ РїР»Р°РЅ РґР»СЏ СЂРµР°Р»СЊРЅС‹С…, вЂњРіСЂСЏР·РЅС‹С…вЂќ РґР°РЅРЅС‹С….',
+    keyIdea:
+      'Непараметрические критерии дают надежный запасной план для реальных, “грязных” данных.',
   },
 }
 
@@ -75,10 +77,14 @@ function GenericPractice({ id, setContext }) {
 
   const sections = useMemo(
     () => [
-      { id: 'practice-overview', title: 'Р РµРєР°Рї', note: content.recap },
-      { id: 'intuition', title: 'РРЅС‚СѓРёС†РёСЏ', note: content.intuition },
-      { id: 'python-example', title: 'РљРѕРґ', note: 'РџРѕРєР°Р¶РёС‚Рµ СЃРІСЏР·СЊ РјРµР¶РґСѓ С„РѕСЂРјСѓР»РѕР№ Рё СЂРµР°Р»РёР·Р°С†РёРµР№ РІ Python.' },
-      { id: 'key-idea', title: 'РљР»СЋС‡РµРІР°СЏ РёРґРµСЏ', note: content.keyIdea },
+      { id: 'practice-overview', title: 'Рекап', note: content.recap },
+      { id: 'intuition', title: 'Интуиция', note: content.intuition },
+      {
+        id: 'python-example',
+        title: 'Код',
+        note: 'Покажите связь между формулой и реализацией в Python.',
+      },
+      { id: 'key-idea', title: 'Ключевая идея', note: content.keyIdea },
     ],
     [content],
   )
@@ -116,7 +122,7 @@ function GenericPractice({ id, setContext }) {
     <article className="space-y-4">
       <section id="practice-overview" className="content-block">
         <p className="text-sm font-semibold uppercase tracking-[0.1em] text-indigo-600 dark:text-indigo-400">
-          РџСЂР°РєС‚РёРєР° {id}
+          Практика {id}
         </p>
         <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
           {content.title}
@@ -126,22 +132,24 @@ function GenericPractice({ id, setContext }) {
       </section>
 
       <section id="intuition" className="content-block">
-        <h3 className="section-title">РРЅС‚СѓРёС†РёСЏ</h3>
-        <p className="mt-3 leading-relaxed text-slate-600 dark:text-slate-300">{content.intuition}</p>
-        <IdeaCard title="РњРёРЅРё-РїСЂРёРјРµСЂ (РРЅС‚СѓРёС†РёСЏ)">
-          Р—РґРµСЃСЊ Р±СѓРґРµС‚ СЂР°СЃС€РёСЂРµРЅРЅС‹Р№ РєРµР№СЃ СЃ РІРёР·СѓР°Р»РёР·Р°С†РёРµР№ РЅР° СЃР»РµРґСѓСЋС‰РµРј С€Р°РіРµ СЂР°Р·СЂР°Р±РѕС‚РєРё.
+        <h3 className="section-title">Интуиция</h3>
+        <p className="mt-3 leading-relaxed text-slate-600 dark:text-slate-300">
+          {content.intuition}
+        </p>
+        <IdeaCard title="Мини-пример (Интуиция)">
+          Здесь будет расширенный кейс с визуализацией на следующем шаге разработки.
         </IdeaCard>
       </section>
 
       <section id="python-example" className="content-block">
-        <h3 className="section-title">РљРѕРґ</h3>
+        <h3 className="section-title">Код</h3>
         <div className="mt-4">
-          <CodeBlock code={content.code} title={`Python: РїСЂР°РєС‚РёРєР° ${id}`} />
+          <CodeBlock code={content.code} title={`Python: практика ${id}`} />
         </div>
       </section>
 
       <section id="key-idea" className="content-block">
-        <IdeaCard title="РљР»СЋС‡РµРІР°СЏ РёРґРµСЏ">{content.keyIdea}</IdeaCard>
+        <IdeaCard title="Ключевая идея">{content.keyIdea}</IdeaCard>
       </section>
     </article>
   )
@@ -171,7 +179,9 @@ function ComingSoonPracticeScreen({ practiceNumber, screenNumber, setContext, se
           Практика {practiceNumber}
           {screenNumber !== undefined ? ` · Экран ${screenNumber}` : ''}
         </p>
-        <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">СКОРО...</h2>
+        <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+          СКОРО...
+        </h2>
       </div>
     </article>
   )
@@ -249,4 +259,3 @@ function PracticePage({ practiceNumber, screenNumber, setContext, setContextNote
 }
 
 export default PracticePage
-
