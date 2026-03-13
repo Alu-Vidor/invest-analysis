@@ -8,88 +8,105 @@ import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import {
+  treasuryFiveYearProxyRateJan022024,
+  treasuryFiveYearSemiannualRateJan022024,
+  treasuryNotePriceProxyUsd,
+  treasuryNoteSchedule2028,
+  treasuryNoteValuationRows2028,
+} from '../data/practice2RealData'
 
 const contextNotes = [
   {
     title: 'Наращение',
-    text: 'Операция наращения переводит текущий или более ранний поток в стоимость на выбранный будущий момент времени.',
+    text: 'Наращение переводит более ранние платежи в стоимость на более позднюю дату. В задачах инвестора это удобно, когда важно понять, какой капитал сформируется к концу горизонта.',
   },
   {
     title: 'Дисконтирование',
-    text: 'Операция дисконтирования переводит будущий поток в эквивалентную стоимость на текущий момент или на любой более ранний момент времени.',
+    text: 'Дисконтирование переносит будущие денежные потоки на текущую дату. Именно так аналитик получает цену потока и сравнивает ее с исходными вложениями или рыночной ценой инструмента.',
   },
 ]
 
-const projectRows = [
-  { year: 0, cashFlow: -18.0, factor: 1.0, pv: -18.0, fv4: -28.33 },
-  { year: 1, cashFlow: 4.8, factor: 0.8929, pv: 4.29, fv4: 6.74 },
-  { year: 2, cashFlow: 5.4, factor: 0.7972, pv: 4.3, fv4: 6.77 },
-  { year: 3, cashFlow: 6.1, factor: 0.7118, pv: 4.34, fv4: 6.83 },
-  { year: 4, cashFlow: 8.2, factor: 0.6355, pv: 5.21, fv4: 8.2 },
-]
+const valuationCode = `import pandas as pd
 
-const pvCode = `import pandas as pd
+semiannual_rate = 0.0393 / 2
+cash_flows = [212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 10212.5]
 
-rate = 0.12
-project = pd.DataFrame(
+note = pd.DataFrame(
     {
-        "year": [0, 1, 2, 3, 4],
-        "cash_flow_mln": [-18.0, 4.8, 5.4, 6.1, 8.2],
+        "period": list(range(1, 9)),
+        "cash_flow_usd": cash_flows,
     }
 )
 
-project["discount_factor"] = 1 / (1 + rate) ** project["year"]
-project["present_value_mln"] = project["cash_flow_mln"] * project["discount_factor"]
-project["future_value_at_t4_mln"] = project["cash_flow_mln"] * (1 + rate) ** (4 - project["year"])
-
-print(project.round(3))
-print()
-print("Сумма приведенных значений:", round(project["present_value_mln"].sum(), 3))`
-
-const utilityCode = `rate = 0.12
-cash_flows = [-18.0, 4.8, 5.4, 6.1, 8.2]
-horizon = len(cash_flows) - 1
-
-fv_at_horizon = sum(
-    cf * (1 + rate) ** (horizon - year)
-    for year, cf in enumerate(cash_flows)
+note["discount_factor"] = 1 / (1 + semiannual_rate) ** note["period"]
+note["present_value_usd"] = note["cash_flow_usd"] * note["discount_factor"]
+note["accumulation_factor"] = (1 + semiannual_rate) ** (8 - note["period"])
+note["future_value_at_maturity_usd"] = (
+    note["cash_flow_usd"] * note["accumulation_factor"]
 )
 
-print("Будущая стоимость потока к концу горизонта:", round(fv_at_horizon, 3))`
+print(note.round(4))
+print()
+print("Price proxy:", round(note["present_value_usd"].sum(), 2))
+print("Future value at maturity:", round(note["future_value_at_maturity_usd"].sum(), 2))`
 
-function PresentValueChart() {
-  const maxAbs = Math.max(...projectRows.map((row) => Math.abs(row.cashFlow)))
+const utilityCode = `semiannual_rate = 0.0393 / 2
+cash_flows = [212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 10212.5]
+horizon = len(cash_flows)
+
+future_value = sum(
+    cf * (1 + semiannual_rate) ** (horizon - period)
+    for period, cf in enumerate(cash_flows, start=1)
+)
+
+print("Future value:", round(future_value, 2))`
+
+function BondValuationChart() {
+  const maxValue = Math.max(...treasuryNoteValuationRows2028.map((row) => row.cashFlowUsd))
 
   return (
     <svg
-      viewBox="0 0 540 240"
+      viewBox="0 0 640 270"
       className="h-full w-full"
       role="img"
-      aria-label="Сравнение номинальных и приведенных потоков"
+      aria-label="Сравнение номинальных и приведенных значений платежей по казначейской ноте"
     >
-      <line x1="40" y1="185" x2="510" y2="185" stroke="#64748b" strokeWidth="2" />
-      {projectRows.map((row, index) => {
-        const x = 58 + index * 88
-        const nominalHeight = (Math.abs(row.cashFlow) / maxAbs) * 86
-        const pvHeight = (Math.abs(row.pv) / maxAbs) * 86
-        const nominalY = row.cashFlow >= 0 ? 185 - nominalHeight : 185
-        const pvY = row.pv >= 0 ? 185 - pvHeight : 185
+      <line x1="48" y1="210" x2="600" y2="210" stroke="#64748b" strokeWidth="2" />
+      {treasuryNoteValuationRows2028.map((row, index) => {
+        const baseX = 68 + index * 66
+        const nominalHeight = (row.cashFlowUsd / maxValue) * 145
+        const pvHeight = (row.presentValueUsd / maxValue) * 145
 
         return (
-          <g key={row.year}>
-            <rect x={x} y={nominalY} width="20" height={nominalHeight} rx="6" fill="#cbd5e1" />
-            <rect x={x + 24} y={pvY} width="20" height={pvHeight} rx="6" fill="#2563eb" />
-            <text x={x + 22} y="208" textAnchor="middle" fontSize="12" fill="#334155">
-              t={row.year}
+          <g key={row.period}>
+            <rect
+              x={baseX}
+              y={210 - nominalHeight}
+              width="16"
+              height={nominalHeight}
+              rx="6"
+              fill="#cbd5e1"
+            />
+            <rect
+              x={baseX + 22}
+              y={210 - pvHeight}
+              width="16"
+              height={pvHeight}
+              rx="6"
+              fill="#2563eb"
+            />
+            <text x={baseX + 19} y="232" textAnchor="middle" fontSize="11" fill="#334155">
+              {row.period}
             </text>
           </g>
         )
       })}
-      <text x="350" y="34" fontSize="12" fill="#64748b">
+      <text x="400" y="30" fontSize="12" fill="#64748b">
         номинальный поток
       </text>
-      <text x="350" y="52" fontSize="12" fill="#2563eb">
-        приведенный поток
+      <text x="400" y="48" fontSize="12" fill="#2563eb">
+        приведенное значение
       </text>
     </svg>
   )
@@ -105,105 +122,116 @@ function Practice2_Screen3({ setContextNotes }) {
       <CourseHeader
         badge="Практика 2 · Денежные потоки и дисконтирование"
         title="Операции наращения и дисконтирования"
-        subtitle="Учимся переводить отдельные платежи и целые потоки к единой точке времени, чтобы сравнение инвестиционных альтернатив стало математически корректным."
+        subtitle="Применяем формулы к реальному потоку купонной ноты: оцениваем ее стоимость на дату 2 января 2024 года и одновременно смотрим, какой капитал сформируется к моменту погашения при реинвестировании купонов."
       />
 
       <section className="content-block space-y-4">
         <MathText
           as="p"
-          text="Если денежный поток состоит из нескольких платежей, то каждый из них можно перенести либо в начальный момент времени, либо в конец горизонта. Эти операции симметричны и используют одну и ту же ставку, но отвечают на разные аналитические вопросы."
+          text="Если поток состоит из нескольких платежей, каждая сумма переносится во времени отдельно. Для купонной ноты с полугодовыми выплатами удобнее работать с периодической ставкой $i = \\frac{y}{2}$, где $y$ - годовая рыночная доходность по близкому сроку."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
-        <div className="grid gap-4 lg:grid-cols-2">
-          <MathBlock formula={String.raw`PV = \sum_{t=0}^{n} \frac{CF_t}{(1+r)^t}`} />
-          <MathBlock formula={String.raw`FV_T = \sum_{t=0}^{n} CF_t (1+r)^{T-t}`} />
-        </div>
+        <MathBlock formula={String.raw`PV_0 = \sum_{k=1}^{n} \frac{CF_k}{(1+i)^k}`} />
+        <MathBlock formula={String.raw`FV_n = \sum_{k=1}^{n} CF_k (1+i)^{n-k}`} />
         <MathText
           as="p"
-          text="Формула приведенной стоимости отвечает на вопрос, сколько поток стоит сегодня. Формула будущей стоимости отвечает на вопрос, во что превратится весь поток к выбранному моменту $T$, если каждый платеж можно реинвестировать под ставку $r$."
+          text={`В примере используем доходность 5-летних Treasury ${(
+            treasuryFiveYearProxyRateJan022024 * 100
+          ).toFixed(2)}% годовых на 2 января 2024 года как рыночный ориентир для четырехлетней ноты. Тогда полугодовая ставка составляет ${(
+            treasuryFiveYearSemiannualRateJan022024 * 100
+          ).toFixed(3)}%.`}
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
 
-      <section className="grid items-start gap-4 md:grid-cols-2">
-        <IdeaCard title="Когда используют приведенную стоимость">
-          <p>
-            Приведенная стоимость нужна тогда, когда проект сравнивают с первоначальными
-            вложениями, бюджетом инвестора или альтернативной возможностью вложить деньги уже
-            сегодня.
-          </p>
-        </IdeaCard>
-
-        <IdeaCard title="Когда используют будущую стоимость">
-          <p>
-            Будущая стоимость полезна, если нужно понять итоговый капитал на конце горизонта:
-            например, сколько средств проект или платежный план сформирует через несколько лет.
-          </p>
-        </IdeaCard>
-      </section>
+      <IdeaCard title="Почему здесь важна согласованность периода">
+        <p>
+          Нельзя дисконтировать полугодовой поток годовой ставкой без приведения к единому шагу. Если платежи идут
+          раз в полгода, то и ставка в формуле должна быть полугодовой. Это простое правило часто игнорируют в
+          черновых расчетах, но именно оно отделяет корректную финансовую математику от приблизительных оценок.
+        </p>
+      </IdeaCard>
 
       <ComparisonTable
-        columns={projectRows.map((row) => `Год ${row.year}`)}
+        columns={treasuryNoteValuationRows2028.map((row) => `k=${row.period}`)}
         rows={[
           {
-            label: 'Чистый поток, млн руб.',
-            values: projectRows.map((row) => row.cashFlow.toFixed(2)),
+            label: 'Дата платежа',
+            values: treasuryNoteSchedule2028.map((row) => row.date),
+          },
+          {
+            label: 'Номинальный поток, USD',
+            values: treasuryNoteValuationRows2028.map((row) => row.cashFlowUsd.toFixed(2)),
           },
           {
             label: 'Коэффициент дисконтирования',
-            values: projectRows.map((row) => row.factor.toFixed(4)),
+            values: treasuryNoteValuationRows2028.map((row) => row.discountFactor.toFixed(4)),
           },
           {
-            label: 'Приведенное значение, млн руб.',
-            values: projectRows.map((row) => row.pv.toFixed(2)),
+            label: 'Приведенное значение, USD',
+            values: treasuryNoteValuationRows2028.map((row) => row.presentValueUsd.toFixed(2)),
             highlight: true,
           },
         ]}
       />
 
       <PlotViewer
-        title="Номинальные и приведенные значения потока"
-        caption="Положительные будущие потоки после дисконтирования становятся меньше, поскольку их ценность переносится в текущий момент. Это и есть количественное выражение временной стоимости денег."
+        title="Как номинальные платежи превращаются в стоимость"
+        caption="Серые столбцы показывают исходные суммы, синие - их приведенные значения. Последний платеж остается самым крупным вкладом в цену бумаги, но после дисконтирования он уже существенно меньше своего номинала."
       >
-        <PresentValueChart />
+        <BondValuationChart />
       </PlotViewer>
 
       <section className="content-block space-y-4">
-        <h3 className="section-title">Python: считаем приведенную и будущую стоимость</h3>
+        <h3 className="section-title">Интерпретация результата</h3>
         <MathText
           as="p"
-          text="Ниже один и тот же проект одновременно переводится в приведенные значения и в стоимость на конец горизонта. Такой расчет позволяет увидеть, что операция зависит не только от суммы потока, но и от того, в каком именно году он возникает."
+          text={`Сумма приведенных значений дает расчетную цену потока около ${treasuryNotePriceProxyUsd.toFixed(
+            2
+          )} USD за номинал 10 000 USD. Цена оказывается выше номинала, потому что купонная ставка 4.25% немного выше используемой рыночной доходности 3.93%.`}
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="Это важный профессиональный вывод: цена актива определяется не только календарем платежей, но и сравнением внутренних условий контракта с текущей рыночной нормой доходности. Именно отсюда возникает премия к номиналу или дисконт."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+      </section>
+
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Python: полный расчет PV и FV по реальной ноте</h3>
+        <MathText
+          as="p"
+          text="В коде ниже одна таблица одновременно решает две задачи: вычисляет цену потока на дату оценки и наращивает те же платежи к моменту погашения. Такой формат особенно полезен в преподавании, потому что все промежуточные коэффициенты остаются видимыми."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <ExecutablePythonBlock
-          code={pvCode}
-          title="Python: дисконтирование и наращение потока"
+          code={valuationCode}
+          title="Python: дисконтирование и наращение купонной ноты"
           packages={['pandas']}
-          note="Попробуйте изменить ставку и сравнить, как при более дорогом капитале уменьшается приведенная стоимость поздних поступлений."
+          note="Если изменить рыночную доходность, вы сразу увидите, как меняется и цена бумаги, и будущая стоимость потока при реинвестировании. Это хороший способ почувствовать связь между ставкой и оценкой."
         />
       </section>
 
-      <section className="space-y-4">
-        <section className="content-block space-y-4">
-          <h3 className="section-title">Отдельная операция наращения</h3>
-          <MathText
-            as="p"
-            text="Если задача формулируется как накопление капитала к концу горизонта, удобно сразу работать с будущей стоимостью всего потока. Это частый вопрос в задачах резервирования, накопления и финансового планирования."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <ExecutablePythonBlock
-            code={utilityCode}
-            title="Python: будущая стоимость всего потока"
-            note="Фрагмент полезен для задач, где аналитика интересует итоговый капитал в конце горизонта, а не стоимость проекта на старте."
-          />
-        </section>
-
-        <KeyIdea title="Ключевой вывод">
-          Наращение и дисконтирование — это две стороны одной и той же операции перевода денег во
-          времени. Выбор между ними определяется не формулой, а постановкой управленческого
-          вопроса: сравниваем стоимость сегодня или капитал на конце горизонта.
-        </KeyIdea>
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Полезная функция Python для потоков</h3>
+        <MathText
+          as="p"
+          text="Генераторные выражения внутри `sum()` позволяют компактно записывать финансовые формулы почти в том же виде, что и в математике. Это делает код не просто коротким, а концептуально прозрачным: студент видит прямое соответствие между суммой по периодам и программной реализацией."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <ExecutablePythonBlock
+          code={utilityCode}
+          title="Python: sum() и генераторное выражение"
+          note="Здесь наращение всего потока записано одной суммой по периодам. Такой прием потом легко переносится на аннуитеты, кредиты и проектные платежные схемы."
+        />
       </section>
+
+      <KeyIdea title="Ключевой вывод">
+        Наращение и дисконтирование - это две зеркальные операции перевода потока во времени. Выбор зависит не от
+        формулы как таковой, а от вопроса аналитика: нужна стоимость потока сегодня или итоговый капитал на
+        выбранную дату в будущем.
+      </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link

@@ -8,82 +8,102 @@ import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import {
+  freddieMortgageRatesJan042024,
+  interestOnlyMortgageBenchmarkJan042024,
+  mortgageBenchmarksJan042024,
+  mortgagePrincipalUsd,
+} from '../data/practice2RealData'
 
 const contextNotes = [
   {
     title: 'Аннуитет',
-    text: 'Аннуитетом называют последовательность равных платежей через равные интервалы времени. В инвестиционном анализе он возникает в кредитах, аренде, подписках и сервисных контрактах.',
+    text: 'Аннуитетом называют последовательность равных платежей через равные промежутки времени. В финансах это базовая модель для кредитов, аренды и многих сервисных контрактов.',
   },
   {
     title: 'Платежная схема',
-    text: 'Даже при одинаковой сумме долга и ставке разные схемы платежей по-разному распределяют нагрузку во времени и поэтому создают разную текущую стоимость.',
+    text: 'Даже при одной и той же сумме долга и ставке форма распределения платежей во времени влияет на нагрузку, текущую стоимость и итоговую сумму процентов.',
   },
 ]
 
-const scheduleRows = [
-  { year: 1, annuity: 4.12, equalPrincipal: 4.68, bullet: 1.68 },
-  { year: 2, annuity: 4.12, equalPrincipal: 4.26, bullet: 1.68 },
-  { year: 3, annuity: 4.12, equalPrincipal: 3.84, bullet: 1.68 },
-  { year: 4, annuity: 4.12, equalPrincipal: 3.42, bullet: 13.68 },
-]
+const annuityCode = `principal = 400_000
+rates = {
+    "30Y_FRM": 0.0662,
+    "15Y_FRM": 0.0589,
+}
 
-const annuityCode = `principal = 12_000_000
-rate = 0.14
-periods = 4
+for label, annual_rate in rates.items():
+    monthly_rate = annual_rate / 12
+    months = 360 if label == "30Y_FRM" else 180
+    payment = principal * monthly_rate / (1 - (1 + monthly_rate) ** (-months))
+    print(label, round(payment, 2))`
 
-annuity_payment = principal * rate / (1 - (1 + rate) ** (-periods))
+const utilityCode = `principal = 400_000
+annual_rate = 0.0662
+monthly_rate = annual_rate / 12
+months = 360
+payment = principal * monthly_rate / (1 - (1 + monthly_rate) ** (-months))
 
-print("Аннуитетный платеж:", round(annuity_payment, 2))`
+balance = principal
+for month in range(1, 4):
+    interest = balance * monthly_rate
+    principal_part = payment - interest
+    balance -= principal_part
+    print(month, round(payment, 2), round(interest, 2), round(balance, 2))`
 
-const utilityCode = `principal = 12_000_000
-rate = 0.14
-periods = 4
+function MortgagePaymentChart() {
+  const monthlyValues = [
+    mortgageBenchmarksJan042024[0].paymentUsd,
+    mortgageBenchmarksJan042024[1].paymentUsd,
+    interestOnlyMortgageBenchmarkJan042024.monthlyInterestUsd,
+  ]
+  const maxValue = Math.max(...monthlyValues)
 
-principal_part = principal / periods
-remaining = principal
-
-for year in range(1, periods + 1):
-    interest = remaining * rate
-    payment = principal_part + interest
-    print(year, round(payment, 2), round(remaining, 2))
-    remaining -= principal_part`
-
-function PaymentSchemeChart() {
-  const maxValue = Math.max(...scheduleRows.flatMap((row) => [row.annuity, row.equalPrincipal, row.bullet]))
+  const bars = [
+    {
+      label: '30-летняя FRM',
+      value: mortgageBenchmarksJan042024[0].paymentUsd,
+      color: '#2563eb',
+    },
+    {
+      label: '15-летняя FRM',
+      value: mortgageBenchmarksJan042024[1].paymentUsd,
+      color: '#0f766e',
+    },
+    {
+      label: 'Interest-only',
+      value: interestOnlyMortgageBenchmarkJan042024.monthlyInterestUsd,
+      color: '#f97316',
+    },
+  ]
 
   return (
     <svg
-      viewBox="0 0 560 250"
+      viewBox="0 0 620 260"
       className="h-full w-full"
       role="img"
-      aria-label="Сравнение типовых платежных схем"
+      aria-label="Сравнение ежемесячных платежей по разным схемам финансирования"
     >
-      <line x1="45" y1="195" x2="525" y2="195" stroke="#64748b" strokeWidth="2" />
-      {scheduleRows.map((row, index) => {
-        const baseX = 70 + index * 110
-        const annuityHeight = (row.annuity / maxValue) * 120
-        const equalHeight = (row.equalPrincipal / maxValue) * 120
-        const bulletHeight = (row.bullet / maxValue) * 120
+      <line x1="60" y1="205" x2="570" y2="205" stroke="#64748b" strokeWidth="2" />
+      {bars.map((bar, index) => {
+        const x = 110 + index * 150
+        const height = (bar.value / maxValue) * 130
+        const y = 205 - height
 
         return (
-          <g key={row.year}>
-            <rect x={baseX} y={195 - annuityHeight} width="18" height={annuityHeight} rx="6" fill="#2563eb" />
-            <rect x={baseX + 24} y={195 - equalHeight} width="18" height={equalHeight} rx="6" fill="#0f766e" />
-            <rect x={baseX + 48} y={195 - bulletHeight} width="18" height={bulletHeight} rx="6" fill="#f97316" />
-            <text x={baseX + 32} y="217" textAnchor="middle" fontSize="12" fill="#334155">
-              {row.year}
+          <g key={bar.label}>
+            <rect x={x} y={y} width="54" height={height} rx="12" fill={bar.color} opacity="0.92" />
+            <text x={x + 27} y={y - 10} textAnchor="middle" fontSize="12" fill="#0f172a">
+              {bar.value.toFixed(0)}
+            </text>
+            <text x={x + 27} y="226" textAnchor="middle" fontSize="11" fill="#334155">
+              {index === 0 ? '30Y' : index === 1 ? '15Y' : 'IO'}
             </text>
           </g>
         )
       })}
-      <text x="332" y="32" fontSize="12" fill="#2563eb">
-        аннуитет
-      </text>
-      <text x="332" y="50" fontSize="12" fill="#0f766e">
-        равный основной долг
-      </text>
-      <text x="332" y="68" fontSize="12" fill="#f97316">
-        bullet
+      <text x="12" y="26" fontSize="12" fill="#475569">
+        USD в месяц
       </text>
     </svg>
   )
@@ -99,108 +119,135 @@ function Practice2_Screen4({ setContextNotes }) {
       <CourseHeader
         badge="Практика 2 · Платежные схемы и Python"
         title="Аннуитеты и типовые платежные схемы"
-        subtitle="Разбираем равные платежи, неравные схемы погашения и их финансовый смысл для инвестора, заемщика и аналитика."
+        subtitle="Переходим от единичных потоков к регулярным платежам. В качестве реальной базы берем средние ставки Freddie Mac по ипотеке на 4 января 2024 года и показываем, как форма платежей меняет финансовую нагрузку."
       />
 
       <section className="content-block space-y-4">
         <MathText
           as="p"
-          text="Аннуитетная схема возникает там, где платежи равны по величине и распределены через одинаковые интервалы времени. Она удобна для планирования денежной нагрузки, потому что создает устойчивый график выплат."
+          text="Аннуитет возникает тогда, когда заемщик или инвестор совершает равные платежи через равные промежутки времени. Для обычного аннуитета с платежом $A$, периодической ставкой $i$ и числом периодов $n$ приведенная стоимость записывается формулой"
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
+        <MathBlock formula={String.raw`PV_{ann} = A \cdot \frac{1 - (1+i)^{-n}}{i}`} />
         <MathText
           as="p"
-          text="Если аннуитетный платеж равен $A$, ставка периода равна $r$, а число платежей равно $n$, то приведенная стоимость обычного аннуитета записывается следующей формулой."
+          text="Если известна текущая сумма кредита или обязательства, из этой формулы получается выражение для самого платежа:"
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
-        <div className="grid gap-4 lg:grid-cols-2">
-          <MathBlock formula={String.raw`PV_{ann} = A \cdot \frac{1-(1+r)^{-n}}{r}`} />
-          <MathBlock formula={String.raw`FV_{ann} = A \cdot \frac{(1+r)^n-1}{r}`} />
-        </div>
+        <MathBlock formula={String.raw`A = PV \cdot \frac{i}{1 - (1+i)^{-n}}`} />
         <MathText
           as="p"
-          text="Однако аннуитет — не единственная схема. В практике финансирования встречаются также равномерное погашение основного долга и схема bullet, при которой до конца срока платятся только проценты, а основная сумма возвращается в финале."
+          text="Для ипотечных расчетов важно помнить, что ставка и число периодов берутся в месячном шаге: $i = \\frac{r}{12}$, $n = 12 \\cdot T$, где $T$ - срок в годах."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
 
-      <section className="grid items-start gap-4 md:grid-cols-2">
-        <IdeaCard title="Аннуитет постнумерандо и пренумерандо">
-          <p>
-            Если платежи совершаются в конце периода, говорят об обычном аннуитете
-            (постнумерандо). Если платежи происходят в начале периода, стоимость такой схемы выше,
-            поскольку каждый платеж дисконтируется на один период меньше.
-          </p>
-        </IdeaCard>
-
-        <IdeaCard title="Почему схемы нельзя сравнивать только по сумме">
-          <p>
-            Одинаковая общая сумма выплат не означает одинаковой финансовой нагрузки. Важен профиль
-            платежей: ранние выплаты тяжелее для заемщика и ценнее для кредитора, чем поздние.
-          </p>
-        </IdeaCard>
-      </section>
+      <IdeaCard title="Реальные рыночные ориентиры">
+        <p>
+          По данным Freddie Mac PMMS на 4 января 2024 года средняя ставка по 30-летней фиксированной ипотеке
+          составила {freddieMortgageRatesJan042024[0].annualRatePct.toFixed(2)}%, а по 15-летней -{' '}
+          {freddieMortgageRatesJan042024[1].annualRatePct.toFixed(2)}%. Ниже сравниваем эти режимы для суммы{' '}
+          {mortgagePrincipalUsd.toLocaleString('en-US')} USD.
+        </p>
+      </IdeaCard>
 
       <ComparisonTable
-        columns={scheduleRows.map((row) => `Год ${row.year}`)}
+        columns={[
+          mortgageBenchmarksJan042024[0].product,
+          mortgageBenchmarksJan042024[1].product,
+          interestOnlyMortgageBenchmarkJan042024.product,
+        ]}
         rows={[
           {
-            label: 'Аннуитетный платеж, млн руб.',
-            values: scheduleRows.map((row) => row.annuity.toFixed(2)),
+            label: 'Годовая ставка, %',
+            values: [
+              mortgageBenchmarksJan042024[0].annualRatePct.toFixed(2),
+              mortgageBenchmarksJan042024[1].annualRatePct.toFixed(2),
+              interestOnlyMortgageBenchmarkJan042024.annualRatePct.toFixed(2),
+            ],
           },
           {
-            label: 'Равный основной долг, млн руб.',
-            values: scheduleRows.map((row) => row.equalPrincipal.toFixed(2)),
+            label: 'Срок, месяцев',
+            values: [
+              String(mortgageBenchmarksJan042024[0].months),
+              String(mortgageBenchmarksJan042024[1].months),
+              String(interestOnlyMortgageBenchmarkJan042024.months),
+            ],
           },
           {
-            label: 'Bullet-платеж, млн руб.',
-            values: scheduleRows.map((row) => row.bullet.toFixed(2)),
+            label: 'Ежемесячный платеж, USD',
+            values: [
+              mortgageBenchmarksJan042024[0].paymentUsd.toFixed(2),
+              mortgageBenchmarksJan042024[1].paymentUsd.toFixed(2),
+              interestOnlyMortgageBenchmarkJan042024.monthlyInterestUsd.toFixed(2),
+            ],
             highlight: true,
+          },
+          {
+            label: 'Финальный платеж, USD',
+            values: [
+              '0.00',
+              '0.00',
+              interestOnlyMortgageBenchmarkJan042024.balloonPaymentUsd.toFixed(2),
+            ],
           },
         ]}
       />
 
       <PlotViewer
-        title="Профиль типовых платежных схем"
-        caption="Аннуитет дает ровный платежный профиль, схема с равным основным долгом снижает нагрузку по мере погашения, а bullet переносит основной платеж на конец срока."
+        title="Как схема меняет ежемесячную нагрузку"
+        caption="15-летняя ипотека требует более высокого регулярного платежа, потому что основной долг гасится быстрее. Interest-only выглядит легче по текущему платежу, но переносит возврат капитала в крупный финальный платеж."
       >
-        <PaymentSchemeChart />
+        <MortgagePaymentChart />
       </PlotViewer>
 
       <section className="content-block space-y-4">
-        <h3 className="section-title">Python: рассчитываем аннуитетный платеж</h3>
+        <h3 className="section-title">Финансовый смысл сравнения схем</h3>
         <MathText
           as="p"
-          text="Пусть сумма кредита составляет 12 млн руб., ставка 14% в год, срок — 4 года. Аннуитетная формула позволяет сразу получить постоянный годовой платеж."
+          text="Одинаковая сумма долга не означает одинаковую стоимость обслуживания. В 15-летней ипотеке общий платеж выше в месяц, зато суммарная переплата по процентам ниже. В interest-only схеме регулярная нагрузка меньше, но долговой риск в конце срока заметно выше из-за крупного balloon payment."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="Для инвестиционного аналитика это не второстепенная деталь. Структура финансирования влияет на ликвидность проекта, доступность обслуживания долга и устойчивость денежного потока в разные годы."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+      </section>
+
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Python: считаем аннуитет по реальным ставкам</h3>
+        <MathText
+          as="p"
+          text="В коде ниже одна и та же формула применяется к двум реальным ипотечным ставкам. Это важный прием: аналитик описывает правило один раз, а затем подает в него разные сценарии или продукты."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <ExecutablePythonBlock
           code={annuityCode}
-          title="Python: формула аннуитетного платежа"
-          note="Измените ставку или срок и сравните, как быстро меняется размер равного платежа."
+          title="Python: ежемесячный аннуитетный платеж"
+          note="Измените срок или ставку и сравните, как чувствительно меняется ежемесячный платеж. Именно так обычно тестируют долговую нагрузку заемщика или проекта."
         />
       </section>
 
-      <section className="space-y-4">
-        <section className="content-block space-y-4">
-          <h3 className="section-title">Равномерное погашение основного долга</h3>
-          <MathText
-            as="p"
-            text="При этой схеме основная сумма долга уменьшается одинаковыми долями, а процентная часть снижается по мере сокращения остатка. Поэтому общий платеж сначала выше, чем у аннуитета, но затем постепенно уменьшается."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <ExecutablePythonBlock
-            code={utilityCode}
-            title="Python: график платежей при равном основном долге"
-            note="Этот расчет полезен для сравнения схем финансирования проекта и оценки денежной нагрузки по годам."
-          />
-        </section>
-
-        <KeyIdea title="Ключевой вывод">
-          Платежная схема — это тоже денежный поток. Поэтому кредит, аренда, лизинг или подписка
-          анализируются теми же инструментами времени и стоимости, что и инвестиционный проект.
-        </KeyIdea>
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Полезные функции Python для амортизационного графика</h3>
+        <MathText
+          as="p"
+          text="Цикл `for` и функция `range()` позволяют пошагово пройти по периодам кредита, а `round()` делает вывод читаемым. Такой код полезен не только в учебной задаче: он лежит в основе построения графиков платежей, графиков остатков и проверки covenant-нагрузки."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <ExecutablePythonBlock
+          code={utilityCode}
+          title="Python: первые месяцы амортизации"
+          note="Фрагмент показывает, как регулярный платеж раскладывается на процентную и основную часть долга. Это одна из самых полезных интерпретаций аннуитета в прикладной работе."
+        />
       </section>
+
+      <KeyIdea title="Ключевой вывод">
+        Аннуитет - это частный, но очень важный тип денежного потока. Для аналитика важно не только уметь
+        вычислить равный платеж, но и понимать, как выбранная схема меняет риск, ликвидность и распределение
+        нагрузки по времени.
+      </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link

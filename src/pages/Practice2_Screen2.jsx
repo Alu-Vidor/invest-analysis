@@ -8,89 +8,98 @@ import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import { treasuryCurveJan022024 } from '../data/practice2RealData'
 
 const contextNotes = [
   {
     title: 'Временная стоимость денег',
-    text: 'Одинаковая денежная сумма в разные моменты времени неравноценна: деньги сегодня можно вложить, а деньги завтра еще только нужно дождаться.',
+    text: 'Одна и та же денежная сумма имеет разную ценность в зависимости от момента получения: деньги сегодня можно инвестировать уже сейчас, а деньги в будущем еще только предстоит дождаться.',
   },
   {
-    title: 'Ставка дисконтирования',
-    text: 'Ставка отражает альтернативную доходность капитала и служит коэффициентом перевода будущих сумм в стоимость на текущий момент.',
+    title: 'Кривая ставок',
+    text: 'В практическом анализе ставка зависит от срока. Поэтому вместо одной абстрактной нормы часто используют набор рыночных ставок по различным горизонтам.',
   },
 ]
 
-const factorRows = [
-  { year: 1, factor: 0.8929, future: 1.12 },
-  { year: 2, factor: 0.7972, future: 1.2544 },
-  { year: 3, factor: 0.7118, future: 1.4049 },
-  { year: 4, factor: 0.6355, future: 1.5735 },
+const curveCode = `import pandas as pd
+
+curve = pd.DataFrame(
+    {
+        "maturity_years": [1, 2, 3, 5, 10, 30],
+        "yield_pct": [4.80, 4.33, 4.09, 3.93, 3.95, 4.08],
+    }
+)
+
+curve["rate"] = curve["yield_pct"] / 100
+curve["discount_factor"] = 1 / (1 + curve["rate"]) ** curve["maturity_years"]
+curve["pv_of_1000_usd"] = 1000 * curve["discount_factor"]
+
+print(curve.round(4))
+print()
+print("Best PV for 1000 USD:", round(curve["pv_of_1000_usd"].max(), 2))`
+
+const utilityCode = `curve = [
+    ("1Y", 4.80),
+    ("2Y", 4.33),
+    ("3Y", 4.09),
+    ("5Y", 3.93),
+    ("10Y", 3.95),
+    ("30Y", 4.08),
 ]
 
-const factorCode = `principal = 1_000_000
-rate = 0.12
-years = [1, 2, 3, 4]
+discount_factors = [
+    (label, round(1 / (1 + rate / 100) ** years, 4))
+    for label, rate, years in [
+        ("1Y", 4.80, 1),
+        ("2Y", 4.33, 2),
+        ("3Y", 4.09, 3),
+        ("5Y", 3.93, 5),
+        ("10Y", 3.95, 10),
+        ("30Y", 4.08, 30),
+    ]
+]
 
-for year in years:
-    future_value = principal * (1 + rate) ** year
-    discount_factor = 1 / (1 + rate) ** year
-    print(year, round(future_value, 2), round(discount_factor, 4))`
+print(discount_factors)
+print("Smallest factor:", min(value for _, value in discount_factors))`
 
-const utilityCode = `amounts = [4.8, 5.4, 6.1, 8.2]
-rate = 0.12
-
-discounted = [round(value / (1 + rate) ** year, 3) for year, value in enumerate(amounts, start=1)]
-
-print(discounted)
-print("Сумма приведенных потоков:", round(sum(discounted), 3))`
-
-function TimeValueChart() {
-  const futurePoints = factorRows
+function TreasuryCurveChart() {
+  const maxYield = Math.max(...treasuryCurveJan022024.map((row) => row.yieldPct))
+  const minYield = Math.min(...treasuryCurveJan022024.map((row) => row.yieldPct))
+  const points = treasuryCurveJan022024
     .map((row, index) => {
-      const x = 70 + index * 110
-      const y = 180 - (row.future / 1.6) * 110
-      return `${x},${y}`
-    })
-    .join(' ')
-
-  const discountPoints = factorRows
-    .map((row, index) => {
-      const x = 70 + index * 110
-      const y = 180 - row.factor * 110
+      const x = 70 + index * 88
+      const y = 165 - ((row.yieldPct - minYield) / (maxYield - minYield || 1)) * 90
       return `${x},${y}`
     })
     .join(' ')
 
   return (
     <svg
-      viewBox="0 0 540 240"
+      viewBox="0 0 620 250"
       className="h-full w-full"
       role="img"
-      aria-label="Рост будущей стоимости и снижение коэффициента дисконтирования"
+      aria-label="Кривая доходностей казначейских бумаг США на 2 января 2024 года"
     >
-      <line x1="45" y1="185" x2="505" y2="185" stroke="#64748b" strokeWidth="2" />
-      <polyline points={futurePoints} fill="none" stroke="#2563eb" strokeWidth="3" />
-      <polyline points={discountPoints} fill="none" stroke="#f97316" strokeWidth="3" />
-      {factorRows.map((row, index) => {
-        const x = 70 + index * 110
-        const futureY = 180 - (row.future / 1.6) * 110
-        const discountY = 180 - row.factor * 110
+      <line x1="50" y1="185" x2="580" y2="185" stroke="#64748b" strokeWidth="2" />
+      <polyline points={points} fill="none" stroke="#2563eb" strokeWidth="3" />
+      {treasuryCurveJan022024.map((row, index) => {
+        const x = 70 + index * 88
+        const y = 165 - ((row.yieldPct - minYield) / (maxYield - minYield || 1)) * 90
 
         return (
-          <g key={row.year}>
-            <circle cx={x} cy={futureY} r="4" fill="#2563eb" />
-            <circle cx={x} cy={discountY} r="4" fill="#f97316" />
-            <text x={x} y="205" textAnchor="middle" fontSize="12" fill="#334155">
-              {row.year}
+          <g key={row.label}>
+            <circle cx={x} cy={y} r="5" fill="#2563eb" />
+            <text x={x} y="208" textAnchor="middle" fontSize="12" fill="#334155">
+              {row.label}
+            </text>
+            <text x={x} y={y - 12} textAnchor="middle" fontSize="11" fill="#0f172a">
+              {row.yieldPct.toFixed(2)}%
             </text>
           </g>
         )
       })}
-      <text x="350" y="36" fontSize="12" fill="#2563eb">
-        коэффициент наращения
-      </text>
-      <text x="350" y="54" fontSize="12" fill="#f97316">
-        коэффициент дисконтирования
+      <text x="12" y="26" fontSize="12" fill="#475569">
+        доходность, %
       </text>
     </svg>
   )
@@ -106,106 +115,108 @@ function Practice2_Screen2({ setContextNotes }) {
       <CourseHeader
         badge="Практика 2 · Денежные потоки и дисконтирование"
         title="Временная стоимость денег"
-        subtitle="Вводим фундаментальный принцип инвестиционного анализа: одна и та же сумма имеет разную ценность в зависимости от момента времени."
+        subtitle="Переходим от календаря платежей к их стоимости. Для примеров используем реальные доходности казначейских бумаг США на 2 января 2024 года как рыночную основу для дисконтирования."
       />
 
       <section className="content-block space-y-4">
         <MathText
           as="p"
-          text="Если капитал можно вложить под ставку $r$, то деньги сегодня и деньги в будущем нельзя считать эквивалентными без специального пересчета. Именно это и выражает принцип временной стоимости денег."
+          text="Если капитал можно вложить под ставку $r$, то текущая и будущая суммы неравноценны. Операция наращения показывает, во что превратится сумма сегодня, а операция дисконтирования переводит будущий платеж в стоимость на текущую дату."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
+        <MathBlock formula={String.raw`FV_t = PV \cdot (1+r)^t`} />
+        <MathBlock formula={String.raw`PV = \frac{FV_t}{(1+r)^t}`} />
         <MathText
           as="p"
-          text="Наращение отвечает на вопрос, во что превратится текущая сумма через $t$ периодов. Дисконтирование отвечает на обратный вопрос: сколько стоит будущая сумма в момент времени $0$."
+          text="Если ставка различается по срокам, аналитик использует временную структуру ставок. В простейшем приближении коэффициент дисконтирования для горизонта $t$ лет можно записать как $DF_t = (1+y_t)^{-t}$, где $y_t$ - рыночная доходность соответствующего срока."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
-        <div className="grid gap-4 lg:grid-cols-2">
-          <MathBlock formula={String.raw`FV_t = PV \cdot (1+r)^t`} />
-          <MathBlock formula={String.raw`PV = \frac{FV_t}{(1+r)^t}`} />
-        </div>
-        <MathText
-          as="p"
-          text="Коэффициент $(1+r)^t$ называют коэффициентом наращения, а величину $(1+r)^{-t}$ — коэффициентом дисконтирования. Чем больше ставка и чем дальше будущий платеж, тем меньше его текущая ценность."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
+        <MathBlock formula={String.raw`DF_t = \frac{1}{(1+y_t)^t}`} />
       </section>
 
-      <section className="grid items-start gap-4 md:grid-cols-2">
-        <IdeaCard title="Экономический смысл ставки">
-          <p>
-            Ставка $r$ — это не только банковский процент. В инвестиционном анализе она отражает
-            альтернативную доходность капитала: если деньги не вложить в проект, их можно
-            использовать в другой возможности с сопоставимым риском.
-          </p>
-        </IdeaCard>
-
-        <IdeaCard title="Почему будущий рубль дешевле текущего">
-          <p>
-            Будущая сумма уступает текущей по двум причинам: ее нельзя использовать немедленно, и
-            ее получение сопровождается неопределенностью. Поэтому дисконтирование одновременно
-            учитывает фактор времени и цену ожидания.
-          </p>
-        </IdeaCard>
-      </section>
+      <IdeaCard title="Теоретическая оговорка, которая важна для корректности">
+        <p>
+          В строгой оценке купонных потоков обычно используют не par yield curve, а spot curve, то есть набор
+          безрисковых ставок для отдельных дат платежей. В этой практике казначейские доходности выступают как
+          прозрачное учебное приближение рыночной ставки по сроку. Такой шаг допустим для освоения логики
+          дисконтирования и широко используется на вводном этапе.
+        </p>
+      </IdeaCard>
 
       <ComparisonTable
-        columns={factorRows.map((row) => `Год ${row.year}`)}
+        columns={treasuryCurveJan022024.map((row) => row.label)}
         rows={[
           {
-            label: 'Коэффициент наращения при 12%',
-            values: factorRows.map((row) => row.future.toFixed(4)),
+            label: 'Доходность, % годовых',
+            values: treasuryCurveJan022024.map((row) => row.yieldPct.toFixed(2)),
           },
           {
-            label: 'Коэффициент дисконтирования при 12%',
-            values: factorRows.map((row) => row.factor.toFixed(4)),
+            label: 'Коэффициент дисконтирования',
+            values: treasuryCurveJan022024.map((row) => row.discountFactor.toFixed(4)),
             highlight: true,
+          },
+          {
+            label: 'PV будущих 1000 USD',
+            values: treasuryCurveJan022024.map((row) => (1000 * row.discountFactor).toFixed(2)),
           },
         ]}
       />
 
       <PlotViewer
-        title="Как меняются коэффициенты во времени"
-        caption="Коэффициент наращения растет с увеличением горизонта, а коэффициент дисконтирования убывает. Именно поэтому удаленные во времени денежные поступления имеют меньший вклад в текущую стоимость проекта."
+        title="Реальная кривая доходностей как база для оценки времени"
+        caption="Даже на одном и том же рынке стоимость денег зависит от горизонта. Поэтому в профессиональном анализе вопрос звучит не просто «какая ставка?», а «какая ставка для данного срока и данного типа риска?»."
       >
-        <TimeValueChart />
+        <TreasuryCurveChart />
       </PlotViewer>
 
       <section className="content-block space-y-4">
-        <h3 className="section-title">Python: считаем будущую стоимость и коэффициенты</h3>
+        <h3 className="section-title">Что показывает таблица коэффициентов</h3>
         <MathText
           as="p"
-          text="Ниже один и тот же капитал в 1 млн руб. переводится в будущую стоимость на горизонтах от одного до четырех лет. Одновременно выводится и коэффициент дисконтирования для каждого периода."
+          text="Для будущего платежа в 1000 USD коэффициент дисконтирования меньше единицы и убывает с ростом срока. Экономический смысл прост: чем дальше платеж, тем сильнее влияние альтернативной доходности и ожидания по времени. Поэтому одинаковые по номиналу суммы на горизонтах 1 и 10 лет не могут сравниваться напрямую."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="В реальной деятельности этот принцип лежит в основе оценки облигаций, инвестиционных проектов, пенсионных обязательств и моделей DCF. Аналитик фактически переводит все будущие суммы в общий масштаб стоимости на одну дату."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+      </section>
+
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Python: строим рыночную таблицу коэффициентов</h3>
+        <MathText
+          as="p"
+          text="Python удобно использовать не только для вычисления формулы, но и для структурирования рынка данных. Ниже одна таблица сразу содержит срок, доходность, коэффициент дисконтирования и текущую стоимость условного будущего платежа."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <ExecutablePythonBlock
-          code={factorCode}
-          title="Python: временная стоимость денег по периодам"
-          note="Измените ставку или горизонт и посмотрите, как быстро меняются коэффициенты при более дорогом капитале."
+          code={curveCode}
+          title="Python: доходности Treasury и коэффициенты дисконтирования"
+          packages={['pandas']}
+          note="Попробуйте заменить одну из доходностей и посмотрите, как меняется текущая стоимость будущих 1000 USD. Это прямое соединение рыночных данных и инвестиционного вывода."
         />
       </section>
 
-      <section className="space-y-4">
-        <section className="content-block space-y-4">
-          <h3 className="section-title">Связь с проектным анализом</h3>
-          <MathText
-            as="p"
-            text="Если проект приносит 4.8, 5.4, 6.1 и 8.2 млн руб. в будущие годы, то сравнивать эти поступления с первоначальными вложениями напрямую нельзя. Сначала каждый поток нужно привести к сопоставимому моменту времени."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <ExecutablePythonBlock
-            code={utilityCode}
-            title="Python: первые приведенные значения потоков"
-            note="Этот фрагмент показывает, как список будущих платежей переводится в приведенные значения еще до расчета NPV."
-          />
-        </section>
-
-        <KeyIdea title="Ключевой вывод">
-          Временная стоимость денег — это не дополнительная техника, а центральный принцип
-          инвестиционного анализа. Без нее денежные потоки разных лет нельзя корректно складывать,
-          сравнивать и интерпретировать.
-        </KeyIdea>
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Полезные функции Python для работы со ставками</h3>
+        <MathText
+          as="p"
+          text="В задачах анализа кривой ставок регулярно используются генераторы списков, `min()` и `max()` для поиска экстремумов, а в табличных расчетах - `idxmax()` и `idxmin()`, когда нужно найти строку с наибольшей или наименьшей текущей стоимостью. Эти операции помогают быстро интерпретировать результат, а не только получить число."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <ExecutablePythonBlock
+          code={utilityCode}
+          title="Python: списковые выражения и min()"
+          note="Фрагмент показывает, как из набора рыночных ставок быстро получить уже интерпретируемый объект - список коэффициентов дисконтирования по срокам."
+        />
       </section>
+
+      <KeyIdea title="Ключевой вывод">
+        Временная стоимость денег - это не абстрактное рассуждение, а способ перевода рыночной информации в
+        коэффициенты сравнения. Как только ставка задана по сроку, будущий платеж можно привести к текущей
+        стоимости и включить в решение.
+      </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link

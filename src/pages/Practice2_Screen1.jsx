@@ -8,102 +8,104 @@ import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import {
+  treasuryNote2028,
+  treasuryNoteSchedule2028,
+} from '../data/practice2RealData'
 
 const contextNotes = [
   {
-    title: 'Чистый денежный поток',
-    text: 'Чистый денежный поток периода — это разность между всеми денежными поступлениями и всеми денежными выплатами данного периода.',
+    title: 'Денежный поток',
+    text: 'Денежный поток инвестиционного решения - это упорядоченная во времени последовательность выплат и поступлений, которую можно записать по периодам и затем анализировать математически.',
   },
   {
-    title: 'Структура потока',
-    text: 'Для инвестиционного решения важно видеть не только итоговый CF_t, но и его происхождение: инвестиционные расходы, операционный эффект и терминальную стоимость.',
+    title: 'Купонная облигация',
+    text: 'Купонная облигация формирует заранее известный календарь платежей: регулярные купоны и возврат номинала в дату погашения. Поэтому она удобна как первый реальный объект для моделирования потока.',
   },
 ]
 
-const projectRows = [
-  { year: 0, investing: -18, operating: 0, terminal: 0, net: -18 },
-  { year: 1, investing: 0, operating: 4.8, terminal: 0, net: 4.8 },
-  { year: 2, investing: 0, operating: 5.4, terminal: 0, net: 5.4 },
-  { year: 3, investing: 0, operating: 6.1, terminal: 0, net: 6.1 },
-  { year: 4, investing: 0, operating: 6.5, terminal: 1.7, net: 8.2 },
-]
+const scheduleCode = `import pandas as pd
 
-const cashFlowCode = `import pandas as pd
+face_value = 10_000
+coupon_rate = 0.0425
+coupon = face_value * coupon_rate / 2
 
-project = pd.DataFrame(
+schedule = pd.DataFrame(
     {
-        "year": [0, 1, 2, 3, 4],
-        "investing_cf_mln": [-18.0, 0.0, 0.0, 0.0, 0.0],
-        "operating_cf_mln": [0.0, 4.8, 5.4, 6.1, 6.5],
-        "terminal_cf_mln": [0.0, 0.0, 0.0, 0.0, 1.7],
+        "period": list(range(1, 9)),
+        "date": [
+            "2024-07-15",
+            "2025-01-15",
+            "2025-07-15",
+            "2026-01-15",
+            "2026-07-15",
+            "2027-01-15",
+            "2027-07-15",
+            "2028-01-15",
+        ],
+        "coupon_usd": [coupon] * 8,
+        "principal_usd": [0, 0, 0, 0, 0, 0, 0, face_value],
     }
 )
 
-project["net_cf_mln"] = (
-    project["investing_cf_mln"]
-    + project["operating_cf_mln"]
-    + project["terminal_cf_mln"]
-)
-project["cumulative_cf_mln"] = project["net_cf_mln"].cumsum()
+schedule["cash_flow_usd"] = schedule["coupon_usd"] + schedule["principal_usd"]
+schedule["cumulative_inflow_usd"] = schedule["cash_flow_usd"].cumsum()
 
-print(project.round(2))
+print(schedule.round(2))
 print()
-print("Итоговый накопленный поток:", round(project["cumulative_cf_mln"].iloc[-1], 2))`
+print("Total coupons:", round(schedule["coupon_usd"].sum(), 2))
+print("Total cash flow:", round(schedule["cash_flow_usd"].sum(), 2))`
 
-const utilityCode = `cash_flows = [-18.0, 4.8, 5.4, 6.1, 8.2]
-years = [0, 1, 2, 3, 4]
+const utilityCode = `dates = [
+    "2024-07-15",
+    "2025-01-15",
+    "2025-07-15",
+    "2026-01-15",
+    "2026-07-15",
+    "2027-01-15",
+    "2027-07-15",
+    "2028-01-15",
+]
+cash_flows = [212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 10212.5]
 
-for year, flow in zip(years, cash_flows):
-    print(year, flow)
+for number, (date, amount) in enumerate(zip(dates, cash_flows), start=1):
+    print(number, date, amount)
 
-print("Сумма потоков:", round(sum(cash_flows), 2))
-print("Максимальный приток:", max(cash_flows[1:]))`
+print("Max payment:", max(cash_flows))
+print("Coupon total:", sum(cash_flows[:-1]))`
 
-function CashFlowStructureChart() {
-  const maxAbs = Math.max(...projectRows.map((row) => Math.abs(row.net)))
-  const zeroY = 120
+function TreasuryCashFlowChart() {
+  const maxValue = Math.max(...treasuryNoteSchedule2028.map((row) => row.cashFlowUsd))
 
   return (
     <svg
-      viewBox="0 0 540 240"
+      viewBox="0 0 620 260"
       className="h-full w-full"
       role="img"
-      aria-label="Структура денежного потока проекта"
+      aria-label="График платежей по казначейской ноте США со сроком погашения 15 января 2028 года"
     >
-      <line x1="40" y1={zeroY} x2="510" y2={zeroY} stroke="#64748b" strokeWidth="2" />
-      {projectRows.map((row, index) => {
-        const x = 65 + index * 88
-        const barHeight = (Math.abs(row.net) / maxAbs) * 86
-        const y = row.net >= 0 ? zeroY - barHeight : zeroY
+      <line x1="48" y1="205" x2="585" y2="205" stroke="#64748b" strokeWidth="2" />
+      {treasuryNoteSchedule2028.map((row, index) => {
+        const x = 70 + index * 64
+        const height = (row.cashFlowUsd / maxValue) * 140
+        const y = 205 - height
 
         return (
-          <g key={row.year}>
-            <rect
-              x={x}
-              y={y}
-              width="42"
-              height={barHeight}
-              rx="10"
-              fill={row.net >= 0 ? '#2563eb' : '#e11d48'}
-              opacity="0.92"
-            />
-            <text x={x + 21} y="198" textAnchor="middle" fontSize="12" fill="#334155">
-              t={row.year}
+          <g key={row.period}>
+            <rect x={x} y={y} width="34" height={height} rx="10" fill="#2563eb" opacity="0.9" />
+            <text x={x + 17} y="226" textAnchor="middle" fontSize="11" fill="#334155">
+              k={row.period}
             </text>
-            <text
-              x={x + 21}
-              y={row.net >= 0 ? y - 10 : y + barHeight + 18}
-              textAnchor="middle"
-              fontSize="12"
-              fill="#0f172a"
-            >
-              {row.net.toFixed(1)}
-            </text>
+            {index === treasuryNoteSchedule2028.length - 1 ? (
+              <text x={x + 17} y={y - 10} textAnchor="middle" fontSize="11" fill="#0f172a">
+                10 212.5
+              </text>
+            ) : null}
           </g>
         )
       })}
-      <text x="10" y="28" fontSize="12" fill="#475569">
-        млн руб.
+      <text x="12" y="26" fontSize="12" fill="#475569">
+        USD
       </text>
     </svg>
   )
@@ -119,129 +121,115 @@ function Practice2_Screen1({ setContextNotes }) {
       <CourseHeader
         badge="Практика 2 · Денежные потоки и дисконтирование"
         title="Структура денежного потока инвестиционного решения"
-        subtitle="Переходим от качественного описания проекта к потоку платежей по периодам: фиксируем исходящие и входящие суммы, разделяем их по экономическому смыслу и подготавливаем к расчету."
+        subtitle="Начинаем с реального инструмента: раскладываем по периодам денежный поток казначейской ноты США и показываем, как из экономического описания возникает математическая модель, пригодная для расчета в Python."
       />
 
       <section className="content-block space-y-4">
         <MathText
           as="p"
-          text="Во второй практике объектом анализа становится не просто идея проекта, а его денежный поток во времени. Именно поток платежей позволяет связать экономическое содержание решения с формулами дисконтирования, приведенной стоимости и критериями эффективности."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
-        <MathText
-          as="p"
-          text="Если в период $t$ компания получает денежные поступления $In_t$ и несет денежные выплаты $Out_t$, то чистый денежный поток определяется как разность этих величин."
+          text="В инвестиционном анализе решение задается не общими словами, а последовательностью платежей по времени. Если в момент $t$ возникают поступления $In_t$ и выплаты $Out_t$, то чистый денежный поток периода определяется как разность этих величин."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <MathBlock formula={String.raw`CF_t = In_t - Out_t`} />
         <MathText
           as="p"
-          text="В прикладном инвестиционном анализе полезно разложить $CF_t$ на составные части: инвестиционные расходы, операционный эффект и терминальную стоимость в конце проекта. Такое разложение делает модель прозрачной и пригодной для дальнейшей проверки в Python."
+          text="Для облигации структура потока особенно прозрачна. Пусть $F$ - номинал, $c$ - годовая купонная ставка, $m$ - число купонных выплат в году. Тогда размер одного купона равен $C = \frac{F \cdot c}{m}$, а денежный поток по обычной купонной облигации записывается так:"
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
-        <MathBlock formula={String.raw`CF_t = CF_t^{inv} + CF_t^{oper} + CF_t^{term}`} />
-      </section>
-
-      <section className="grid items-start gap-4 md:grid-cols-2">
-        <IdeaCard title="Почему структура важнее одной суммы">
-          <p>
-            Два проекта могут давать одинаковую суммарную прибыль, но быть совершенно разными по
-            инвестиционному качеству. Если один проект возвращает деньги поздно, а другой раньше,
-            их экономическая ценность уже не совпадает.
-          </p>
-        </IdeaCard>
-
-        <IdeaCard title="Что такое терминальный поток">
-          <p>
-            Терминальным потоком называют завершающее денежное поступление в конце проекта:
-            ликвидационную стоимость оборудования, возврат оборотного капитала, остаточную цену
-            актива или итоговый платеж по продаже бизнеса.
-          </p>
-        </IdeaCard>
-      </section>
-
-      <section className="content-block space-y-4">
-        <h3 className="section-title">Учебный кейс: автоматизация складского участка</h3>
+        <MathBlock formula={String.raw`CF_k = C,\quad k=1,\dots,n-1;\qquad CF_n = C + F`} />
         <MathText
           as="p"
-          text="Предположим, компания вкладывает 18 млн руб. в автоматизированную линию комплектования заказов. Проект дает ежегодный операционный эффект за счет экономии труда и снижения ошибок, а в последнем периоде дополнительно возникает терминальный поток."
+          text="Эта запись важна методически: аналитик сразу отделяет регулярные промежуточные поступления от терминального потока, в котором вместе с последним купоном возвращается номинал. Такое разложение затем напрямую переносится в таблицу и код."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
 
+      <IdeaCard title="Реальные данные примера">
+        <p>
+          Используем реальный инструмент: {treasuryNote2028.title}. Для пакета с номиналом{' '}
+          {treasuryNote2028.faceValueUsd.toLocaleString('en-US')} USD купон выплачивается дважды в год и
+          составляет 212.50 USD за полугодие. Последний платеж 15 января 2028 года включает и купон, и
+          возврат номинала.
+        </p>
+      </IdeaCard>
+
       <ComparisonTable
-        columns={projectRows.map((row) => `Год ${row.year}`)}
+        columns={treasuryNoteSchedule2028.map((row) => `k=${row.period}`)}
         rows={[
           {
-            label: 'Инвестиционный поток, млн руб.',
-            values: projectRows.map((row) => row.investing.toFixed(1)),
+            label: 'Дата платежа',
+            values: treasuryNoteSchedule2028.map((row) => row.date),
           },
           {
-            label: 'Операционный поток, млн руб.',
-            values: projectRows.map((row) => row.operating.toFixed(1)),
+            label: 'Купон, USD',
+            values: treasuryNoteSchedule2028.map((row) => row.couponUsd.toFixed(2)),
           },
           {
-            label: 'Терминальный поток, млн руб.',
-            values: projectRows.map((row) => row.terminal.toFixed(1)),
+            label: 'Погашение номинала, USD',
+            values: treasuryNoteSchedule2028.map((row) => row.principalUsd.toFixed(2)),
           },
           {
-            label: 'Чистый поток, млн руб.',
-            values: projectRows.map((row) => row.net.toFixed(1)),
+            label: 'Итоговый денежный поток, USD',
+            values: treasuryNoteSchedule2028.map((row) => row.cashFlowUsd.toFixed(2)),
             highlight: true,
           },
         ]}
       />
 
       <PlotViewer
-        title="Динамика чистого денежного потока"
-        caption="Стартовый отрицательный поток отражает первоначальные вложения, а последующие положительные значения — операционный эффект проекта. Такая форма потока типична для капитальных инвестиций."
+        title="Календарь платежей по реальной купонной ноте"
+        caption="Первые семь периодов дают одинаковый купонный приток, а в последнем периоде возникает скачок, потому что к купону добавляется возврат номинала. Именно такая форма потока потом определяет цену бумаги и ее чувствительность к ставке."
       >
-        <CashFlowStructureChart />
+        <TreasuryCashFlowChart />
       </PlotViewer>
+
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Экономическая интерпретация потока</h3>
+        <MathText
+          as="p"
+          text="Одинаковая сумма по всем периодам не означает одинаковую экономическую роль платежей. Промежуточные купоны создают доход инвестора, а терминальный поток возвращает вложенный капитал. Поэтому при дальнейшем анализе мы будем отдельно смотреть на структуру потока, а не только на его суммарный объем."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <MathText
+          as="p"
+          text="Для будущей профессиональной работы это принципиально: тот же подход используется при оценке облигаций, лизинга, кредитов, проектного финансирования и любых договоров с распределенными во времени платежами."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+      </section>
 
       <section className="content-block space-y-4">
         <h3 className="section-title">Python: собираем поток в таблицу</h3>
         <MathText
           as="p"
-          text="Для дальнейшего анализа поток нужно перевести в табличный формат. Тогда к нему можно применять накопление, дисконтирование, сценарные изменения и сравнительный анализ альтернатив."
+          text="Сначала фиксируем даты и платежи в явном табличном виде. Это важный навык: пока поток не собран в структуру данных, его нельзя корректно дисконтировать, сравнивать и использовать в сценарном анализе."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <ExecutablePythonBlock
-          code={cashFlowCode}
-          title="Python: таблица денежного потока проекта"
+          code={scheduleCode}
+          title="Python: таблица платежей по казначейской ноте"
           packages={['pandas']}
-          note="Попробуйте изменить один из операционных потоков или терминальный эффект и посмотрите, как меняется накопленный результат."
+          note="Попробуйте изменить номинал или купонную ставку и посмотрите, как меняется весь календарь платежей. Так студент видит, что формула и данные здесь связаны напрямую."
         />
       </section>
 
-      <section className="space-y-4">
-        <section className="content-block space-y-4">
-          <h3 className="section-title">Полезные функции Python</h3>
-          <MathText
-            as="p"
-            text="Даже до дисконтирования аналитик постоянно использует базовые операции чтения потока: перебор периодов, суммирование и поиск экстремальных значений."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <ExecutablePythonBlock
-            code={utilityCode}
-            title="Python: zip(), sum(), max()"
-            note="Этот фрагмент показывает, как быстро связать периоды и потоки еще до построения более сложной финансовой модели."
-          />
-        </section>
-
-        <IdeaCard title="Профессиональный смысл этапа">
-          <p>
-            В реальной работе аналитик редко начинает с NPV. Сначала он проверяет, корректно ли
-            собран сам поток: не забыты ли стартовые вложения, терминальная стоимость, налоговые
-            эффекты и возврат капитала в конце горизонта.
-          </p>
-        </IdeaCard>
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Полезные функции Python на первом шаге</h3>
+        <MathText
+          as="p"
+          text="Даже до сложных финансовых формул аналитик постоянно использует базовые средства языка: `zip()` связывает даты и суммы, `enumerate()` добавляет номер периода, `sum()` быстро считает общий приток, `max()` помогает увидеть самый крупный платеж. Эти функции особенно полезны при первичной проверке данных."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <ExecutablePythonBlock
+          code={utilityCode}
+          title="Python: zip(), enumerate(), sum(), max()"
+          note="Этот фрагмент полезен именно как рабочая проверка структуры потока: сначала мы убеждаемся, что периоды и суммы стоят на своих местах, и только затем переходим к расчету стоимости."
+        />
       </section>
 
       <KeyIdea title="Ключевой вывод">
-        Денежный поток — это базовый язык инвестиционного анализа. Пока проект не переведен в
-        последовательность $CF_t$ по периодам, нельзя корректно обсуждать ни его стоимость, ни
-        эффективность, ни риск.
+        Денежный поток - это исходная математическая форма инвестиционного решения. Пока реальный контракт не
+        переведен в последовательность $CF_k$, невозможно корректно обсуждать ни цену инструмента, ни его
+        доходность, ни риск.
       </KeyIdea>
 
       <nav className="flex justify-end">

@@ -8,121 +8,132 @@ import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import {
+  mortgageBenchmarksJan042024,
+  mortgagePrincipalUsd,
+  treasuryNoteFutureValueAtMaturityUsd,
+  treasuryNotePriceProxyUsd,
+  treasuryNoteValuationRows2028,
+} from '../data/practice2RealData'
 
 const contextNotes = [
   {
-    title: 'Приведенная стоимость',
-    text: 'Приведенная стоимость показывает, сколько будущий поток стоит в текущем моменте при выбранной ставке дисконтирования.',
+    title: 'PV',
+    text: 'Приведенная стоимость отвечает на вопрос, сколько поток стоит сегодня при заданной норме доходности или ставке дисконтирования.',
   },
   {
-    title: 'Будущая стоимость',
-    text: 'Будущая стоимость переводит поток в капитал на конце горизонта и помогает оценивать накопительный эффект денежных поступлений и платежных схем.',
+    title: 'FV',
+    text: 'Будущая стоимость показывает, каким станет поток на выбранную дату в будущем, если промежуточные суммы могут быть реинвестированы под заданную ставку.',
   },
-]
-
-const pvContributionRows = [
-  { year: 0, pv: -18.0 },
-  { year: 1, pv: 4.29 },
-  { year: 2, pv: 4.30 },
-  { year: 3, pv: 4.34 },
-  { year: 4, pv: 5.21 },
 ]
 
 const miniAnalysisCode = `import pandas as pd
 
-rate = 0.12
-cash_flows = [-18.0, 4.8, 5.4, 6.1, 8.2]
 
-project = pd.DataFrame(
-    {
-        "year": list(range(len(cash_flows))),
-        "cash_flow_mln": cash_flows,
-    }
-)
-
-project["discount_factor"] = 1 / (1 + rate) ** project["year"]
-project["present_value_mln"] = project["cash_flow_mln"] * project["discount_factor"]
-
-horizon = project["year"].max()
-project["future_value_at_horizon_mln"] = (
-    project["cash_flow_mln"] * (1 + rate) ** (horizon - project["year"])
-)
-
-pv_total = project["present_value_mln"].sum()
-fv_total = project["future_value_at_horizon_mln"].sum()
-
-print(project.round(3))
-print()
-print("Итоговая приведенная стоимость:", round(pv_total, 3))
-print("Итоговая будущая стоимость к концу горизонта:", round(fv_total, 3))`
-
-const functionCode = `def present_value(cash_flows, rate):
-    return sum(cf / (1 + rate) ** year for year, cf in enumerate(cash_flows))
-
-
-def future_value_to_horizon(cash_flows, rate):
-    horizon = len(cash_flows) - 1
+def present_value_stream(cash_flows, rate, start_period=1):
     return sum(
-        cf * (1 + rate) ** (horizon - year)
-        for year, cf in enumerate(cash_flows)
+        cf / (1 + rate) ** period
+        for period, cf in enumerate(cash_flows, start=start_period)
     )
 
 
-def annuity_payment(principal, rate, periods):
-    return principal * rate / (1 - (1 + rate) ** (-periods))
+def future_value_stream(cash_flows, rate, horizon):
+    return sum(
+        cf * (1 + rate) ** (horizon - period)
+        for period, cf in enumerate(cash_flows, start=1)
+    )
 
 
-cash_flows = [-18.0, 4.8, 5.4, 6.1, 8.2]
+def annuity_payment(principal, periodic_rate, periods):
+    return principal * periodic_rate / (1 - (1 + periodic_rate) ** (-periods))
 
-print("PV:", round(present_value(cash_flows, 0.12), 3))
-print("FV:", round(future_value_to_horizon(cash_flows, 0.12), 3))
-print("Аннуитет:", round(annuity_payment(12_000_000, 0.14, 4), 2))`
 
-function PVContributionChart() {
-  const maxAbs = Math.max(...pvContributionRows.map((row) => Math.abs(row.pv)))
-  const zeroY = 120
+bond_cash_flows = [212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 10212.5]
+semiannual_rate = 0.0393 / 2
+
+bond_price = present_value_stream(bond_cash_flows, semiannual_rate)
+bond_fv = future_value_stream(bond_cash_flows, semiannual_rate, horizon=8)
+
+mortgage_30y = annuity_payment(400_000, 0.0662 / 12, 360)
+mortgage_15y = annuity_payment(400_000, 0.0589 / 12, 180)
+
+summary = pd.DataFrame(
+    {
+        "metric": [
+            "Treasury note price proxy",
+            "Treasury note future value at maturity",
+            "30Y mortgage monthly payment",
+            "15Y mortgage monthly payment",
+        ],
+        "value_usd": [bond_price, bond_fv, mortgage_30y, mortgage_15y],
+    }
+)
+
+print(summary.round(2))`
+
+const functionCode = `def present_value_stream(cash_flows, rate, start_period=1):
+    return sum(
+        cf / (1 + rate) ** period
+        for period, cf in enumerate(cash_flows, start=start_period)
+    )
+
+
+def future_value_stream(cash_flows, rate, horizon):
+    return sum(
+        cf * (1 + rate) ** (horizon - period)
+        for period, cf in enumerate(cash_flows, start=1)
+    )
+
+
+def annuity_payment(principal, periodic_rate, periods):
+    return principal * periodic_rate / (1 - (1 + periodic_rate) ** (-periods))
+
+
+cash_flows = [212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 10212.5]
+
+print("PV:", round(present_value_stream(cash_flows, 0.0393 / 2), 2))
+print("FV:", round(future_value_stream(cash_flows, 0.0393 / 2, 8), 2))
+print("30Y payment:", round(annuity_payment(400_000, 0.0662 / 12, 360), 2))`
+
+const couponPvTotal = treasuryNoteValuationRows2028.reduce(
+  (total, row) => total + row.couponUsd * row.discountFactor,
+  0
+)
+const principalPv =
+  treasuryNoteValuationRows2028[treasuryNoteValuationRows2028.length - 1].principalUsd *
+  treasuryNoteValuationRows2028[treasuryNoteValuationRows2028.length - 1].discountFactor
+
+function BondPriceCompositionChart() {
+  const maxValue = Math.max(couponPvTotal, principalPv)
 
   return (
     <svg
-      viewBox="0 0 540 240"
+      viewBox="0 0 620 220"
       className="h-full w-full"
       role="img"
-      aria-label="Вклад отдельных потоков в приведенную стоимость"
+      aria-label="Структура цены казначейской ноты по компонентам"
     >
-      <line x1="40" y1={zeroY} x2="510" y2={zeroY} stroke="#64748b" strokeWidth="2" />
-      {pvContributionRows.map((row, index) => {
-        const x = 64 + index * 90
-        const barHeight = (Math.abs(row.pv) / maxAbs) * 86
-        const y = row.pv >= 0 ? zeroY - barHeight : zeroY
+      <line x1="70" y1="175" x2="560" y2="175" stroke="#64748b" strokeWidth="2" />
+      {[
+        { x: 170, label: 'Купоны', value: couponPvTotal, color: '#2563eb' },
+        { x: 360, label: 'Номинал', value: principalPv, color: '#0f766e' },
+      ].map((bar) => {
+        const height = (bar.value / maxValue) * 105
 
         return (
-          <g key={row.year}>
-            <rect
-              x={x}
-              y={y}
-              width="44"
-              height={barHeight}
-              rx="10"
-              fill={row.pv >= 0 ? '#2563eb' : '#e11d48'}
-              opacity="0.92"
-            />
-            <text x={x + 22} y="198" textAnchor="middle" fontSize="12" fill="#334155">
-              t={row.year}
+          <g key={bar.label}>
+            <rect x={bar.x} y={175 - height} width="72" height={height} rx="14" fill={bar.color} />
+            <text x={bar.x + 36} y={175 - height - 10} textAnchor="middle" fontSize="12" fill="#0f172a">
+              {bar.value.toFixed(2)}
             </text>
-            <text
-              x={x + 22}
-              y={row.pv >= 0 ? y - 10 : y + barHeight + 18}
-              textAnchor="middle"
-              fontSize="12"
-              fill="#0f172a"
-            >
-              {row.pv.toFixed(2)}
+            <text x={bar.x + 36} y="198" textAnchor="middle" fontSize="12" fill="#334155">
+              {bar.label}
             </text>
           </g>
         )
       })}
-      <text x="10" y="28" fontSize="12" fill="#475569">
-        млн руб.
+      <text x="12" y="26" fontSize="12" fill="#475569">
+        вклад в цену, USD
       </text>
     </svg>
   )
@@ -138,89 +149,102 @@ function Practice2_Screen5({ setContextNotes }) {
       <CourseHeader
         badge="Практика 2 · Платежные схемы и Python"
         title="Расчеты приведенной и будущей стоимости в Python"
-        subtitle="Завершаем практику полной вычислительной связкой: формируем таблицу потока, считаем PV и FV, а затем превращаем формулы в повторно используемые функции."
+        subtitle="Завершаем практику общей вычислительной логикой: одни и те же функции применяем к реальной купонной ноте и к ипотечным платежам, чтобы показать универсальность финансовой математики."
       />
 
       <section className="content-block space-y-4">
         <MathText
           as="p"
-          text="На этом этапе теория и код должны полностью совпасть по логике. Если формула задает перевод потока во времени, то в Python этот перевод должен быть прозрачен: видны исходные данные, коэффициенты, промежуточные столбцы и итоговое значение."
+          text="Общая формула приведенной стоимости для произвольного потока задается суммой дисконтированных платежей. Формула аннуитета - это не отдельный мир, а частный случай той же логики, когда все $CF_t$ равны между собой."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
-        <div className="grid gap-4 lg:grid-cols-2">
-          <MathBlock formula={String.raw`PV = \sum_{t=0}^{n} \frac{CF_t}{(1+r)^t}`} />
-          <MathBlock formula={String.raw`FV_T = \sum_{t=0}^{n} CF_t (1+r)^{T-t}`} />
-        </div>
+        <MathBlock formula={String.raw`PV = \sum_{t=1}^{n} \frac{CF_t}{(1+r)^t}`} />
+        <MathBlock formula={String.raw`PV_{ann} = A \cdot \frac{1-(1+i)^{-n}}{i}`} />
         <MathText
           as="p"
-          text="Именно такой формат вычисления нужен будущему финансовому аналитику: сначала собрать модель потока, затем проверить вклад каждого периода и только после этого переходить к итоговому выводу о проекте."
+          text="Для будущей стоимости симметрия сохраняется: каждый платеж можно перенести вперед к одному горизонту, а затем сложить. Поэтому хороший код не должен быть привязан только к одной учебной задаче; он должен уметь работать и с облигацией, и с кредитом, и с проектным потоком."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
 
+      <IdeaCard title="Что особенно важно увидеть на этом экране">
+        <p>
+          Python здесь играет не роль декоративного приложения к теории, а роль инструмента формализации. Как
+          только поток задан числами и периодами, один и тот же набор функций начинает работать для разных
+          профессиональных объектов: рыночной бумаги, кредита, инвестиционного проекта.
+        </p>
+      </IdeaCard>
+
       <ComparisonTable
-        columns={pvContributionRows.map((row) => `Год ${row.year}`)}
+        columns={['Казначейская нота', 'Ипотека 30 лет', 'Ипотека 15 лет']}
         rows={[
           {
-            label: 'Вклад в PV, млн руб.',
-            values: pvContributionRows.map((row) => row.pv.toFixed(2)),
+            label: 'Рыночная ставка',
+            values: ['3.93% / 2', '6.62% / 12', '5.89% / 12'],
+          },
+          {
+            label: 'Основной расчет',
+            values: [
+              `PV = ${treasuryNotePriceProxyUsd.toFixed(2)} USD`,
+              `A = ${mortgageBenchmarksJan042024[0].paymentUsd.toFixed(2)} USD`,
+              `A = ${mortgageBenchmarksJan042024[1].paymentUsd.toFixed(2)} USD`,
+            ],
             highlight: true,
+          },
+          {
+            label: 'Дополнительный вывод',
+            values: [
+              `FV = ${treasuryNoteFutureValueAtMaturityUsd.toFixed(2)} USD`,
+              `Principal = ${mortgagePrincipalUsd.toLocaleString('en-US')} USD`,
+              `Principal = ${mortgagePrincipalUsd.toLocaleString('en-US')} USD`,
+            ],
           },
         ]}
       />
 
       <PlotViewer
-        title="Как периоды влияют на приведенную стоимость"
-        caption="Даже после дисконтирования самые поздние положительные потоки могут давать значимый вклад в стоимость проекта, но этот вклад уже меньше их номинального размера."
+        title="Из чего складывается цена реальной купонной ноты"
+        caption="Цена ноты - это сумма приведенных стоимостей всех купонов и приведенной стоимости возврата номинала. На длинных бумагах вклад номинала часто оказывается доминирующим, хотя с точки зрения денежных поступлений купоны тоже значимы."
       >
-        <PVContributionChart />
+        <BondPriceCompositionChart />
       </PlotViewer>
 
       <section className="content-block space-y-4">
-        <h3 className="section-title">Python: полный расчет PV и FV проекта</h3>
+        <h3 className="section-title">Python: единый расчет для реальных данных</h3>
         <MathText
           as="p"
-          text="Ниже одна таблица решает сразу две задачи: рассчитывает приведенную стоимость всех платежей и переводит тот же поток в капитал на конец горизонта. Такой формат особенно полезен для преподавания, потому что студент видит всю цепочку от формулы до числового результата."
+          text="В одном блоке ниже объединены два типа задач. Сначала вычисляется цена и будущая стоимость потока реальной Treasury note, затем по той же логике считается аннуитетный платеж для ипотечных ставок Freddie Mac. Это хороший образец того, как строится библиотека функций финансового аналитика."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <ExecutablePythonBlock
           code={miniAnalysisCode}
-          title="Python: расчет приведенной и будущей стоимости"
+          title="Python: объединяем оценку ноты и аннуитет"
           packages={['pandas']}
           defaultOpen
-          note="Это основной рабочий блок практики: можно менять ставку, поток или горизонт и сразу смотреть, как меняются PV и FV."
+          note="Попробуйте менять ставку по ноте или ипотеке и наблюдать, как один и тот же код реагирует на разные финансовые сценарии. Это и есть практическая ценность математической формализации."
         />
       </section>
 
-      <section className="space-y-4">
-        <section className="content-block space-y-4">
-          <h3 className="section-title">Повторно используемые функции</h3>
-          <MathText
-            as="p"
-            text="Когда логика расчета уже проверена на таблице, ее удобно оформить в функции. Это делает код пригодным для реальных задач: сравнения проектов, сценарного анализа и автоматизации расчетов."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <ExecutablePythonBlock
-            code={functionCode}
-            title="Python: функции present_value(), future_value_to_horizon(), annuity_payment()"
-            note="Здесь расчет уже оформлен в компактный инструмент, который можно применять к другим потокам и схемам финансирования."
-          />
-        </section>
-
-        <IdeaCard title="Практический смысл расчета">
-          <p>
-            Формула не существует отдельно от данных и кода. Если проект описан как поток, то PV и
-            FV — это не абстрактные символы, а вычислимые характеристики, на основе которых
-            принимают решения о вложении капитала.
-          </p>
-        </IdeaCard>
-
-        <KeyIdea title="Итог практики 2">
-          Денежные потоки и дисконтирование образуют математический каркас инвестиционного анализа.
-          После этой практики студент должен уметь читать поток по периодам, переводить его во
-          времени и реализовывать эти операции в Python без разрыва между теорией и расчетом.
-        </KeyIdea>
+      <section className="content-block space-y-4">
+        <h3 className="section-title">Полезные функции Python для дальнейшей работы</h3>
+        <MathText
+          as="p"
+          text="Функции `present_value_stream()`, `future_value_stream()` и `annuity_payment()` стоит сохранить как базовый набор финансовых примитивов. Когда такие элементы уже готовы и проверены, аналитик может сосредоточиться на выборе данных, постановке гипотез и интерпретации результатов."
+          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+        />
+        <ExecutablePythonBlock
+          code={functionCode}
+          title="Python: reusable financial functions"
+          note="Этот блок полезен как заготовка для последующих практик: функции уже можно применять к другим облигациям, кредитам и проектным потокам."
+        />
       </section>
+
+      <KeyIdea title="Итог практики 2">
+        Денежный поток, временная стоимость денег, дисконтирование, наращение и аннуитеты образуют единую
+        математическую систему. Если студент научился переводить реальные рыночные данные в эту систему и
+        воспроизводить расчеты в Python, он уже делает первый шаг к профессиональному инвестиционному анализу на
+        основе данных.
+      </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link
