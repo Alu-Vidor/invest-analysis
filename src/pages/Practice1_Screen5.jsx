@@ -1,296 +1,148 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import CourseHeader from '../components/CourseHeader'
 import CodeBlock from '../components/CodeBlock'
+import CourseHeader from '../components/CourseHeader'
+import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
-import TerminalOutput from '../components/TerminalOutput'
+import MathBlock from '../components/MathBlock'
 
 const contextNotes = [
   {
-    title: 'Что такое Pandas?',
-    text: 'Название произошло от "Panel Data" (панельные данные). Если сильно упростить, Pandas - это Excel на максималках, управляемый кодом. Он позволяет фильтровать, группировать и анализировать данные в сотни раз быстрее, чем это можно сделать мышкой.',
+    title: 'Логика мини-анализа',
+    text: 'На этом экране мы соединяем предыдущие темы: формализуем объект, рассчитываем доходность, учитываем риск и интерпретируем результат в контексте инвестиционного горизонта.',
   },
   {
-    title: 'pd.Series vs pd.DataFrame',
-    text: 'Series - это одномерный массив (одна колонка). DataFrame - это двумерная таблица (строки и колонки). В наших лабах мы будем работать в основном с DataFrame, где колонками выступают разные признаки (например, рост, вес, возраст).',
-  },
-  {
-    title: 'Что проверять первым делом?',
-    text: 'После загрузки данных не спешите считать красивые метрики. Сначала посмотрите размер таблицы, типы колонок, минимум, максимум и несколько первых строк. Эти 15 секунд часто спасают от часов неверного анализа.',
+    title: 'Главная привычка аналитика',
+    text: 'Ценность Python не в том, что он быстро считает. Важно, что код сохраняет последовательность рассуждения: от данных к метрике, от метрики к выводу.',
   },
 ]
 
-const createSeriesCode = `import pandas as pd
+const miniAnalysisCode = `import pandas as pd
 
-# Наши оценки 10 студентов (включая один баг)
-scores = [65, 70, 72, 75, 78, 80, 82, 85, 88, 1000]
+projects = pd.DataFrame(
+    {
+        "project": ["A", "B", "C"],
+        "purchase_price": [100, 100, 100],
+        "expected_price_next_year": [112, 118, 126],
+        "risk_score": [2.4, 5.3, 8.1],
+        "liquidity_days": [3, 20, 120],
+        "horizon_years": [1, 2, 4],
+    }
+)
 
-# Создаем объект Series
-df_scores = pd.Series(scores)
-print(df_scores.values)`
+projects["expected_return"] = (
+    projects["expected_price_next_year"] - projects["purchase_price"]
+) / projects["purchase_price"]
 
-const metricsCode = `mean_score = df_scores.mean()
-median_score = df_scores.median()
+short_horizon = projects.query("horizon_years <= 2").copy()
+recommended = short_horizon.sort_values(
+    by=["expected_return", "risk_score"],
+    ascending=[False, True],
+).iloc[0]
 
-print(f"Среднее арифметическое: {mean_score}")
-print(f"Медиана: {median_score}")`
-
-const describeCode = `print(df_scores.describe())`
-
-const dataframeCode = `df = pd.DataFrame({
-    "student_id": range(1, 11),
-    "score": scores,
-})
-
-print(df.head())`
-
-const outlierCode = `print(df.sort_values("score", ascending=False).head(3))
+print(projects[["project", "expected_return", "risk_score", "liquidity_days", "horizon_years"]])
 print()
-print(df[df["score"] > 100])`
+print("Рекомендация для горизонта до 2 лет:")
+print(recommended[["project", "expected_return", "risk_score"]])`
 
-const importFilesCode = `import pandas as pd
-
-# CSV-файл
-students_csv = pd.read_csv("students.csv")
-print(students_csv.head())
-
-print()
-
-# Excel-файл
-students_xlsx = pd.read_excel("students.xlsx")
-print(students_xlsx.head())`
-
-const fileCheckCode = `print(students_csv.shape)
-print(students_csv.columns.tolist())
-print(students_csv.dtypes)`
-
-const documentationLinks = [
-  {
-    label: 'pandas: Series',
-    href: 'https://pandas.pydata.org/docs/reference/api/pandas.Series.html',
-  },
-  {
-    label: 'pandas: DataFrame',
-    href: 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html',
-  },
-  {
-    label: 'pandas: read_csv',
-    href: 'https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html',
-  },
-  {
-    label: 'pandas: read_excel',
-    href: 'https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html',
-  },
+const interpretationPoints = [
+  'сначала проверяем, какие проекты вообще допустимы по инвестиционному горизонту;',
+  'затем сравниваем ожидаемую доходность внутри допустимого множества;',
+  'после этого смотрим, не покупается ли высокая доходность чрезмерным риском;',
+  'только в конце формулируем рекомендацию в языке управленческого решения.',
 ]
 
 function Practice1_Screen5({ setContextNotes }) {
   useEffect(() => {
-    const timerId = window.setTimeout(() => {
-      setContextNotes(contextNotes)
-    }, 0)
-
-    return () => {
-      window.clearTimeout(timerId)
-    }
+    setContextNotes(contextNotes)
   }, [setContextNotes])
 
   return (
     <article className="space-y-6">
       <CourseHeader
-        badge="Практика 1 -> ДАННЫЕ В КОДЕ"
-        title="Данные в коде: знакомство с Pandas"
-        subtitle="Считаем базовые метрики в две строчки кода."
+        badge="Практика 1 · Python и рабочая среда"
+        title="Первый мини-анализ данных в Python"
+        subtitle="Проводим компактный инвестиционный разбор: от таблицы проектов к обоснованной рекомендации на языке данных."
       />
 
-      <section className="content-block space-y-6">
+      <section className="content-block">
         <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-          Ручной счет хорош для понимания интуиции, но в реальности датасеты содержат миллионы
-          строк. Индустриальный стандарт для работы с табличными данными в Python - это библиотека
-          <code className="mx-1 rounded bg-slate-200 px-1.5 py-0.5 text-sm dark:bg-slate-700">pandas</code>.
-          Давайте воспроизведем наш пример с 10 студентами в коде.
+          Завершающий экран практики нужен для того, чтобы собрать все предыдущие элементы в
+          единую процедуру. Мы берем простую таблицу проектов, рассчитываем ожидаемую доходность,
+          фильтруем варианты по горизонту и делаем вывод не интуитивно, а на основе заданных
+          критериев. Это и есть базовая модель аналитического поведения.
         </p>
-
-        <div className="space-y-3">
-          <h3 className="section-title">Создание DataFrame</h3>
-          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-            Сначала импортируем библиотеку и создадим структуру данных
-            <code className="mx-1 rounded bg-slate-200 px-1.5 py-0.5 text-sm dark:bg-slate-700">Series</code>
-            (одномерный массив, по сути - одна колонка в таблице).
-          </p>
-          <CodeBlock code={createSeriesCode} language="python" title="Python" />
-          <TerminalOutput lines="[  65   70   72   75   78   80   82   85   88 1000]" />
-        </div>
-
-        <div className="space-y-3">
-          <h3 className="section-title">Расчет метрик</h3>
-          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-            Теперь нам не нужно писать циклы суммирования. У Pandas есть встроенные методы для
-            описательной статистики. Считаем среднее и медиану:
-          </p>
-          <CodeBlock code={metricsCode} language="python" title="Python" />
-          <TerminalOutput lines={['Среднее арифметическое: 169.5', 'Медиана: 79.0']} />
-        </div>
-
-        <div className="space-y-3">
-          <h3 className="section-title">Быстрая сводка по колонке</h3>
-          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-            Одна из самых полезных привычек в Pandas -
-            <code className="mx-1 rounded bg-slate-200 px-1.5 py-0.5 text-sm dark:bg-slate-700">describe()</code>.
-            Этот метод за секунду показывает количество наблюдений, среднее, стандартное отклонение,
-            квантили и экстремальные значения. Именно максимум в 1000 сразу должен заставить вас
-            насторожиться.
-          </p>
-          <CodeBlock code={describeCode} language="python" title="Python" />
-          <TerminalOutput
-            lines={[
-              'count      10.000000',
-              'mean      169.500000',
-              'std       290.523282',
-              'min        65.000000',
-              '25%        72.750000',
-              '50%        79.000000',
-              '75%        84.250000',
-              'max      1000.000000',
-              'dtype: float64',
-            ]}
-          />
-        </div>
-
-        <div className="space-y-3">
-          <h3 className="section-title">Переходим от Series к таблице</h3>
-          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-            Для учебного примера достаточно
-            <code className="mx-1 rounded bg-slate-200 px-1.5 py-0.5 text-sm dark:bg-slate-700">Series</code>,
-            но реальные данные почти всегда живут в
-            <code className="mx-1 rounded bg-slate-200 px-1.5 py-0.5 text-sm dark:bg-slate-700">DataFrame</code>.
-            Добавим идентификатор студента и получим нормальную табличную структуру, с которой уже
-            удобно фильтровать строки и строить графики.
-          </p>
-          <CodeBlock code={dataframeCode} language="python" title="Python" />
-          <TerminalOutput
-            lines={[
-              '   student_id  score',
-              '0           1     65',
-              '1           2     70',
-              '2           3     72',
-              '3           4     75',
-              '4           5     78',
-            ]}
-          />
-        </div>
-
-        <div className="space-y-3">
-          <h3 className="section-title">Как быстро найти подозрительные строки</h3>
-          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-            Хороший аналитик после расчета метрик сразу пытается понять, какая строка испортила
-            среднее. Самый простой путь - отсортировать данные по убыванию или применить фильтр.
-            Так вы не просто видите аномалию, а находите конкретную запись, которую нужно проверить
-            в источнике.
-          </p>
-          <CodeBlock code={outlierCode} language="python" title="Python" />
-          <TerminalOutput
-            lines={[
-              '   student_id  score',
-              '9          10   1000',
-              '8           9     88',
-              '7           8     85',
-              '',
-              '   student_id  score',
-              '9          10   1000',
-            ]}
-          />
-        </div>
-
-        <div className="space-y-3">
-          <h3 className="section-title">Загрузка своих данных: CSV и XLSX</h3>
-          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-            На практике данные редко прописывают вручную в коде. Обычно аналитик получает файл от
-            коллег, выгрузку из CRM или таблицу из Excel. В Pandas для этого есть готовые функции:
-            <code className="mx-1 rounded bg-slate-200 px-1.5 py-0.5 text-sm dark:bg-slate-700">read_csv()</code>
-            и
-            <code className="mx-1 rounded bg-slate-200 px-1.5 py-0.5 text-sm dark:bg-slate-700">read_excel()</code>.
-          </p>
-          <CodeBlock code={importFilesCode} language="python" title="Python" />
-          <TerminalOutput
-            lines={[
-              '   student_id  score',
-              '0           1     65',
-              '1           2     70',
-              '2           3     72',
-              '3           4     75',
-              '4           5     78',
-              '',
-              '   student_id  score',
-              '0           1     65',
-              '1           2     70',
-              '2           3     72',
-              '3           4     75',
-              '4           5     78',
-            ]}
-          />
-        </div>
-
-        <div className="space-y-3">
-          <h3 className="section-title">Что проверить сразу после загрузки файла</h3>
-          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-            Сам факт успешной загрузки еще не означает, что таблица прочиталась правильно. Нужно
-            сразу посмотреть размер набора данных, названия колонок и их типы. Это помогает быстро
-            заметить типичные проблемы: лишний индекс, неправильный разделитель в CSV, текст вместо
-            чисел или пустые значения в критичных столбцах.
-          </p>
-          <CodeBlock code={fileCheckCode} language="python" title="Python" />
-          <TerminalOutput
-            lines={[
-              '(10, 2)',
-              "['student_id', 'score']",
-              'student_id    int64',
-              'score         int64',
-              'dtype: object',
-            ]}
-          />
-        </div>
-
-        <KeyIdea title="Инструмент не заменяет мозг">
-          Как видите, Python мгновенно выдал оба результата. Код никогда не скажет вам: "Эй, здесь
-          есть выброс, не используй .mean()!". Библиотека просто выполняет математическую
-          операцию. Выбор правильной метрики в зависимости от природы данных и наличия аномалий -
-          это исключительно ваша задача как аналитика.
-        </KeyIdea>
-
-        <KeyIdea title="Мини-чеклист перед анализом">
-          Импортировали данные, посмотрели первые строки, вызвали `describe()`, нашли минимум и
-          максимум, сравнили среднее с медианой. Это уже маленький, но профессиональный пайплайн
-          проверки качества данных. Даже на очень простом датасете он помогает не доверять цифрам
-          вслепую.
-        </KeyIdea>
-
-        <KeyIdea title="Практический вывод">
-          Если данные пришли в `CSV` или `XLSX`, ваша первая задача не в том, чтобы сразу считать
-          среднее. Сначала загрузите файл, проверьте структуру таблицы, убедитесь, что числовые
-          колонки действительно числовые, и только потом переходите к статистике.
-        </KeyIdea>
-        <section className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-6 dark:border-slate-700 dark:bg-slate-900/70">
-          <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-            Официальная документация Python
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-            Базовые страницы Pandas, которые стоит открыть перед первой лабораторной.
-          </p>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {documentationLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-200 dark:hover:border-indigo-700 dark:hover:text-indigo-300"
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-        </section>
       </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <section className="content-block">
+          <h3 className="section-title">Какая метрика используется</h3>
+          <p className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200">
+            Для первого приближения достаточно ожидаемой однопериодной доходности:
+          </p>
+          <MathBlock formula={String.raw`R_i = \frac{P_{1,i} - P_{0,i}}{P_{0,i}}`} />
+          <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+            Но сама по себе эта формула не завершает анализ. Она лишь создает числовую основу,
+            после которой необходимо учесть риск, ликвидность и соответствие проекта целям
+            инвестора.
+          </p>
+        </section>
+
+        <IdeaCard title="Мини-кейс">
+          <p>
+            Предположим, инвестор не готов замораживать капитал более чем на два года. Тогда
+            проект с самой высокой номинальной доходностью может быть автоматически исключен из
+            рассмотрения, если его горизонт слишком длинный.
+          </p>
+        </IdeaCard>
+      </section>
+
+      <section className="content-block">
+        <h3 className="section-title">Код анализа</h3>
+        <p className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Ниже показан минимальный, но уже профессионально осмысленный пайплайн: данные
+          структурируются в `DataFrame`, затем рассчитывается доходность, применяется фильтр по
+          горизонту, и только потом строится рекомендация.
+        </p>
+        <div className="mt-4">
+          <CodeBlock code={miniAnalysisCode} title="Python: первый инвестиционный мини-анализ" />
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <section className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-700 dark:bg-slate-900">
+          <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
+            Как интерпретировать результат
+          </h3>
+          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+            {interpretationPoints.map((point) => (
+              <li key={point} className="flex items-start gap-3">
+                <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-indigo-500 dark:bg-indigo-300" />
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <IdeaCard title="Формулировка вывода для отчета">
+          <p>
+            Корректный вывод звучит не как «проект B лучший», а как «при горизонте инвестирования
+            до 2 лет проект B обеспечивает наибольшую ожидаемую доходность среди допустимых
+            альтернатив при умеренном уровне риска».
+          </p>
+          <p className="mt-3">
+            Такой язык важен для реальной практики: рекомендация должна быть привязана к данным,
+            условиям и ограничениям, а не к абстрактной оценке.
+          </p>
+        </IdeaCard>
+      </section>
+
+      <KeyIdea title="Итог практики 1">
+        Мы прошли полный вводный цикл: задали объект инвестиционного анализа, выделили ключевые
+        категории сравнения, связали их с цифровой средой и реализовали первичный анализ на
+        Python. Именно так формируется профессиональная привычка принимать решения на основе
+        данных, а не на основе впечатлений.
+      </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link
@@ -299,12 +151,11 @@ function Practice1_Screen5({ setContextNotes }) {
         >
           Назад
         </Link>
-
         <Link
-          to="/practice/1/screen/6"
+          to="/practice/2/screen/1"
           className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          Далее: 6. Гистограмма и эмпирическая функция
+          К практике 2
         </Link>
       </nav>
     </article>

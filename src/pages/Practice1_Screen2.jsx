@@ -1,184 +1,141 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Coins, ListOrdered, Ruler, Tags, Thermometer } from 'lucide-react'
+import CodeBlock from '../components/CodeBlock'
 import CourseHeader from '../components/CourseHeader'
 import IdeaCard from '../components/IdeaCard'
+import KeyIdea from '../components/KeyIdea'
+import MathBlock from '../components/MathBlock'
 
 const contextNotes = [
   {
-    title: 'Ошибка новичка',
-    text: 'Классическая ошибка аналитика - загрузить датасет, увидеть столбец user_id (например, 1045, 1046...) или zip_code (почтовый индекс) и посчитать по нему среднее. То, что данные записаны цифрами, еще не делает их количественной шкалой. ID пользователя - это чистая номинативная шкала.',
+    title: 'Доходность и риск',
+    text: 'Высокая ожидаемая доходность почти никогда не существует сама по себе: обычно она сопровождается большей неопределенностью результатов.',
   },
   {
-    title: 'Шкалы в Pandas',
-    text: 'Когда мы перейдем к коду, вы увидите, как шкалы маппятся на типы данных в pandas: Номинативные/Порядковые -> object или category. Интервальные/Отношений -> int64 или float64.',
+    title: 'Ликвидность и горизонт',
+    text: 'Даже хороший по доходности объект может быть неудобен для инвестора, если его трудно быстро продать или срок вложения не совпадает с финансовыми целями.',
   },
 ]
 
-const scaleCards = [
+const categoryCards = [
   {
-    title: 'Номинативная шкала (Категории)',
-    icon: Tags,
-    examples: 'Цвет глаз, марка автомобиля, пол, город.',
-    essence: 'Данные просто распределены по корзинам. Между ними нет порядка.',
-    math: 'Можно только считать количество (частоту) и искать самое популярное значение (моду). Считать средний цвет глаз - бессмысленно.',
-    action:
-      'Подсчитывать частоты, доли и моду; строить столбчатые диаграммы и таблицы сопряженности.',
-    tone: 'border-rose-200 bg-rose-50/70 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300',
+    title: 'Доходность',
+    text: 'Показывает, насколько результат инвестиции превышает исходное вложение. Для аналитика это не только факт роста, но и характеристика эффективности использования капитала.',
   },
   {
-    title: 'Порядковая шкала (Ранги)',
-    icon: ListOrdered,
-    examples: 'Оценки в отзыве (1-5 звезд), уровень образования, воинское звание.',
-    essence:
-      'Появляется порядок (больше/меньше), но расстояние между категориями неизвестно.',
-    math: 'Можно сортировать и искать медиану. Считать среднее строго математически нельзя (хотя в бизнесе это делают очень часто).',
-    action: 'Сравнивать порядок, считать медиану и квантили, использовать ранговые методы.',
-    tone: 'border-amber-200 bg-amber-50/70 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300',
+    title: 'Риск',
+    text: 'Отражает изменчивость возможных исходов. Важна не только средняя ожидаемая выгода, но и диапазон отклонений от нее, включая неблагоприятные сценарии.',
   },
   {
-    title: 'Интервальная шкала',
-    icon: Thermometer,
-    examples: 'Температура в Цельсиях, год рождения.',
-    essence:
-      'Есть порядок и точное расстояние между делениями, но нет абсолютного нуля.',
-    math: 'Можно складывать и вычитать, считать среднее и дисперсию. Нельзя интерпретировать отношение: 20°C не в два раза теплее 10°C.',
-    action: 'Анализировать разницы, применять среднее/дисперсию и линейные преобразования.',
-    tone: 'border-cyan-200 bg-cyan-50/70 text-cyan-700 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-300',
+    title: 'Ликвидность',
+    text: 'Характеризует скорость и издержки преобразования актива в деньги без существенной потери стоимости. Для практики финансового управления это критично.',
   },
   {
-    title: 'Шкала отношений (Количественная)',
-    icon: Coins,
-    altIcon: Ruler,
-    examples: 'Зарплата, рост, вес, количество кликов на сайте.',
-    essence:
-      'Самая богатая шкала: есть порядок, равные интервалы и настоящий ноль.',
-    math: 'Работают все базовые операции: сложение, умножение, среднее, логарифмы. 100 тысяч рублей действительно в 2 раза больше, чем 50 тысяч.',
-    action: 'Применять весь арсенал количественной статистики и машинного обучения.',
-    tone: 'border-emerald-200 bg-emerald-50/70 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300',
+    title: 'Горизонт',
+    text: 'Определяет временной интервал, в течение которого инвестор готов удерживать позицию и ждать результата. Горизонт влияет на допустимый риск и выбор метрик.',
   },
 ]
 
-const scaleRules = [
-  {
-    scale: 'Номинативная',
-    ok: 'частоты, доли, мода',
-    avoid: 'среднее, дисперсия, корреляция Пирсона',
-  },
-  {
-    scale: 'Порядковая',
-    ok: 'медиана, квартили, ранги',
-    avoid: 'арифметика как для количественных данных',
-  },
-  {
-    scale: 'Интервальная',
-    ok: 'разности, среднее, дисперсия',
-    avoid: 'отношения вида “в 2 раза больше”',
-  },
-  {
-    scale: 'Отношений',
-    ok: 'весь базовый аппарат количественной статистики',
-    avoid: 'механическое игнорирование смысла данных',
-  },
-]
+const compareCode = `import pandas as pd
+
+projects = pd.DataFrame(
+    {
+        "project": ["A", "B", "C"],
+        "initial_investment": [1000000, 1000000, 1000000],
+        "expected_payoff": [1180000, 1250000, 1320000],
+        "risk_score": [2.1, 4.8, 7.2],
+        "liquidity_days": [5, 30, 180],
+        "horizon_years": [1, 2, 4],
+    }
+)
+
+projects["expected_return"] = (
+    projects["expected_payoff"] - projects["initial_investment"]
+) / projects["initial_investment"]
+
+print(projects[["project", "expected_return", "risk_score", "liquidity_days", "horizon_years"]])`
 
 function Practice1_Screen2({ setContextNotes }) {
   useEffect(() => {
-    const timerId = window.setTimeout(() => {
-      setContextNotes(contextNotes)
-    }, 0)
-
-    return () => {
-      window.clearTimeout(timerId)
-    }
+    setContextNotes(contextNotes)
   }, [setContextNotes])
 
   return (
     <article className="space-y-6">
       <CourseHeader
-        badge="Практика 1 -> ВВЕДЕНИЕ"
-        title="Шкалы измерений: не складывай яблоки с рангами"
-        subtitle="Почему df.mean() иногда выдает математический абсурд."
+        badge="Практика 1 · Основы инвестиционного анализа"
+        title="Базовые категории: доходность, риск, ликвидность, горизонт"
+        subtitle="Разбираем четыре координаты, без которых нельзя корректно сравнивать инвестиционные альтернативы."
       />
 
       <section className="content-block">
         <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-          Прежде чем писать код и считать статистику, нужно понять природу наших данных. Данные
-          бывают разными, и то, что разрешено делать с одними, категорически запрещено делать с
-          другими. Выделяют 4 основных типа (шкалы) измерений.
+          После формализации инвестиционного решения возникает следующий вопрос: по каким
+          измерениям сравнивать альтернативы? В реальной профессиональной работе аналитик почти
+          никогда не принимает решение только по одному критерию. Нужно одновременно учитывать
+          потенциальную выгоду, степень неопределенности, возможность быстро выйти из позиции и
+          временной профиль проекта.
         </p>
       </section>
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {scaleCards.map((card) => {
-          const Icon = card.icon
-          const AltIcon = card.altIcon
-
-          return (
-            <article
-              key={card.title}
-              className={`rounded-2xl border p-5 shadow-soft ${card.tone}`}
-            >
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <h3 className="text-lg font-semibold leading-tight">{card.title}</h3>
-                <div className="flex items-center gap-2">
-                  <Icon size={20} />
-                  {AltIcon ? <AltIcon size={20} /> : null}
-                </div>
-              </div>
-
-              <div className="space-y-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                <p>
-                  <span className="font-semibold">Примеры:</span> {card.examples}
-                </p>
-                <p>
-                  <span className="font-semibold">Суть:</span> {card.essence}
-                </p>
-                <p>
-                  <span className="font-semibold">Математика:</span> {card.math}
-                </p>
-              </div>
-
-              <div className="mt-4 rounded-xl border border-current/20 bg-white/70 p-3 dark:bg-slate-900/30">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em]">Что можно делать</p>
-                <p className="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                  {card.action}
-                </p>
-              </div>
-            </article>
-          )
-        })}
+      <section className="grid gap-4 md:grid-cols-2">
+        {categoryCards.map((card) => (
+          <article
+            key={card.title}
+            className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900"
+          >
+            <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
+              {card.title}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+              {card.text}
+            </p>
+          </article>
+        ))}
       </section>
 
-      <IdeaCard title="Золотое правило">
-        Тип шкалы диктует выбор статистического метода. Если вы примените метод для
-        количественной шкалы (например, корреляцию Пирсона) к номинативным данным, Python честно
-        все посчитает и выдаст число, но это число будет статистическим мусором.
-      </IdeaCard>
+      <section className="grid gap-4 lg:grid-cols-2">
+        <section className="content-block">
+          <h3 className="section-title">Две базовые формулы</h3>
+          <p className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200">
+            На начальном уровне удобно зафиксировать две математические идеи. Первая описывает
+            доходность как относительное изменение стоимости, вторая показывает риск как разброс
+            возможных результатов вокруг ожидаемого значения.
+          </p>
+          <MathBlock formula={String.raw`R = \frac{V_1 - V_0}{V_0}`} />
+          <MathBlock formula={String.raw`\sigma^2 = \sum_{i=1}^{m} p_i\left(r_i - \mathbb{E}[R]\right)^2`} />
+        </section>
 
-      <section className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-700 dark:bg-slate-900">
-        <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-          Шкала - допустимые методы
-        </h3>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {scaleRules.map((rule) => (
-            <article
-              key={rule.scale}
-              className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-950/70"
-            >
-              <h4 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-900 dark:text-white">
-                {rule.scale}
-              </h4>
-              <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                <span className="font-semibold">Можно:</span> {rule.ok}
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                <span className="font-semibold">Нельзя или опасно:</span> {rule.avoid}
-              </p>
-            </article>
-          ))}
+        <IdeaCard title="Почему нельзя оптимизировать только доходность">
+          <p>
+            Проект с наибольшей ожидаемой доходностью может оказаться неподходящим для компании,
+            если деньги потребуются раньше срока или если вероятность кассового разрыва слишком
+            высока.
+          </p>
+          <p className="mt-3">
+            Поэтому инвестиционный анализ всегда связан с компромиссами, а не с поиском одного
+            «абсолютно лучшего» числа.
+          </p>
+        </IdeaCard>
+      </section>
+
+      <section className="content-block">
+        <h3 className="section-title">Как это выглядит в данных</h3>
+        <p className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          В практике аналитика категории должны быть сведены в одну таблицу сравнения. Тогда
+          решение становится прозрачным: мы видим не только ожидаемую отдачу, но и то, какой риск
+          и какой временной профиль сопровождают эту отдачу.
+        </p>
+        <div className="mt-4">
+          <CodeBlock code={compareCode} title="Python: сравниваем проекты по ключевым категориям" />
         </div>
       </section>
+
+      <KeyIdea title="Профессиональный акцент">
+        Сильный инвестиционный аналитик мыслит не отдельными показателями, а системой взаимосвязей
+        между ними. Именно эта способность отличает расчетчика от специалиста, который умеет
+        принимать и аргументировать решения в финансовой среде.
+      </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link
@@ -187,12 +144,11 @@ function Practice1_Screen2({ setContextNotes }) {
         >
           Назад
         </Link>
-
         <Link
           to="/practice/1/screen/3"
           className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          Далее: 3. Мини-пример на 10 студентах
+          Далее: 3. Цифровая экономика
         </Link>
       </nav>
     </article>
