@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
+import HandbookDetails from '../components/HandbookDetails'
 import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 import {
   treasuryNote2028,
   treasuryNoteSchedule2028,
@@ -125,12 +128,27 @@ function Practice2_Screen1({ setContextNotes }) {
       />
 
       <section className="content-block space-y-4">
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Представьте, что вам нужно оценить облигацию для клиентского портфеля. Доходность еще не
+          посчитана, дисконтирование впереди, но первый профессиональный вопрос уже понятен: какой
+          именно календарь денег получит инвестор и в какие даты?
+        </p>
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Здесь появляется <strong>денежный поток</strong> (англ. <em>cash flow</em>) и{' '}
+          <strong>купонная облигация</strong> (англ. <em>coupon bond</em>) как особенно удобный
+          реальный объект для старта: ее выплаты заранее зафиксированы контрактом.
+        </p>
         <MathText
           as="p"
           text="В инвестиционном анализе решение задается не общими словами, а последовательностью платежей по времени. Если в момент $t$ возникают поступления $In_t$ и выплаты $Out_t$, то чистый денежный поток периода определяется как разность этих величин."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <MathBlock formula={String.raw`CF_t = In_t - Out_t`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          В этой записи <strong>Inₜ</strong> — приток денег в период <strong>t</strong>,
+          <strong>Outₜ</strong> — выплата или расход, а <strong>CFₜ</strong> — чистый итог периода.
+          Нам важно не только значение потока, но и его место во времени.
+        </p>
         <MathText
           as="p"
           text="Для облигации структура потока особенно прозрачна. Пусть $F$ - номинал, $c$ - годовая купонная ставка, $m$ - число купонных выплат в году. Тогда размер одного купона равен $C = \frac{F \cdot c}{m}$, а денежный поток по обычной купонной облигации записывается так:"
@@ -152,6 +170,13 @@ function Practice2_Screen1({ setContextNotes }) {
           возврат номинала.
         </p>
       </IdeaCard>
+
+      <SourceNote>
+        Реальные данные примера: <strong>{treasuryNote2028.title}</strong>, номинал{' '}
+        {treasuryNote2028.faceValueUsd.toLocaleString('en-US')} USD, купон{' '}
+        {(treasuryNote2028.couponRate * 100).toFixed(3)}% годовых, выплаты дважды в год до{' '}
+        <strong>15 января 2028 года</strong>.
+      </SourceNote>
 
       <ComparisonTable
         columns={treasuryNoteSchedule2028.map((row) => `k=${row.period}`)}
@@ -183,6 +208,17 @@ function Practice2_Screen1({ setContextNotes }) {
         <TreasuryCashFlowChart />
       </PlotViewer>
 
+      <ThinkQuestion question="Почему для облигации недостаточно знать только суммарный объем будущих выплат?">
+        <p>
+          Потому что одинаковая общая сумма может быть распределена по времени по-разному. Поток,
+          где деньги приходят раньше, обычно ценнее потока, где та же сумма приходит позже.
+        </p>
+        <p>
+          Кроме того, в облигации важно различать доход в виде купонов и возврат вложенного
+          капитала в конце срока. Эти элементы играют разную экономическую роль.
+        </p>
+      </ThinkQuestion>
+
       <section className="content-block space-y-4">
         <h3 className="section-title">Экономическая интерпретация потока</h3>
         <MathText
@@ -196,6 +232,18 @@ function Practice2_Screen1({ setContextNotes }) {
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
+
+      <HandbookDetails title="Подробнее: почему облигация — идеальный учебный объект для финансовой математики">
+        <p>
+          У облигации известны даты платежей, размер купона и номинал к погашению. Это делает ее
+          почти лабораторным примером: структура потока ясна, а значит, можно сосредоточиться на
+          логике дисконтирования и интерпретации.
+        </p>
+        <p>
+          Позже мы увидим, что тот же подход переносится и на более сложные объекты: кредиты,
+          аренду, проектное финансирование и корпоративные DCF-модели.
+        </p>
+      </HandbookDetails>
 
       <section className="content-block space-y-4">
         <h3 className="section-title">Python: собираем поток в таблицу</h3>

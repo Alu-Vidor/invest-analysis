@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
+import HandbookDetails from '../components/HandbookDetails'
 import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 import {
   mortgageBenchmarksJan042024,
   mortgagePrincipalUsd,
@@ -153,6 +156,12 @@ function Practice2_Screen5({ setContextNotes }) {
       />
 
       <section className="content-block space-y-4">
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          К этому моменту у нас уже есть почти полный набор базовых инструментов. Осталось сделать
+          важный шаг, который отличает учебный фрагмент от рабочего набора аналитика: вынести
+          формулы в функции и показать, что одна и та же логика применима к разным финансовым
+          объектам.
+        </p>
         <MathText
           as="p"
           text="Общая формула приведенной стоимости для произвольного потока задается суммой дисконтированных платежей. Формула аннуитета - это не отдельный мир, а частный случай той же логики, когда все $CF_t$ равны между собой."
@@ -160,6 +169,12 @@ function Practice2_Screen5({ setContextNotes }) {
         />
         <MathBlock formula={String.raw`PV = \sum_{t=1}^{n} \frac{CF_t}{(1+r)^t}`} />
         <MathBlock formula={String.raw`PV_{ann} = A \cdot \frac{1-(1+i)^{-n}}{i}`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          В общей формуле <strong>CFₜ</strong> — платеж в момент <strong>t</strong>,{' '}
+          <strong>r</strong> — ставка за период, а <strong>PV</strong> — текущая стоимость всего
+          потока. Формула аннуитета просто использует тот частный случай, где все платежи равны
+          одной и той же величине <strong>A</strong>.
+        </p>
         <MathText
           as="p"
           text="Для будущей стоимости симметрия сохраняется: каждый платеж можно перенести вперед к одному горизонту, а затем сложить. Поэтому хороший код не должен быть привязан только к одной учебной задаче; он должен уметь работать и с облигацией, и с кредитом, и с проектным потоком."
@@ -174,6 +189,12 @@ function Practice2_Screen5({ setContextNotes }) {
           профессиональных объектов: рыночной бумаги, кредита, инвестиционного проекта.
         </p>
       </IdeaCard>
+
+      <SourceNote>
+        На этом экране мы объединяем два реальных набора данных: <strong>Treasury note 2028</strong>{' '}
+        с оценкой на <strong>2 января 2024 года</strong> и ипотечные ставки{' '}
+        <strong>Freddie Mac PMMS</strong> на <strong>4 января 2024 года</strong>.
+      </SourceNote>
 
       <ComparisonTable
         columns={['Казначейская нота', 'Ипотека 30 лет', 'Ипотека 15 лет']}
@@ -209,6 +230,18 @@ function Practice2_Screen5({ setContextNotes }) {
         <BondPriceCompositionChart />
       </PlotViewer>
 
+      <ThinkQuestion question="Почему полезно превращать финансовые формулы в функции, а не оставлять их одноразовыми фрагментами кода?">
+        <p>
+          Потому что функция отделяет общую вычислительную логику от конкретного набора чисел. Это
+          делает анализ повторяемым: одну и ту же процедуру можно применить к другой облигации,
+          кредиту или инвестиционному проекту без переписывания формул с нуля.
+        </p>
+        <p>
+          Для аналитика это означает меньше ручных ошибок и больше внимания к экономической
+          интерпретации результата.
+        </p>
+      </ThinkQuestion>
+
       <section className="content-block space-y-4">
         <h3 className="section-title">Python: единый расчет для реальных данных</h3>
         <MathText
@@ -224,6 +257,18 @@ function Practice2_Screen5({ setContextNotes }) {
           note="Попробуйте менять ставку по ноте или ипотеке и наблюдать, как один и тот же код реагирует на разные финансовые сценарии. Это и есть практическая ценность математической формализации."
         />
       </section>
+
+      <HandbookDetails title="Подробнее: как из учебного кода вырастает собственная библиотека аналитика">
+        <p>
+          На практике полезно собирать небольшой набор проверенных функций: для приведенной
+          стоимости, будущей стоимости, аннуитетного платежа, внутренней нормы доходности,
+          чувствительности к ставке.
+        </p>
+        <p>
+          Когда такие примитивы уже отлажены, вы тратите время не на механическое переписывание
+          формул, а на выбор корректных данных, постановку вопроса и проверку гипотезы.
+        </p>
+      </HandbookDetails>
 
       <section className="content-block space-y-4">
         <h3 className="section-title">Полезные функции Python для дальнейшей работы</h3>

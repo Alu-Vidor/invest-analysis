@@ -5,10 +5,13 @@ import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import IdeaCard from '../components/IdeaCard'
+import HandbookDetails from '../components/HandbookDetails'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 
 const contextNotes = [
   {
@@ -176,6 +179,17 @@ function Practice1_Screen4({ setContextNotes }) {
       />
 
       <section className="content-block space-y-4">
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Представьте, что вам нужно быстро проверить, был ли конец января 2024 года спокойным
+          участком в ряду AAPL. Вручную сравнивать цены по дням неудобно, а главное — трудно
+          воспроизвести. Именно здесь <strong>Python</strong> становится не просто языком, а
+          рабочей средой аналитика.
+        </p>
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Мы будем работать с <strong>временным рядом</strong> (англ. <em>time series</em>) и
+          следить за <strong>воспроизводимостью</strong> (англ. <em>reproducibility</em>): один и
+          тот же код на тех же данных должен приводить к тем же числам.
+        </p>
         <MathText
           as="p"
           text="Python нужен инвестиционному аналитику не сам по себе, а как среда, в которой данные, формулы, визуализация и вывод оказываются частями одного процесса. Это позволяет не только считать показатели, но и проверять, откуда они возникли."
@@ -187,6 +201,11 @@ function Practice1_Screen4({ setContextNotes }) {
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <MathBlock formula={String.raw`\{P_t\}_{t=1}^{n}`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Здесь <strong>Pₜ</strong> — цена актива в момент <strong>t</strong>, а вся запись{' '}
+          <strong>{'{P_t}_{t=1}^{n}'}</strong> означает упорядоченную последовательность
+          наблюдений. Именно такая структура затем превращается в таблицу `DataFrame`.
+        </p>
       </section>
 
       <section className="grid items-start gap-4 md:grid-cols-2">
@@ -224,6 +243,13 @@ function Practice1_Screen4({ setContextNotes }) {
             note="Это точка входа в анализ: можно изменить цены или добавить новые наблюдения, а затем перейти к доходностям."
           />
         </section>
+
+        <SourceNote>
+          Реальный датасет: ежедневные наблюдения по <strong>AAPL</strong> за{' '}
+          <strong>22-31 января 2024 года</strong>, включая цену закрытия и объем торгов.
+          Используем короткий отрезок ряда, чтобы шаг за шагом увидеть путь от сырых данных к
+          производным метрикам.
+        </SourceNote>
 
         <PlotViewer
           title="Цена и объем AAPL"
@@ -272,6 +298,18 @@ function Practice1_Screen4({ setContextNotes }) {
         />
       </section>
 
+      <ThinkQuestion question="Почему аналитики почти всегда переходят от уровней цен к доходностям, когда хотят сравнивать разные активы?">
+        <p>
+          Потому что абсолютная цена сама по себе мало что говорит о масштабе изменения. Движение
+          на 2 доллара для акции по 20 долларов и для акции по 200 долларов несет разный
+          экономический смысл.
+        </p>
+        <p>
+          Доходность переводит оба актива в общий относительный масштаб. Поэтому сравнение
+          становится честнее и аналитически устойчивее.
+        </p>
+      </ThinkQuestion>
+
       <section className="grid items-start gap-4 md:grid-cols-2">
         <AlertBox title="Что такое волатильность">
           Волатильность — это статистическая мера изменчивости доходности. Чем сильнее доходности
@@ -316,6 +354,18 @@ function Practice1_Screen4({ setContextNotes }) {
           />
         </section>
       </section>
+
+      <HandbookDetails title="Подробнее: почему `std(ddof=1)` важно именно в учебной практике">
+        <p>
+          По умолчанию мы работаем не со всей генеральной совокупностью возможных доходностей, а с
+          выборкой наблюдений. Параметр `ddof=1` включает поправку Бесселя и дает выборочное
+          стандартное отклонение.
+        </p>
+        <p>
+          Для коротких рядов это особенно важно: мы не переоцениваем точность оценки и сохраняем
+          правильную статистическую логику уже на раннем этапе курса.
+        </p>
+      </HandbookDetails>
 
       <KeyIdea title="Ключевой вывод">
         Python становится рабочим инструментом аналитика тогда, когда ряд цен переводится в

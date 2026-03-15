@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom'
 import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
+import HandbookDetails from '../components/HandbookDetails'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 
 const contextNotes = [
   {
@@ -150,6 +153,17 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
       />
 
       <section className="content-block space-y-4">
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Когда мы анализируем технологическую компанию, нас интересует не только общий объем
+          выручки, но и то, насколько эта выручка повторяема. Для инвестора это почти жизненный
+          вопрос: одно дело — разовый всплеск продаж, другое — поток подписок и сервисных
+          комиссий, который возвращается квартал за кварталом.
+        </p>
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Поэтому на экране появляется <strong>сегментный анализ</strong> (англ.{' '}
+          <em>segment analysis</em>) и <strong>сервисная выручка</strong> (англ.{' '}
+          <em>services revenue</em>) как важные сигналы качества цифровой бизнес-модели.
+        </p>
         <MathText
           as="p"
           text="В цифровой экономике стоимость компании все чаще создается платформами, сервисами, программными продуктами и экосистемными связями. Поэтому инвестору уже недостаточно знать только общую выручку: необходимо понимать, какая ее часть формируется более устойчивыми и повторяемыми источниками."
@@ -161,6 +175,12 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <MathBlock formula={String.raw`s_t = \frac{S_t}{R_t}`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Здесь <strong>Sₜ</strong> — выручка сервисного сегмента в период <strong>t</strong>, а{' '}
+          <strong>Rₜ</strong> — общая выручка компании в тот же период. Чем выше и устойчивее
+          отношение <strong>sₜ</strong>, тем больше вклад регулярного цифрового сегмента в общую
+          структуру бизнеса.
+        </p>
         <MathText
           as="p"
           text="Показатель $s_t$ не заменяет анализ абсолютных величин, но помогает увидеть, насколько заметную роль играют цифровые сервисы в формировании дохода. Если сервисная составляющая велика и устойчива, будущие денежные потоки компании обычно легче прогнозировать."
@@ -172,6 +192,11 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <MathBlock formula={String.raw`g_t = \frac{S_t - S_{t-1}}{S_{t-1}}`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Во второй формуле <strong>gₜ</strong> — темп роста сервисной выручки, то есть
+          относительное изменение показателя между двумя соседними периодами. Он помогает увидеть
+          не только уровень цифрового сегмента, но и его динамику.
+        </p>
       </section>
 
       <section className="grid items-start gap-4 md:grid-cols-2">
@@ -210,6 +235,13 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
         />
       </section>
 
+      <SourceNote>
+        Реальные данные примера: квартальная отчетность <strong>Apple</strong> за{' '}
+        <strong>FY2024</strong>, где отдельно раскрывается сегмент <strong>Services</strong>.
+        Это хороший учебный кейс для анализа структуры выручки цифровой компании на официальных
+        данных.
+      </SourceNote>
+
       <ComparisonTable
         columns={appleServices.map((item) => item.quarter)}
         rows={[
@@ -237,6 +269,18 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
       </PlotViewer>
 
       <section className="space-y-4">
+        <ThinkQuestion question="Всегда ли высокая доля сервисной выручки автоматически делает компанию более привлекательной для инвестора?">
+          <p>
+            Нет. Высокая доля сервиса сама по себе еще не гарантирует ни высокой маржи, ни низкой
+            конкуренции, ни устойчивого роста. Она только подсказывает, что структура выручки может
+            быть более регулярной и прогнозируемой.
+          </p>
+          <p>
+            Дальше аналитик обязан проверить рентабельность, темп роста, насыщение рынка и силу
+            клиентской базы. Структура выручки — важный, но не единственный слой анализа.
+          </p>
+        </ThinkQuestion>
+
         <section className="content-block space-y-4">
           <h3 className="section-title">Python: считаем долю и темп роста сегмента</h3>
           <MathText
@@ -266,6 +310,19 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
           />
         </section>
       </section>
+
+      <HandbookDetails title="Подробнее: почему рынок любит повторяемые сервисные доходы">
+        <p>
+          Повторяемая выручка снижает неопределенность прогноза: если клиентская база уже платит по
+          подписке или регулярно пользуется платформой, будущий денежный поток обычно проще
+          моделировать, чем разовые продажи.
+        </p>
+        <p>
+          Именно поэтому инвесторы часто отдельно смотрят на сервисные сегменты у технологических
+          компаний: они помогают понять не только размер бизнеса, но и качество его денежной
+          архитектуры.
+        </p>
+      </HandbookDetails>
 
       <section className="space-y-4">
         <section className="content-block space-y-4">

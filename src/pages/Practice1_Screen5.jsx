@@ -5,10 +5,13 @@ import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import IdeaCard from '../components/IdeaCard'
+import HandbookDetails from '../components/HandbookDetails'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 
 const contextNotes = [
   {
@@ -162,6 +165,16 @@ function Practice1_Screen5({ setContextNotes }) {
       />
 
       <section className="content-block space-y-4">
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          На этом шаге мы собираем все части вместе. У аналитика редко бывает роскошь бесконечно
+          долго изучать один маленький фрагмент данных: чаще нужно быстро построить компактный, но
+          честный вывод и ясно обозначить его границы.
+        </p>
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Такой формат мы называем <strong>мини-анализом</strong> (англ. <em>mini-analysis</em>):
+          данные, формула, расчет, визуализация и интерпретация уже присутствуют, но масштаб задачи
+          остается учебно управляемым.
+        </p>
         <MathText
           as="p"
           text="Мини-анализ — это небольшое исследование, в котором уже присутствуют все основные стадии работы аналитика: данные, формула, расчет, визуализация и интерпретация. На учебном уровне этого достаточно, чтобы сформировать правильную структуру мышления."
@@ -173,12 +186,24 @@ function Practice1_Screen5({ setContextNotes }) {
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <MathBlock formula={String.raw`R = \frac{P_{\mathrm{end}} - P_{\mathrm{start}}}{P_{\mathrm{start}}}`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Здесь <strong>Pstart</strong> — цена в начале интервала, <strong>Pend</strong> — цена в
+          конце интервала, а <strong>R</strong> — итоговая доходность за весь рассматриваемый
+          период. Эта формула особенно полезна, когда мы хотим быстро свернуть ряд в один итоговый
+          показатель, не теряя связи с исходными ценами.
+        </p>
         <MathText
           as="p"
           text="При этом учебный мини-анализ не следует подменять полноценной инвестиционной рекомендацией. Короткая выборка полезна для освоения метода, но недостаточна для серьезного заключения без более длинного горизонта и дополнительного контекста."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
+
+      <SourceNote>
+        Реальные данные примера: закрытия <strong>AAPL</strong> за{' '}
+        <strong>22-31 января 2024 года</strong>. Мы сознательно берем короткий фрагмент, чтобы
+        показать метод, а не имитировать полноформатную рекомендацию.
+      </SourceNote>
 
       <ComparisonTable
         columns={appleSeries.map((item) => item.date)}
@@ -227,6 +252,18 @@ function Practice1_Screen5({ setContextNotes }) {
         <ReturnsBarChart />
       </PlotViewer>
 
+      <ThinkQuestion question="Можно ли назвать актив «плохим», если на коротком фрагменте ряда его итоговая доходность оказалась отрицательной?">
+        <p>
+          Нет. Короткий интервал фиксирует локальный эпизод, а не полную инвестиционную историю
+          инструмента. Он может быть полезен для демонстрации метода, но не для окончательного
+          стратегического вывода.
+        </p>
+        <p>
+          Хороший аналитик всегда отделяет результат конкретного окна наблюдений от более общего
+          суждения об активе. Именно эта дисциплина и отличает анализ от поспешной интерпретации.
+        </p>
+      </ThinkQuestion>
+
       <section className="space-y-4">
         <IdeaCard title="Корректная формулировка вывода">
           <p>
@@ -271,6 +308,19 @@ function Practice1_Screen5({ setContextNotes }) {
           </div>
         </section>
       </section>
+
+      <HandbookDetails title="Подробнее: как формулировать вывод без логических натяжек">
+        <p>
+          Корректный вывод всегда содержит три части: что мы наблюдали, на каких данных это
+          увидели и где заканчивается область применимости результата.
+        </p>
+        <p>
+          Например: «На интервале 22-31 января 2024 года акции AAPL показали отрицательную
+          итоговую доходность и повышенную внутрипериодную изменчивость; этого недостаточно для
+          долгосрочной инвестиционной рекомендации, но достаточно для демонстрации базовых метрик
+          ряда». Такая формулировка честна и профессиональна.
+        </p>
+      </HandbookDetails>
 
       <KeyIdea title="Итог практики 1">
         Инвестиционный анализ как учебная дисциплина начинается с умения видеть путь от данных к

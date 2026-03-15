@@ -4,9 +4,12 @@ import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import IdeaCard from '../components/IdeaCard'
+import HandbookDetails from '../components/HandbookDetails'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 
 const contextNotes = [
   {
@@ -111,11 +114,20 @@ function Practice1_Screen2({ setContextNotes }) {
       />
 
       <section className="content-block space-y-4">
-        <MathText
-          as="p"
-          text="Инвестиционная альтернатива почти никогда не описывается одним показателем. Даже если известна ожидаемая доходность, необходимо учитывать риск, ликвидность и горизонт. Только в этом случае решение приобретает профессиональную полноту."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Представьте, что перед вами две инвестиционные идеи: акции крупной технологической
+          компании и краткосрочная облигация. Если смотреть только на потенциальную прибыль, выбор
+          кажется простым. Но на практике мы почти сразу спрашиваем себя: насколько результат
+          устойчив, можно ли быстро выйти из позиции и совпадает ли инструмент с нашим сроком?
+        </p>
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Именно поэтому мы вводим <strong>доходность</strong> (англ. <em>return</em>),{' '}
+          <strong>риск</strong> (англ. <em>risk</em>), <strong>ликвидность</strong> (англ.{' '}
+          <em>liquidity</em>) и <strong>инвестиционный горизонт</strong> (англ.{' '}
+          <em>investment horizon</em>). Инвестиционная альтернатива почти никогда не описывается
+          одним показателем, и только система категорий делает сравнение профессионально
+          корректным.
+        </p>
         <MathText
           as="p"
           text="Инвестиционный анализ уже на базовом уровне имеет многокритериальную природу. Одинаковая доходность еще не означает одинакового качества решения: важны неопределенность результата, возможность быстро выйти из позиции и соответствие выбранному горизонту."
@@ -171,6 +183,13 @@ function Practice1_Screen2({ setContextNotes }) {
           />
           <MathBlock formula={String.raw`R = \frac{V_1 - V_0}{V_0}`} />
           <MathBlock formula={String.raw`\sigma^2 = \sum_{i=1}^{m} p_i \left(r_i - \mathbb{E}[R]\right)^2`} />
+          <p className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200">
+            Здесь <strong>V₀</strong> — начальная стоимость вложения, <strong>V₁</strong> —
+            стоимость в конце периода, <strong>rᵢ</strong> — возможная доходность в сценарии{' '}
+            <strong>i</strong>, <strong>pᵢ</strong> — вероятность этого сценария, а{' '}
+            <strong>E[R]</strong> — ожидаемая доходность. Даже такая простая запись уже показывает:
+            риск рождается не из одного числа, а из набора возможных исходов.
+          </p>
         </section>
 
         <IdeaCard title="Как связаны категории">
@@ -190,6 +209,12 @@ function Practice1_Screen2({ setContextNotes }) {
         />
       </section>
 
+      <SourceNote>
+        Реальный датасет: акции <strong>AAPL</strong>, цены закрытия и объем торгов за{' '}
+        <strong>22-31 января 2024 года</strong>. На коротком фрагменте ряда удобно читать все
+        четыре базовые категории из одной и той же таблицы наблюдений.
+      </SourceNote>
+
       <ComparisonTable
         columns={appleJanuaryData.map((row) => row.date)}
         rows={[
@@ -206,6 +231,18 @@ function Practice1_Screen2({ setContextNotes }) {
       />
 
       <section className="space-y-4">
+        <ThinkQuestion question="Если два актива показывают одинаковую доходность за период, почему инвестор всё равно не обязан считать их равнозначными?">
+          <p>
+            Потому что одинаковый итоговый результат может быть достигнут по-разному: через
+            плавное движение цены или через серию резких скачков, с высокой или низкой
+            ликвидностью, на коротком или длинном горизонте.
+          </p>
+          <p>
+            Для инвестиционного решения это критично. Мы сравниваем не только «сколько заработали»,
+            но и какой путь прошел инструмент до этого результата.
+          </p>
+        </ThinkQuestion>
+
         <IdeaCard title="Еще немного теории о ликвидности">
           <p>
             Ликвидность не равна доходности и не сводится к риску. Актив может быть надежным, но
@@ -242,6 +279,18 @@ function Practice1_Screen2({ setContextNotes }) {
         </section>
       </section>
 
+      <HandbookDetails title="Подробнее про ликвидность и почему объем торгов — это только первый ориентир">
+        <p>
+          Высокий объем торгов часто сигнализирует о хорошей ликвидности, но не исчерпывает ее.
+          В прикладной работе аналитик дополнительно смотрит на спред между лучшей ценой покупки и
+          продажи, глубину стакана и чувствительность цены к крупной заявке.
+        </p>
+        <p>
+          На учебном уровне объема достаточно, чтобы у вас возникла правильная интуиция: ликвидный
+          актив обычно проще купить или продать без сильного движения цены против инвестора.
+        </p>
+      </HandbookDetails>
+
       <section className="space-y-4">
         <section className="content-block">
           <h3 className="section-title">Полезные функции Python и pandas</h3>
@@ -272,8 +321,8 @@ function Practice1_Screen2({ setContextNotes }) {
 
       <KeyIdea title="Ключевой вывод">
         Доходность, риск, ликвидность и горизонт образуют минимальный понятийный каркас
-        инвестиционного анализа. Без него невозможно ни корректно читать данные, ни обосновывать
-        рекомендацию.
+        инвестиционного анализа. Если мы держим в фокусе все четыре категории сразу, то начинаем
+        читать данные как аналитики, а не как наблюдатели одного красивого числа.
       </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

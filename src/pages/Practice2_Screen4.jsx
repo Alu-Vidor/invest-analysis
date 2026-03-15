@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
+import HandbookDetails from '../components/HandbookDetails'
 import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 import {
   freddieMortgageRatesJan042024,
   interestOnlyMortgageBenchmarkJan042024,
@@ -123,6 +126,11 @@ function Practice2_Screen4({ setContextNotes }) {
       />
 
       <section className="content-block space-y-4">
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          В повседневной финансовой жизни мы редко встречаем одиночный платеж. Гораздо чаще
+          приходится анализировать регулярные списания по кредиту, аренде или сервисному контракту.
+          Здесь на сцену выходит <strong>аннуитет</strong> (англ. <em>annuity</em>).
+        </p>
         <MathText
           as="p"
           text="Аннуитет возникает тогда, когда заемщик или инвестор совершает равные платежи через равные промежутки времени. Для обычного аннуитета с платежом $A$, периодической ставкой $i$ и числом периодов $n$ приведенная стоимость записывается формулой"
@@ -135,6 +143,12 @@ function Practice2_Screen4({ setContextNotes }) {
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <MathBlock formula={String.raw`A = PV \cdot \frac{i}{1 - (1+i)^{-n}}`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Здесь <strong>A</strong> — регулярный платеж, <strong>PV</strong> — сумма кредита или
+          приведенная стоимость обязательства, <strong>i</strong> — ставка за один период,
+          <strong>n</strong> — число периодов. В ипотеке период обычно месячный, поэтому и ставка,
+          и срок переводятся в месяцы.
+        </p>
         <MathText
           as="p"
           text="Для ипотечных расчетов важно помнить, что ставка и число периодов берутся в месячном шаге: $i = \\frac{r}{12}$, $n = 12 \\cdot T$, где $T$ - срок в годах."
@@ -150,6 +164,11 @@ function Practice2_Screen4({ setContextNotes }) {
           {mortgagePrincipalUsd.toLocaleString('en-US')} USD.
         </p>
       </IdeaCard>
+
+      <SourceNote>
+        Реальные рыночные ориентиры: средние ипотечные ставки <strong>Freddie Mac PMMS</strong> на{' '}
+        <strong>4 января 2024 года</strong> для 30-летней и 15-летней фиксированной ипотеки.
+      </SourceNote>
 
       <ComparisonTable
         columns={[
@@ -201,6 +220,18 @@ function Practice2_Screen4({ setContextNotes }) {
         <MortgagePaymentChart />
       </PlotViewer>
 
+      <ThinkQuestion question="Почему схема interest-only выглядит комфортнее по ежемесячному платежу, но при этом может быть рискованнее для заемщика?">
+        <p>
+          Потому что низкий текущий платеж достигается за счет переноса возврата основного долга в
+          будущее. В течение срока заемщик почти не сокращает тело кредита, а в конце сталкивается
+          с крупным финальным платежом.
+        </p>
+        <p>
+          То есть краткосрочная ликвидность улучшается, но риск рефинансирования и риск большого
+          единовременного платежа становятся выше.
+        </p>
+      </ThinkQuestion>
+
       <section className="content-block space-y-4">
         <h3 className="section-title">Финансовый смысл сравнения схем</h3>
         <MathText
@@ -214,6 +245,18 @@ function Practice2_Screen4({ setContextNotes }) {
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
+
+      <HandbookDetails title="Подробнее про экономику аннуитета">
+        <p>
+          В аннуитетном платеже сумма постоянна, но его внутренняя структура меняется по времени:
+          в начале большая часть платежа уходит на проценты, а ближе к концу — на погашение
+          основного долга.
+        </p>
+        <p>
+          Именно поэтому одинаковый ежемесячный платеж не означает одинаковую долговую нагрузку по
+          смыслу. Для аналитика важно видеть не только сумму, но и внутреннее распределение платежа.
+        </p>
+      </HandbookDetails>
 
       <section className="content-block space-y-4">
         <h3 className="section-title">Python: считаем аннуитет по реальным ставкам</h3>

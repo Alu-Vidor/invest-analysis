@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
+import HandbookDetails from '../components/HandbookDetails'
 import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 import { treasuryCurveJan022024 } from '../data/practice2RealData'
 
 const contextNotes = [
@@ -119,6 +122,11 @@ function Practice2_Screen2({ setContextNotes }) {
       />
 
       <section className="content-block space-y-4">
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Если клиент говорит: «Через десять лет я получу 1000 долларов», у нас сразу возникает
+          встречный вопрос: сколько эти деньги стоят сегодня? Именно так на бытовом языке
+          проявляется <strong>временная стоимость денег</strong> (англ. <em>time value of money</em>).
+        </p>
         <MathText
           as="p"
           text="Если капитал можно вложить под ставку $r$, то текущая и будущая суммы неравноценны. Операция наращения показывает, во что превратится сумма сегодня, а операция дисконтирования переводит будущий платеж в стоимость на текущую дату."
@@ -126,12 +134,23 @@ function Practice2_Screen2({ setContextNotes }) {
         />
         <MathBlock formula={String.raw`FV_t = PV \cdot (1+r)^t`} />
         <MathBlock formula={String.raw`PV = \frac{FV_t}{(1+r)^t}`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Здесь <strong>PV</strong> — <strong>приведенная стоимость</strong> (англ.{' '}
+          <em>present value</em>), <strong>FVₜ</strong> — будущая стоимость через{' '}
+          <strong>t</strong> периодов, а <strong>r</strong> — ставка за один период. Чем выше
+          ставка или чем дальше платеж, тем меньше его текущая ценность.
+        </p>
         <MathText
           as="p"
           text="Если ставка различается по срокам, аналитик использует временную структуру ставок. В простейшем приближении коэффициент дисконтирования для горизонта $t$ лет можно записать как $DF_t = (1+y_t)^{-t}$, где $y_t$ - рыночная доходность соответствующего срока."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <MathBlock formula={String.raw`DF_t = \frac{1}{(1+y_t)^t}`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Во второй формуле <strong>DFₜ</strong> — коэффициент дисконтирования, а{' '}
+          <strong>yₜ</strong> — рыночная ставка для срока <strong>t</strong>. Именно поэтому в
+          практике мы спрашиваем не просто «какая ставка?», а «какая ставка на нужный срок?».
+        </p>
       </section>
 
       <IdeaCard title="Теоретическая оговорка, которая важна для корректности">
@@ -142,6 +161,12 @@ function Practice2_Screen2({ setContextNotes }) {
           дисконтирования и широко используется на вводном этапе.
         </p>
       </IdeaCard>
+
+      <SourceNote>
+        Реальные рыночные данные: доходности <strong>U.S. Treasury</strong> на{' '}
+        <strong>2 января 2024 года</strong> по срокам от 1 до 30 лет. На их основе строим
+        учебную таблицу коэффициентов дисконтирования.
+      </SourceNote>
 
       <ComparisonTable
         columns={treasuryCurveJan022024.map((row) => row.label)}
@@ -169,6 +194,18 @@ function Practice2_Screen2({ setContextNotes }) {
         <TreasuryCurveChart />
       </PlotViewer>
 
+      <ThinkQuestion question="Что произойдет с приведенной стоимостью фиксированного будущего платежа, если ставка дисконтирования станет очень большой?">
+        <p>
+          Приведенная стоимость будет стремиться к нулю. Экономическая интуиция здесь простая:
+          при очень высокой альтернативной доходности деньги, которые придут далеко в будущем,
+          почти не влияют на решение сегодня.
+        </p>
+        <p>
+          Именно поэтому долгосрочные проекты особенно чувствительны к ставке дисконтирования:
+          небольшое изменение ставки может сильно сдвинуть их текущую оценку.
+        </p>
+      </ThinkQuestion>
+
       <section className="content-block space-y-4">
         <h3 className="section-title">Что показывает таблица коэффициентов</h3>
         <MathText
@@ -182,6 +219,19 @@ function Practice2_Screen2({ setContextNotes }) {
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
+
+      <HandbookDetails title="Подробнее про par curve и spot curve">
+        <p>
+          В строгой профессиональной оценке купонные платежи обычно дисконтируют по спот-ставкам,
+          то есть по ставкам для конкретных дат платежей. Они точнее отражают временную структуру
+          безрисковой стоимости денег.
+        </p>
+        <p>
+          В этой практике мы используем казначейскую кривую как прозрачное учебное приближение.
+          Так вы видите саму идею дисконтирования, не утопая сразу в технических нюансах
+          бутстреппинга.
+        </p>
+      </HandbookDetails>
 
       <section className="content-block space-y-4">
         <h3 className="section-title">Python: строим рыночную таблицу коэффициентов</h3>

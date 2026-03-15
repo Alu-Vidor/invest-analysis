@@ -1,107 +1,114 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
+import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
+import HandbookDetails from '../components/HandbookDetails'
 import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
-import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
 import RecapBlock from '../components/RecapBlock'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
+import { treasuryNote2028, treasuryNoteSchedule2028 } from '../data/practice2RealData'
+
+const paragraphClass = 'text-base leading-relaxed text-slate-700 dark:text-slate-200'
 
 const contextNotes = [
   {
     title: 'Инвестиционное решение',
-    text: 'Это выбор о размещении капитала сегодня ради ожидаемого результата в будущем. Анализируется не только размер выгоды, но и сроки, риск и ограничения.',
+    text: 'Это выбор о размещении капитала сегодня ради ожидаемого результата в будущем. Мы формализуем решение через сумму вложения, календарь поступлений и ограничения по времени.',
   },
   {
     title: 'Денежный поток',
-    text: 'Денежным потоком называют поступление или выбытие денег в конкретный момент времени. Именно потоки становятся базовым объектом математической записи.',
+    text: 'Денежный поток — это упорядоченная во времени последовательность выплат и поступлений. Именно в такой форме инвестиционное решение становится объектом расчета.',
   },
 ]
 
 const definitionCards = [
   {
     title: 'Инвестиционное решение',
-    text: 'Решение о вложении капитала в проект, актив или стратегию с расчетом на будущий экономический результат.',
+    text: 'Выбор между альтернативами размещения капитала, где нас интересуют не только ожидаемые деньги, но и сроки их получения.',
   },
   {
     title: 'Первоначальные инвестиции',
-    text: 'Расход капитала в стартовый момент. Обычно обозначается как I₀ и имеет отрицательный знак, потому что деньги выбывают.',
+    text: 'Стартовое выбытие капитала. В формулах его часто обозначают как I₀ и записывают с отрицательным знаком.',
   },
   {
     title: 'Денежный поток',
-    text: 'Поступление или выбытие денег в период t. В записи его обычно обозначают как CF_t.',
+    text: 'Поступление или выплата в конкретный период t. В инвестиционном анализе его обозначают как CF_t.',
   },
   {
     title: 'Инвестиционный горизонт',
-    text: 'Период, в течение которого инвестор готов держать проект или актив и ждать результата.',
+    text: 'Длина периода, на котором мы оцениваем решение и готовы ждать экономический результат.',
   },
-]
-
-const projectRows = [
-  { period: 0, flow: -1200, label: 'Разработка и запуск' },
-  { period: 1, flow: 350, label: 'Первые продажи' },
-  { period: 2, flow: 470, label: 'Рост клиентской базы' },
-  { period: 3, flow: 620, label: 'Стабильная монетизация' },
 ]
 
 const cashFlowCode = `import pandas as pd
 
+face_value = 10_000
+coupon_rate = 0.0425
+coupon = face_value * coupon_rate / 2
+
 cash_flow = pd.DataFrame(
     {
-        "year": [0, 1, 2, 3],
-        "cash_flow_thousand_rub": [-1200, 350, 470, 620],
+        "period": list(range(1, 9)),
+        "date": [
+            "2024-07-15",
+            "2025-01-15",
+            "2025-07-15",
+            "2026-01-15",
+            "2026-07-15",
+            "2027-01-15",
+            "2027-07-15",
+            "2028-01-15",
+        ],
+        "coupon_usd": [coupon] * 8,
+        "principal_usd": [0, 0, 0, 0, 0, 0, 0, face_value],
     }
 )
 
-cash_flow["cumulative"] = cash_flow["cash_flow_thousand_rub"].cumsum()
+cash_flow["cash_flow_usd"] = cash_flow["coupon_usd"] + cash_flow["principal_usd"]
+cash_flow["cumulative_inflow_usd"] = cash_flow["cash_flow_usd"].cumsum()
 
-print(cash_flow)
+print(cash_flow.round(2))
 print()
-print("Итоговый накопленный поток:", cash_flow["cumulative"].iloc[-1])`
+print("Total inflow:", round(cash_flow["cash_flow_usd"].sum(), 2))`
 
 function CashFlowChart() {
-  const maxAbs = Math.max(...projectRows.map((item) => Math.abs(item.flow)))
-  const zeroY = 110
+  const maxAbs = Math.max(...treasuryNoteSchedule2028.map((item) => Math.abs(item.cashFlowUsd)))
+  const zeroY = 120
 
   return (
-    <svg viewBox="0 0 520 220" className="h-full w-full" role="img" aria-label="Структура денежных потоков проекта">
-      <line x1="40" y1={zeroY} x2="490" y2={zeroY} stroke="#64748b" strokeWidth="2" />
-      {projectRows.map((item, index) => {
-        const x = 80 + index * 105
-        const barHeight = (Math.abs(item.flow) / maxAbs) * 80
-        const y = item.flow >= 0 ? zeroY - barHeight : zeroY
+    <svg
+      viewBox="0 0 620 240"
+      className="h-full w-full"
+      role="img"
+      aria-label="Структура денежных потоков казначейской ноты США с погашением в январе 2028 года"
+    >
+      <line x1="40" y1={zeroY} x2="585" y2={zeroY} stroke="#64748b" strokeWidth="2" />
+      {treasuryNoteSchedule2028.map((item, index) => {
+        const x = 58 + index * 66
+        const barHeight = (Math.abs(item.cashFlowUsd) / maxAbs) * 90
+        const y = zeroY - barHeight
 
         return (
           <g key={item.period}>
-            <rect
-              x={x}
-              y={y}
-              width="48"
-              height={barHeight}
-              rx="12"
-              fill={item.flow >= 0 ? '#2563eb' : '#e11d48'}
-              opacity="0.9"
-            />
-            <text x={x + 24} y="195" textAnchor="middle" fontSize="12" fill="#334155">
-              t={item.period}
+            <rect x={x} y={y} width="38" height={barHeight} rx="10" fill="#2563eb" opacity="0.9" />
+            <text x={x + 19} y="205" textAnchor="middle" fontSize="11" fill="#334155">
+              k={item.period}
             </text>
-            <text
-              x={x + 24}
-              y={item.flow >= 0 ? y - 8 : y + barHeight + 18}
-              textAnchor="middle"
-              fontSize="12"
-              fill="#0f172a"
-            >
-              {item.flow}
-            </text>
+            {index === treasuryNoteSchedule2028.length - 1 ? (
+              <text x={x + 19} y={y - 8} textAnchor="middle" fontSize="11" fill="#0f172a">
+                10 212.5
+              </text>
+            ) : null}
           </g>
         )
       })}
       <text x="10" y="34" fontSize="12" fill="#475569">
-        тыс. руб.
+        USD
       </text>
     </svg>
   )
@@ -117,43 +124,50 @@ function Practice1_Screen1({ setContextNotes }) {
       <CourseHeader
         badge="Практика 1 · Основы инвестиционного анализа"
         title="Инвестиционное решение как объект математического анализа"
-        subtitle="Переходим от общего экономического сюжета к строгой записи: выделяем денежные потоки, время, ограничения и показываем, как решение превращается в структуру данных."
+        subtitle="Начинаем с живой профессиональной ситуации: инвестор выбирает, покупать ли реальную казначейскую ноту США, и сначала переводит описание инструмента в язык потоков, периодов и переменных."
       />
 
-      <section className="content-block">
-        <MathText
-          as="p"
-          text="В инвестиционном анализе рассматривается не абстрактная идея проекта, а формализованное решение о вложении капитала. Чтобы сравнивать альтернативы, необходимо явно задать начальные инвестиции, будущие денежные потоки, цену капитала, риск, ликвидность и горизонт."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
+      <section className="content-block space-y-4">
+        <p className={paragraphClass}>
+          Представьте, что вы выбираете, куда разместить свободный капитал: оставить деньги на
+          счете, купить облигацию или дождаться другой возможности. В такой ситуации нас
+          интересует не абстрактная «хорошесть» идеи, а <strong>инвестиционное решение</strong>{' '}
+          (англ. <em>investment decision</em>) как объект, который можно описать числами.
+        </p>
+        <p className={paragraphClass}>
+          Первое, что мы делаем, — выделяем <strong>денежный поток</strong> (англ.{' '}
+          <em>cash flow</em>): когда и сколько денег инвестор платит, а когда и сколько получает
+          обратно. Пока этого разложения нет, невозможно ни сравнивать альтернативы, ни проверять
+          их в Python.
+        </p>
         <MathBlock formula={String.raw`D = f\left(I_0,\; CF_1,\ldots,CF_n,\; r,\; \sigma,\; L,\; T\right)`} />
-        <MathText
-          as="p"
-          text="Эта запись задает состав задачи. Здесь $I_0$ обозначает первоначальные вложения, $CF_t$ — денежный поток в период $t$, $r$ — цену капитала, $\\sigma$ — меру риска, $L$ — ликвидность, $T$ — инвестиционный горизонт."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
-        <MathText
-          as="p"
-          text="Если нужно описать накопленный денежный результат к моменту $t$, удобно использовать частичную сумму потоков. Тогда временная динамика проекта записывается не только через отдельные поступления, но и через их накопление."
-          className="mt-4 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
+        <p className={paragraphClass}>
+          В этой записи <strong>I₀</strong> — первоначальные вложения, <strong>CFₜ</strong> —
+          денежный поток в период <strong>t</strong>, <strong>r</strong> — требуемая доходность
+          или цена капитала, <strong>σ</strong> — мера риска, <strong>L</strong> — ликвидность,
+          <strong>T</strong> — горизонт анализа. Формула пока не решает задачу за нас, но задает
+          полный состав входных данных.
+        </p>
+        <p className={paragraphClass}>
+          Когда нам важно видеть не отдельный платеж, а накопленный результат к моменту{' '}
+          <strong>t</strong>, мы складываем все потоки с начала наблюдения:
+        </p>
         <MathBlock formula={String.raw`C_t = \sum_{k=0}^{t} CF_k`} />
       </section>
 
       <section className="grid items-start gap-4 lg:grid-cols-2">
-        <IdeaCard title="Почему формализация необходима">
+        <IdeaCard title="Зачем нужна формализация">
           <p>
-            Если проект описан только словами, его трудно сравнить с альтернативами. Как только
-            он переведен в переменные и периоды, появляется возможность считать, проверять и
-            обосновывать вывод.
+            Как только экономическая история переведена в переменные и периоды, у нас появляется
+            единый язык для сравнения облигации, кредита, проекта и рыночного актива.
           </p>
         </IdeaCard>
 
-        <IdeaCard title="Что такое критерий решения">
+        <IdeaCard title="Что мы считаем хорошим решением">
           <p>
-            Критерием называют правило, по которому из нескольких альтернатив выбирается одна.
-            На вводном этапе достаточно понимать: критерий связывает данные проекта и итоговое
-            управленческое решение.
+            На старте курса мы не выбираем один идеальный критерий, а учимся видеть структуру:
+            сколько денег уходит сегодня, когда они возвращаются и насколько предсказуем этот
+            календарь.
           </p>
         </IdeaCard>
       </section>
@@ -172,74 +186,92 @@ function Practice1_Screen1({ setContextNotes }) {
         ))}
       </section>
 
-      <RecapBlock title="Пример: запуск цифрового сервиса">
+      <RecapBlock title="Реальный кейс: купонная нота США как готовый объект анализа">
         <p>
-          Предположим, компания разрабатывает цифровой сервис для малого бизнеса. В момент запуска
-          требуются расходы на разработку, инфраструктуру и маркетинг, поэтому стартовый поток
-          отрицателен. После выхода продукта на рынок появляются платежи клиентов, и проект
-          начинает генерировать положительные поступления.
+          Чтобы не зависеть от выдуманных чисел, возьмем реальный инструмент: {treasuryNote2028.title}.
+          Для инвестора это удобный стартовый пример, потому что график выплат известен заранее и
+          не требует прогнозировать будущую выручку компании.
         </p>
         <p>
-          Такой пример удобен тем, что сразу показывает временную структуру решения: деньги
-          вкладываются не одновременно с получением результата.
+          Мы видим типичную структуру инвестиционного решения: сначала капитал замораживается в
+          инструменте, затем возникают регулярные купоны, а в финале возвращается номинал. Именно
+          такую последовательность мы и будем превращать в таблицу, формулу и код.
         </p>
       </RecapBlock>
 
+      <SourceNote>
+        Реальные данные примера: <strong>U.S. Treasury Note 4.250%, maturity 2028-01-15</strong>,
+        номинал {treasuryNote2028.faceValueUsd.toLocaleString('en-US')} USD, полугодовой купон 212.50 USD,
+        даты платежей с 15 июля 2024 года по 15 января 2028 года.
+      </SourceNote>
+
       <ComparisonTable
-        columns={['Год 0', 'Год 1', 'Год 2', 'Год 3']}
+        columns={treasuryNoteSchedule2028.map((row) => `k=${row.period}`)}
         rows={[
           {
-            label: 'Денежный поток, тыс. руб.',
-            values: projectRows.map((row) => row.flow),
-            highlight: true,
+            label: 'Дата платежа',
+            values: treasuryNoteSchedule2028.map((row) => row.date),
           },
           {
-            label: 'Экономическое содержание',
-            values: projectRows.map((row) => row.label),
+            label: 'Купон, USD',
+            values: treasuryNoteSchedule2028.map((row) => row.couponUsd.toFixed(2)),
+          },
+          {
+            label: 'Погашение номинала, USD',
+            values: treasuryNoteSchedule2028.map((row) => row.principalUsd.toFixed(2)),
+          },
+          {
+            label: 'Итоговый денежный поток, USD',
+            values: treasuryNoteSchedule2028.map((row) => row.cashFlowUsd.toFixed(2)),
+            highlight: true,
           },
         ]}
       />
 
       <PlotViewer
-        title="Схема потоков проекта"
-        caption="Отрицательный стартовый поток и последующие поступления образуют типичную структуру инвестиционного решения. Для анализа важно не только сколько денег принесет проект, но и когда именно это произойдет."
+        title="Схема потоков реального инструмента"
+        caption="Даже у простой купонной ноты сумма платежей во времени неоднородна: промежуточные купоны малы по сравнению с последним потоком, где к купону добавляется возврат номинала."
       >
         <CashFlowChart />
       </PlotViewer>
 
-      <section className="content-block">
-        <h3 className="section-title">Еще две важные теоретические идеи</h3>
-        <div className="mt-4 grid items-start gap-4 md:grid-cols-2">
-          <IdeaCard title="Знак потока">
-            <p>
-              В инвестиционном анализе знак имеет содержательный смысл. Отрицательный поток
-              означает выбытие денег из распоряжения инвестора, а положительный — их возврат или
-              поступление дохода.
-            </p>
-          </IdeaCard>
-          <IdeaCard title="Почему важен порядок во времени">
-            <p>
-              Два проекта с одинаковой суммой поступлений могут иметь разную ценность, если один
-              возвращает средства раньше, а другой позже. Поэтому временная структура потока
-              является частью самого объекта анализа.
-            </p>
-          </IdeaCard>
-        </div>
-      </section>
+      <ThinkQuestion question="Почему два решения с одинаковой суммой будущих поступлений могут иметь разную инвестиционную ценность?">
+        <p>
+          Потому что инвестор сравнивает не только сумму, но и календарь получения денег. Более
+          ранний поток можно реинвестировать раньше, а более поздний сильнее зависит от риска,
+          инфляции и стоимости капитала.
+        </p>
+        <p>
+          Поэтому равенство по общей сумме поступлений еще не означает равенства по текущей
+          стоимости. Именно из этого наблюдения дальше рождается дисконтирование.
+        </p>
+      </ThinkQuestion>
+
+      <HandbookDetails title="Подробнее про структуру потока и экономический смысл знака">
+        <p>
+          В учебных таблицах удобно помнить простое правило: отрицательный знак означает выбытие
+          денег из распоряжения инвестора, положительный — возврат капитала или доход.
+        </p>
+        <p>
+          Для облигации промежуточные купоны интерпретируются как доход, а терминальный поток
+          одновременно содержит и доход, и возврат вложенного номинала. Это разделение особенно
+          важно, когда мы позже будем считать приведенную стоимость и доходность к погашению.
+        </p>
+      </HandbookDetails>
 
       <section className="content-block">
         <h3 className="section-title">Первый шаг в Python</h3>
-        <MathText
-          as="p"
-          text="На практике формализация начинается с таблицы. Как только денежные потоки записаны по периодам, их можно загрузить в Python, проверить накопленный результат и затем перейти к более содержательным критериям."
-          className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
+        <p className={`mt-3 ${paragraphClass}`}>
+          В реальной аналитике формализация почти всегда начинается с таблицы. Как только мы явно
+          перечислили даты и суммы, поток становится пригодным для проверки, агрегации и
+          последующих финансовых расчетов.
+        </p>
         <div className="mt-4">
           <ExecutablePythonBlock
             code={cashFlowCode}
-            title="Python: представляем проект как таблицу потоков"
+            title="Python: представляем реальный поток как таблицу"
             packages={['pandas']}
-            note="Блок можно запустить и изменять: например, попробовать другие потоки и посмотреть, как меняется накопленный результат."
+            note="Блок можно запустить и менять: например, увеличить номинал или купонную ставку и посмотреть, как изменится весь календарь платежей."
           />
         </div>
       </section>
@@ -247,40 +279,38 @@ function Practice1_Screen1({ setContextNotes }) {
       <section className="space-y-4">
         <section className="content-block">
           <h3 className="section-title">Полезные функции Python</h3>
-          <MathText
-            as="p"
-            text="Даже на первом экране уже полезно увидеть, что анализ строится на небольшом наборе базовых операций. В чистом Python особенно важны функции sum(), min(), max() и enumerate()."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
+          <p className={`mt-3 ${paragraphClass}`}>
+            Даже до сложных финансовых формул аналитик постоянно использует базовые операции:
+            `sum()` для суммарного притока, `max()` для поиска самого крупного платежа и
+            `enumerate()` для привязки суммы ко времени.
+          </p>
           <div className="mt-4">
             <ExecutablePythonBlock
-              code={`cash_flows = [-1200, 350, 470, 620]
+              code={`cash_flows = [212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 212.5, 10212.5]
 
-print(sum(cash_flows))        # сумма потоков
-print(min(cash_flows))        # минимальный поток
-print(max(cash_flows))        # максимальный поток
+print("Total inflow:", sum(cash_flows))
+print("Largest payment:", max(cash_flows))
 
-for period, flow in enumerate(cash_flows):
-    print(period, flow)       # номер периода и значение потока`}
-              title="Python: базовые функции для чтения потока"
-              note="Здесь достаточно чистого Python без дополнительных библиотек: пример показывает, как базовые функции уже помогают увидеть структуру потоков."
+for period, flow in enumerate(cash_flows, start=1):
+    print(period, flow)`}
+              title="Python: читаем поток базовыми средствами языка"
+              note="Этот фрагмент полезен как быстрая самопроверка структуры: мы убеждаемся, что в каждом периоде стоит нужная сумма."
             />
           </div>
         </section>
 
-        <IdeaCard title="Зачем это знать">
+        <IdeaCard title="Что важно вынести с первого экрана">
           <p>
-            Эти функции кажутся простыми, но именно из них собирается аналитическая логика:
-            сначала мы читаем массив значений, затем ищем его границы, затем привязываем каждое
-            значение ко времени.
+            Инвестиционный анализ начинается не с красивого коэффициента, а с аккуратного описания
+            самого объекта. Если поток записан небрежно, все дальнейшие выводы будут хрупкими.
           </p>
         </IdeaCard>
       </section>
 
       <KeyIdea title="Ключевой вывод">
-        Инвестиционный анализ начинается с перевода экономического решения в язык переменных,
-        периодов и потоков. Только после этого становится возможен строгий расчет и осмысленное
-        сравнение альтернатив.
+        Инвестиционное решение становится предметом анализа только после формализации: мы
+        переводим реальный контракт в язык потоков, периодов и ограничений, а затем уже считаем
+        стоимость, доходность и риск.
       </KeyIdea>
 
       <nav className="flex justify-end">

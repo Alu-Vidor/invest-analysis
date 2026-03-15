@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
 import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
+import HandbookDetails from '../components/HandbookDetails'
 import IdeaCard from '../components/IdeaCard'
 import KeyIdea from '../components/KeyIdea'
 import MathBlock from '../components/MathBlock'
 import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 import {
   treasuryFiveYearProxyRateJan022024,
   treasuryFiveYearSemiannualRateJan022024,
@@ -126,6 +129,12 @@ function Practice2_Screen3({ setContextNotes }) {
       />
 
       <section className="content-block space-y-4">
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          После того как поток выписан по периодам, перед аналитиком встают два естественных
+          вопроса: сколько этот поток стоит сегодня и во что он превратится к концу горизонта, если
+          промежуточные суммы можно реинвестировать? Эти два вопроса и порождают пару операций —
+          наращение и дисконтирование.
+        </p>
         <MathText
           as="p"
           text="Если поток состоит из нескольких платежей, каждая сумма переносится во времени отдельно. Для купонной ноты с полугодовыми выплатами удобнее работать с периодической ставкой $i = \\frac{y}{2}$, где $y$ - годовая рыночная доходность по близкому сроку."
@@ -133,6 +142,12 @@ function Practice2_Screen3({ setContextNotes }) {
         />
         <MathBlock formula={String.raw`PV_0 = \sum_{k=1}^{n} \frac{CF_k}{(1+i)^k}`} />
         <MathBlock formula={String.raw`FV_n = \sum_{k=1}^{n} CF_k (1+i)^{n-k}`} />
+        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Здесь <strong>PV₀</strong> — приведенная стоимость потока на дату оценки,{' '}
+          <strong>FVₙ</strong> — будущая стоимость на горизонте <strong>n</strong> периодов,
+          <strong>CFₖ</strong> — платеж в период <strong>k</strong>, а <strong>i</strong> —
+          ставка за один полугодовой период.
+        </p>
         <MathText
           as="p"
           text={`В примере используем доходность 5-летних Treasury ${(
@@ -151,6 +166,11 @@ function Practice2_Screen3({ setContextNotes }) {
           черновых расчетах, но именно оно отделяет корректную финансовую математику от приблизительных оценок.
         </p>
       </IdeaCard>
+
+      <SourceNote>
+        Реальные данные: поток <strong>U.S. Treasury Note 4.250%, maturity 2028-01-15</strong> и
+        рыночная доходность <strong>5Y Treasury = 3.93%</strong> на <strong>2 января 2024 года</strong>.
+      </SourceNote>
 
       <ComparisonTable
         columns={treasuryNoteValuationRows2028.map((row) => `k=${row.period}`)}
@@ -182,6 +202,18 @@ function Practice2_Screen3({ setContextNotes }) {
         <BondValuationChart />
       </PlotViewer>
 
+      <ThinkQuestion question="Почему цена ноты может оказаться выше номинала, хотя номинал фиксирован контрактом?">
+        <p>
+          Потому что номинал — это только одна из частей потока. Если купонная ставка бумаги выше
+          текущей рыночной доходности для сопоставимого срока, ее поток выглядит для инвестора
+          более выгодным, и цена поднимается выше номинала.
+        </p>
+        <p>
+          Обратная логика тоже верна: если купон ниже рынка, бумага обычно торгуется с дисконтом.
+          Цена всегда соотносит внутренние условия контракта с внешней рыночной ставкой.
+        </p>
+      </ThinkQuestion>
+
       <section className="content-block space-y-4">
         <h3 className="section-title">Интерпретация результата</h3>
         <MathText
@@ -197,6 +229,18 @@ function Practice2_Screen3({ setContextNotes }) {
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
       </section>
+
+      <HandbookDetails title="Подробнее про реинвестирование купонов">
+        <p>
+          Формула будущей стоимости предполагает, что каждый промежуточный купон можно вложить под
+          ту же ставку <strong>i</strong> до момента погашения. Это сильное, но полезное учебное
+          предположение.
+        </p>
+        <p>
+          В реальной практике ставки реинвестирования могут отличаться от ставки дисконтирования,
+          и именно из-за этого оценка будущей стоимости требует отдельной сценарной проверки.
+        </p>
+      </HandbookDetails>
 
       <section className="content-block space-y-4">
         <h3 className="section-title">Python: полный расчет PV и FV по реальной ноте</h3>
