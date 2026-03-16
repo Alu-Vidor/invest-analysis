@@ -3,131 +3,112 @@ import { Link } from 'react-router-dom'
 import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
 import ComparisonTable from '../components/ComparisonTable'
 import CourseHeader from '../components/CourseHeader'
+import IdeaCard from '../components/IdeaCard'
 import HandbookDetails from '../components/HandbookDetails'
 import KeyIdea from '../components/KeyIdea'
-import MathBlock from '../components/MathBlock'
-import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
 import SourceNote from '../components/SourceNote'
 import ThinkQuestion from '../components/ThinkQuestion'
+import { tencentSegmentsQ32024, tencentTrend } from '../data/practice1RealData'
 
 const contextNotes = [
   {
-    title: 'Цифровая экономика',
-    text: 'Это среда, в которой стоимость компании все чаще формируется цифровыми сервисами, платформами, данными и сетевыми эффектами.',
+    title: 'Инвестиционный анализ в цифровую эпоху',
+    text: 'В цифровой экономике структура выручки и темпы роста сервисных сегментов важнее, чем владение физическими активами.',
   },
   {
     title: 'Сегментный анализ',
-    text: 'Инвестор оценивает не только общий объем выручки, но и ее внутреннюю структуру: какие направления формируют более устойчивый и прогнозируемый денежный поток.',
+    text: 'Разложение выручки на компоненты (игры, финтех, реклама) позволяет понять, какой из "двигателей" компании работает эффективнее.',
   },
 ]
 
-const appleServices = [
-  { quarter: 'Q2 FY25', total: 95.40, services: 26.60 },
-  { quarter: 'Q3 FY25', total: 94.00, services: 27.40 },
-  { quarter: 'Q4 FY25', total: 102.50, services: 28.80 },
-  { quarter: 'Q1 FY26', total: 143.80, services: 30.00 },
+const digitalEconomyCards = [
+  {
+    title: 'Масштабируемость',
+    text: 'Цифровые продукты имеют низкие предельные издержки. Продажа миллионной копии игры Tencent стоит почти столько же, сколько первой.',
+  },
+  {
+    title: 'Сетевые эффекты',
+    text: 'Ценность экосистемы WeChat растет с каждым новым пользователем, создавая защитный ров вокруг бизнеса.',
+  },
+  {
+    title: 'Данные как актив',
+    text: 'Способность монетизировать поведение пользователей через рекламу и платежи становится ключевым фактором оценки.',
+  },
+  {
+    title: 'Регуляторные риски',
+    text: 'Влияние государства на цифровую среду в Китае — критический фактор, который аналитик обязан учитывать в оценке.',
+  },
 ]
 
-const servicesCode = `import pandas as pd
+const segmentCode = `import pandas as pd
 
-apple_segments = pd.DataFrame(
-    {
-        "quarter": ["Q2 FY25", "Q3 FY25", "Q4 FY25", "Q1 FY26"],
-        "total_revenue_billion_usd": [95.40, 94.00, 102.50, 143.80],
-        "services_revenue_billion_usd": [26.60, 27.40, 28.80, 30.00],
-    }
-)
+# Данные по сегментам Tencent (Q3 2024, млрд CNY)
+data = {
+    "segment": ["VAS", "FinTech", "Marketing", "Others"],
+    "revenue": [82.7, 53.1, 30.0, 1.4],
+    "last_year": [75.7, 52.0, 25.7, 1.3]
+}
 
-apple_segments["services_share"] = (
-    apple_segments["services_revenue_billion_usd"]
-    / apple_segments["total_revenue_billion_usd"]
-).round(3)
+df = pd.DataFrame(data)
+df["share"] = df["revenue"] / df["revenue"].sum()
+df["growth"] = df["revenue"] / df["last_year"] - 1
 
-apple_segments["services_growth"] = (
-    apple_segments["services_revenue_billion_usd"].pct_change()
-).round(3)
-
-print(apple_segments)`
-
-
-const servicesToolsCode = `apple_segments["services_share_pct"] = (
-    apple_segments["services_share"] * 100
-).round(1)
-
-leaders = apple_segments.sort_values("services_share_pct", ascending=False)
-recent = apple_segments.tail(2)
-later_quarters = apple_segments.query("quarter != 'Q2 FY25'")
-
-print(leaders[["quarter", "services_share_pct"]])
+print("Анализ сегментов Tencent:")
+print(df[["segment", "revenue", "share", "growth"]].round(3))
 print()
-print(recent)
-print()
-print(later_quarters[["quarter", "services_growth"]])`
-
-const servicesToolsPlaygroundCode = `import pandas as pd
-
-apple_segments = pd.DataFrame(
-    {
-        "quarter": ["Q2 FY25", "Q3 FY25", "Q4 FY25", "Q1 FY26"],
-        "total_revenue_billion_usd": [95.40, 94.00, 102.50, 143.80],
-        "services_revenue_billion_usd": [26.60, 27.40, 28.80, 30.00],
-    }
-)
-
-apple_segments["services_share"] = (
-    apple_segments["services_revenue_billion_usd"]
-    / apple_segments["total_revenue_billion_usd"]
-).round(3)
-
-apple_segments["services_growth"] = (
-    apple_segments["services_revenue_billion_usd"].pct_change()
-).round(3)
-
-apple_segments["services_share_pct"] = (
-    apple_segments["services_share"] * 100
-).round(1)
-
-leaders = apple_segments.sort_values("services_share_pct", ascending=False)
-recent = apple_segments.tail(2)
-later_quarters = apple_segments.query("quarter != 'Q2 FY25'")
-
-print(leaders[["quarter", "services_share_pct"]])
-print()
-print(recent)
-print()
-print(later_quarters[["quarter", "services_growth"]])`
+print("Доля Marketing Services в росте:", 
+      round((df.iloc[2]["revenue"] - df.iloc[2]["last_year"]) / 
+            (df["revenue"].sum() - df["last_year"].sum()), 2))`
 
 function ServicesShareChart() {
+  const chartHeight = 160
+  const chartWidth = 500
+  const maxVal = Math.max(...tencentTrend.map((d) => d.total))
+
   return (
-    <svg viewBox="0 0 520 240" className="h-full w-full" role="img" aria-label="Доля сервисной выручки Apple в 2025/2026 финансовом году">
-      <line x1="50" y1="190" x2="490" y2="190" stroke="#64748b" strokeWidth="2" />
-      {appleServices.map((item, index) => {
-        const share = item.services / item.total
-        const x = 70 + index * 105
-        const totalHeight = (item.total / 120) * 130
-        const servicesHeight = share * totalHeight
-        const y = 190 - totalHeight
-        const servicesY = 190 - servicesHeight
+    <svg viewBox={`0 0 ${chartWidth + 60} ${chartHeight + 40}`} className="h-full w-full">
+      <line x1="40" y1={chartHeight} x2={chartWidth + 40} y2={chartHeight} stroke="#cbd5e1" strokeWidth="1" />
+      <line x1="40" y1="10" x2="40" y2={chartHeight} stroke="#cbd5e1" strokeWidth="1" />
+
+      {tencentTrend.map((d, i) => {
+        const x = 60 + i * 130
+        const totalH = (d.total / maxVal) * (chartHeight - 20)
+        const vasH = (d.vas / maxVal) * (chartHeight - 20)
 
         return (
-          <g key={item.quarter}>
-            <rect x={x} y={y} width="50" height={totalHeight} rx="12" fill="#cbd5e1" />
-            <rect x={x} y={servicesY} width="50" height={servicesHeight} rx="12" fill="#2563eb" />
-            <text x={x + 25} y="208" textAnchor="middle" fontSize="12" fill="#334155">
-              {item.quarter.replace(' FY25', '').replace(' FY26', '')}
+          <g key={d.quarter}>
+            {/* Total Revenue bar */}
+            <rect
+              x={x}
+              y={chartHeight - totalH}
+              width="60"
+              height={totalH}
+              fill="#e2e8f0"
+              rx="4"
+              className="dark:fill-slate-700"
+            />
+            {/* VAS segment bar */}
+            <rect
+              x={x}
+              y={chartHeight - vasH}
+              width="60"
+              height={vasH}
+              fill="#4f46e5"
+              rx="4"
+              opacity="0.8"
+            />
+            <text x={x + 30} y={chartHeight + 20} textAnchor="middle" fontSize="12" fill="#64748b">
+              {d.quarter}
             </text>
-            <text x={x + 25} y={servicesY - 8} textAnchor="middle" fontSize="12" fill="#0f172a">
-              {(share * 100).toFixed(1)}%
+            <text x={x + 30} y={chartHeight - totalH - 5} textAnchor="middle" fontSize="11" fill="#475569">
+              {d.total}
             </text>
           </g>
         )
       })}
-      <text x="360" y="34" fontSize="12" fill="#2563eb">
-        services
-      </text>
-      <text x="360" y="52" fontSize="12" fill="#64748b">
-        total revenue
+      <text x="10" y="30" fontSize="10" fill="#94a3b8" transform="rotate(-90, 10, 30)">
+        млрд CNY
       </text>
     </svg>
   )
@@ -138,7 +119,7 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
     setContextNotes(contextNotes)
     if (setContext) {
       setContext({
-        title: 'Инвестиционный анализ в цифровой экономике',
+        title: 'Инвестиционный анализ в цифровую эпоху',
         text: 'В цифровой экономике инвестор анализирует не только масштаб бизнеса, но и структуру выручки, повторяемость доходов и роль сервисных сегментов.',
       })
     }
@@ -148,231 +129,123 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
     <article className="space-y-6">
       <CourseHeader
         badge="Практика 1 · Основы инвестиционного анализа"
-        title="Инвестиционный анализ в цифровой экономике"
-        subtitle="Показываем, почему в современной компании важно анализировать не только общий объем выручки, но и ее состав, устойчивость и повторяемость."
+        title="Инвестиционный анализ в условиях цифровой экономики"
+        subtitle="Разбираем, как меняется подход к оценке на примере Tencent и её многогранной цифровой экосистемы."
       />
 
       <section className="content-block space-y-4">
         <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-          Когда мы анализируем технологическую компанию, нас интересует не только общий объем
-          выручки, но и то, насколько эта выручка повторяема. Для инвестора это почти жизненный
-          вопрос: одно дело — разовый всплеск продаж, другое — поток подписок и сервисных
-          комиссий, который возвращается квартал за кварталом.
+          В классической экономике ценность компании определялась заводами, запасами и сырьем. В 
+          цифровую эпоху фокус сместился на <strong>экосистемы</strong>, <strong>сервисы</strong> и{' '}
+          <strong>платформенные решения</strong>. Пример китайского гиганта <strong>Tencent</strong> наглядно
+          показывает: даже крупная компания может стать сервисной площадкой для миллионов пользователей.
         </p>
         <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-          Поэтому на экране появляется <strong>сегментный анализ</strong> (англ.{' '}
-          <em>segment analysis</em>) и <strong>сервисная выручка</strong> (англ.{' '}
-          <em>services revenue</em>) как важные сигналы качества цифровой бизнес-модели.
-        </p>
-        <MathText
-          as="p"
-          text="В цифровой экономике стоимость компании все чаще создается платформами, сервисами, программными продуктами и экосистемными связями. Поэтому инвестору уже недостаточно знать только общую выручку: необходимо понимать, какая ее часть формируется более устойчивыми и повторяемыми источниками."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
-        <MathText
-          as="p"
-          text="Если обозначить сервисную выручку через $S_t$, а общую выручку компании через $R_t$, то ключевой характеристикой структуры бизнеса становится доля сервисного сегмента."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
-        <MathBlock formula={String.raw`s_t = \frac{S_t}{R_t}`} />
-        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-          Здесь <strong>Sₜ</strong> — выручка сервисного сегмента в период <strong>t</strong>, а{' '}
-          <strong>Rₜ</strong> — общая выручка компании в тот же период. Чем выше и устойчивее
-          отношение <strong>sₜ</strong>, тем больше вклад регулярного цифрового сегмента в общую
-          структуру бизнеса.
-        </p>
-        <MathText
-          as="p"
-          text="Показатель $s_t$ не заменяет анализ абсолютных величин, но помогает увидеть, насколько заметную роль играют цифровые сервисы в формировании дохода. Если сервисная составляющая велика и устойчива, будущие денежные потоки компании обычно легче прогнозировать."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
-        <MathText
-          as="p"
-          text="Для динамического анализа полезно рассматривать и темп роста сервисной выручки. Он показывает, как меняется цифровой сегмент от периода к периоду и не исчерпывается простым наблюдением за уровнем продаж."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
-        <MathBlock formula={String.raw`g_t = \frac{S_t - S_{t-1}}{S_{t-1}}`} />
-        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-          Во второй формуле <strong>gₜ</strong> — темп роста сервисной выручки, то есть
-          относительное изменение показателя между двумя соседними периодами. Он помогает увидеть
-          не только уровень цифрового сегмента, но и его динамику.
+          Для аналитика это означает, что анализ общей выручки — лишь верхушка айсберга. Мы должны 
+          уметь делать <strong>сегментный анализ</strong>: выделять ключевые драйверы роста (например, 
+          рекламу или финтех) и оценивать их вклад в итоговый результат.
         </p>
       </section>
 
       <section className="grid items-start gap-4 md:grid-cols-2">
-        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-700 dark:bg-slate-900">
-          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Сервисная выручка</h3>
-          <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-            Сервисной выручкой называют доходы от подписок, цифрового контента, облачных услуг,
-            платформенных комиссий и других нематериальных сервисов. В отличие от разовой продажи
-            устройства, такие поступления нередко повторяются и поэтому особенно важны для оценки
-            устойчивости бизнеса.
-          </p>
-        </article>
-
-        <article className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-700 dark:bg-slate-900">
-          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Сегментный анализ</h3>
-          <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-            Сегментный анализ рассматривает компанию через отдельные направления бизнеса. Он нужен
-            затем, чтобы отделить масштаб от качества роста: одинаковая общая выручка может иметь
-            разную инвестиционную ценность, если в одном случае она формируется повторяемыми
-            сервисами, а в другом зависит от более цикличных продаж.
-          </p>
-        </article>
+        {digitalEconomyCards.map((card) => (
+          <article
+            key={card.title}
+            className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900"
+          >
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">{card.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+              {card.text}
+            </p>
+          </article>
+        ))}
       </section>
 
-      <section className="grid items-start gap-4 lg:grid-cols-2">
-        <IdeaCard title="Качество выручки">
-          <p>
-            Для инвестора важен не только размер сегмента, но и качество его денег: повторяемость,
-            устойчивость клиентской базы, чувствительность к скидкам и зависимость от экосистемы.
-            Два сегмента одинакового масштаба могут давать разную инвестиционную ценность.
-          </p>
-        </IdeaCard>
-
-        <IdeaCard title="Высокая доля сервиса не равна автоматическому преимуществу">
-          <p>
-            Сервисный сегмент тоже может замедляться, требовать дорогой поддержки или работать в
-            условиях высокой конкуренции. Поэтому мы рассматриваем структуру выручки как сигнал,
-            который нужно связывать с маржой, ростом и стратегией компании.
-          </p>
-        </IdeaCard>
-      </section>
-
-      <section className="content-block space-y-4">
-        <h3 className="section-title">Реальный пример: Apple, 2025–2026 финансовые годы</h3>
-        <MathText
-          as="p"
-          text="Apple раскрывает квартальную выручку сегмента Services в официальной отчетности. Для инвестора это важный источник информации: цифровой сегмент позволяет проверить, какова доля более регулярных доходов внутри крупной технологической компании."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
-        <MathText
-          as="p"
-          text="В этой задаче мы не строим полноценную оценку компании, а решаем более локальную, но содержательную подзадачу: сравниваем кварталы по абсолютной сервисной выручке и по доле $s_t = S_t / R_t$."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
+      <section className="content-block">
+        <h3 className="section-title">Сегментный анализ Tencent</h3>
+        <p className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200">
+          Ниже представлена структура выручки Tencent за Q3 2024. Обратите внимание, что сегмент 
+          Marketing Services (бывшая онлайн-реклама) растет быстрее остальных (+17% г/г), 
+          становясь новым мощным драйвером наряду с игровым бизнесом (VAS).
+        </p>
       </section>
 
       <SourceNote>
-        Реальные данные примера: квартальная отчетность <strong>Apple</strong> за{' '}
-        <strong>FY2025–FY2026</strong>, где отдельно раскрывается сегмент <strong>Services</strong>.
-        Это хороший учебный кейс для анализа структуры выручки цифровой компании на официальных
-        данных.
+        Данные: финансовый отчет <strong>Tencent Holdings Ltd</strong> за Q3 2024. 
+        Суммы указаны в миллиардах китайских юаней (RMB/CNY).
       </SourceNote>
 
       <ComparisonTable
-        columns={appleServices.map((item) => item.quarter)}
+        columns={tencentSegmentsQ32024.map((s) => s.segment)}
         rows={[
           {
-            label: 'Общая выручка, млрд USD',
-            values: appleServices.map((item) => item.total.toFixed(2)),
-          },
-          {
-            label: 'Выручка Services, млрд USD',
-            values: appleServices.map((item) => item.services.toFixed(2)),
+            label: 'Выручка (млрд CNY)',
+            values: tencentSegmentsQ32024.map((s) => s.revenueBillionCny.toFixed(1)),
             highlight: true,
           },
           {
-            label: 'Доля Services',
-            values: appleServices.map((item) => `${((item.services / item.total) * 100).toFixed(1)}%`),
+            label: 'Доля в выручке',
+            values: tencentSegmentsQ32024.map((s) => `${(s.share * 100).toFixed(0)}%`),
           },
         ]}
       />
 
       <PlotViewer
-        title="Доля Services в квартальной выручке Apple"
-        caption="На графике видно, что сервисный сегмент занимает заметную и устойчивую долю в структуре доходов компании. Для аналитика это важнее, чем единичное число общей выручки, потому что именно структура помогает судить о качестве роста."
+        title="Динамика выручки и доля сервисов (VAS)"
+        caption="Синим цветом выделен сегмент Value-Added Services (игры и соцсети). Видно, что при росте общей выручки Tencent сохраняет стабильную и высокую долю доходов от цифрового контента."
       >
         <ServicesShareChart />
       </PlotViewer>
 
       <section className="space-y-4">
-        <ThinkQuestion question="Всегда ли высокая доля сервисной выручки автоматически делает компанию более привлекательной для инвестора?">
+        <ThinkQuestion question="Почему рост рекламных сервисов (Marketing Services) может быть важнее для оценки компании, чем рост стабильных доходов от подписки?">
           <p>
-            Нет. Высокая доля сервиса сама по себе еще не гарантирует ни высокой маржи, ни низкой
-            конкуренции, ни устойчивого роста. Она только подсказывает, что структура выручки может
-            быть более регулярной и прогнозируемой.
+            Рекламные доходы часто имеют более высокую маржинальность при масштабировании, так как 
+            используют уже созданный трафик платформы. Успех WeChat Video Accounts в Китае — это пример того, как 
+            монетизация внимания пользователей создает добавочную стоимость без огромных новых затрат.
           </p>
           <p>
-            Дальше аналитик обязан проверить рентабельность, темп роста, насыщение рынка и силу
-            клиентской базы. Структура выручки — важный, но не единственный слой анализа.
+            Для аналитика это сигнал о повышении эффективности всей экосистемы.
           </p>
         </ThinkQuestion>
 
-        <section className="content-block space-y-4">
-          <h3 className="section-title">Python: считаем долю и темп роста сегмента</h3>
-          <MathText
-            as="p"
-            text="В Python удобно сначала собрать таблицу по кварталам, затем добавить вычисляемые столбцы. Так логика анализа остается прозрачной: мы видим исходные данные, формулу и итоговый результат в одной структуре."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <ExecutablePythonBlock
-            code={servicesCode}
-            title="Python: анализ сервисной выручки"
-            packages={['pandas']}
-            note="Попробуйте пересчитать доли и темпы роста для других периодов или добавить новый квартал в таблицу."
-          />
-        </section>
+        <IdeaCard title="Экосистемный подход в Python">
+          <p>
+            Используя библиотеку `pandas`, мы можем мгновенно рассчитывать вклад каждого сегмента в 
+            общий прирост выручки. Это позволяет не просто видеть «общую цифру», а понимать 
+            качественную структуру роста.
+          </p>
+        </IdeaCard>
 
-        <section className="content-block space-y-4">
-          <h3 className="section-title">Как читать результат</h3>
-          <MathText
-            as="p"
-            text="Если сервисная выручка растет даже тогда, когда общая выручка колеблется, это означает, что цифровой сегмент вносит стабилизирующий вклад в бизнес-модель. Для инвестиционного анализа такое наблюдение важно, потому что устойчивые сегменты поддерживают качество будущих потоков."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <MathText
-            as="p"
-            text="При этом одна только высокая доля $s_t$ еще не гарантирует инвестиционную привлекательность. Аналитик всегда связывает структуру выручки с рентабельностью, конкуренцией, темпом роста и общей стратегией компании."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
+        <section className="content-block">
+          <h3 className="section-title">Python: сегментный анализ в коде</h3>
+          <div className="mt-4">
+            <ExecutablePythonBlock
+              code={segmentCode}
+              title="Python: расчет вклада сегментов и темпов роста"
+              packages={['pandas']}
+              note="В этом примере мы рассчитываем, какую часть общего роста обеспечил сегмент рекламы (Marketing Services). Попробуйте изменить данные за прошлый год, чтобы увидеть чувствительность результата."
+            />
+          </div>
         </section>
       </section>
 
-      <HandbookDetails title="Подробнее: почему рынок любит повторяемые сервисные доходы">
+      <HandbookDetails title="Подробнее: Регуляторный фактор в Китае">
         <p>
-          Повторяемая выручка снижает неопределенность прогноза: если клиентская база уже платит по
-          подписке или регулярно пользуется платформой, будущий денежный поток обычно проще
-          моделировать, чем разовые продажи.
+          При анализе китайских техгигантов (Tencent, Alibaba, Meituan) риск-фактор включает 
+          регуляторную среду. Ограничения на игровое время для несовершеннолетних или антимонопольные 
+          меры напрямую влияют на потоки CF_t, которые мы обсуждали на первом экране.
         </p>
         <p>
-          Именно поэтому инвесторы часто отдельно смотрят на сервисные сегменты у технологических
-          компаний: они помогают понять не только размер бизнеса, но и качество его денежной
-          архитектуры.
+          Инвестиционное решение по Tencent требует совмещения количественного сегментного анализа 
+          с качественной оценкой политических рисков.
         </p>
       </HandbookDetails>
 
-      <section className="space-y-4">
-        <section className="content-block space-y-4">
-          <h3 className="section-title">Что важно теоретически</h3>
-          <MathText
-            as="p"
-            text="Цифровой сегмент особенно ценен тогда, когда его доходы повторяются: подписка, облачный сервис или комиссия платформы создают не случайный разовый поток, а регулярную последовательность поступлений. В этом состоит их особая роль в инвестиционном анализе."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <MathText
-            as="p"
-            text="Поэтому в цифровой экономике анализ структуры выручки становится инструментом принятия решений на основе данных. Он помогает отличать рост, построенный на устойчивой клиентской базе, от роста, который опирается только на временный всплеск продаж."
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-        </section>
-
-        <section className="content-block space-y-4">
-          <h3 className="section-title">Полезные функции Python</h3>
-          <ExecutablePythonBlock
-            code={servicesToolsCode}
-            title="Python: sort_values(), tail(), query()"
-            playgroundCode={servicesToolsPlaygroundCode}
-            packages={['pandas']}
-            note="Короткий сниппет показан для чтения, а в интерактивном запуске ему уже подготовлена таблица `apple_segments`."
-          />
-        </section>
-      </section>
-
       <KeyIdea title="Ключевой вывод">
-        В цифровой экономике инвестор оценивает не только масштаб бизнеса, но и архитектуру его
-        доходов. Сегментный анализ и расчет доли сервисной выручки помогают увидеть, насколько
-        устойчивыми и прогнозируемыми являются будущие денежные потоки компании.
+        В цифровой экономике инвестиционный анализ превращается в анализ экосистем. Мы ценим 
+        не активы, а потоки, генерируемые пользователями, и способность компании монетизировать 
+        их внимание через разные сегменты.
       </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

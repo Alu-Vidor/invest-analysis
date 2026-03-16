@@ -12,6 +12,7 @@ import MathText from '../components/MathText'
 import PlotViewer from '../components/PlotViewer'
 import SourceNote from '../components/SourceNote'
 import ThinkQuestion from '../components/ThinkQuestion'
+import { moexSeries } from '../data/practice1RealData'
 
 const contextNotes = [
   {
@@ -20,103 +21,60 @@ const contextNotes = [
   },
   {
     title: 'Ограничение выборки',
-    text: 'Короткий временной интервал полезен для обучения, но не достаточен для окончательной инвестиционной рекомендации. Это тоже важная часть корректного вывода.',
+    text: 'Короткий временной интервал полезен для обучения, но не достаточен для окончательной инвестиционной рекомендации. Это важная часть профессиональной этики.',
   },
-]
-
-const appleSeries = [
-  { date: '22 Jan', close: 193.89 },
-  { date: '23 Jan', close: 195.18 },
-  { date: '24 Jan', close: 194.50 },
-  { date: '25 Jan', close: 194.17 },
-  { date: '26 Jan', close: 192.42 },
-  { date: '29 Jan', close: 191.73 },
-  { date: '30 Jan', close: 188.04 },
-  { date: '31 Jan', close: 184.40 },
 ]
 
 const miniAnalysisCode = `import pandas as pd
 
-aapl = pd.DataFrame(
-    {
-        "date": pd.to_datetime([
-            "2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25",
-            "2024-01-26", "2024-01-29", "2024-01-30", "2024-01-31"
-        ]),
-        "close": [193.89, 195.18, 194.50, 194.17, 192.42, 191.73, 188.04, 184.40],
-    }
-)
-
-aapl["return"] = aapl["close"].pct_change()
-
-total_return = aapl["close"].iloc[-1] / aapl["close"].iloc[0] - 1
-mean_daily_return = aapl["return"].mean()
-daily_volatility = aapl["return"].std(ddof=1)
-max_daily_drop = aapl["return"].min()
-
-print("Итоговая доходность:", round(total_return, 4))
-print("Средняя дневная доходность:", round(mean_daily_return, 4))
-print("Дневная волатильность:", round(daily_volatility, 4))
-print("Максимальное дневное снижение:", round(max_daily_drop, 4))`
-
-
-const metricsCode = `metrics = {
-    "total_return": total_return,
-    "mean_daily_return": mean_daily_return,
-    "daily_volatility": daily_volatility,
-    "max_daily_drop": max_daily_drop,
+# Данные по индексу МосБиржи (MOEX) - Ноябрь 2024
+data = {
+    "date": ["2024-11-01", "2024-11-05", "2024-11-06", "2024-11-07", "2024-11-08"],
+    "close": [2575.25, 2616.51, 2662.88, 2691.31, 2734.56]
 }
 
-best_day = aapl.loc[aapl["return"].idxmax(), ["date", "return"]]
-worst_day = aapl.loc[aapl["return"].idxmin(), ["date", "return"]]
+moex = pd.DataFrame(data)
+moex["date"] = pd.to_datetime(moex["date"])
+moex["return"] = moex["close"].pct_change()
 
-print({key: round(value, 4) for key, value in metrics.items()})
-print()
-print("Лучший день:", best_day.to_dict())
-print("Худший день:", worst_day.to_dict())`
+total_return = (moex["close"].iloc[-1] / moex["close"].iloc[0]) - 1
+daily_vol = moex["return"].std()
+
+print("Мини-анализ Индекса МосБиржи (Ноябрь 2024):")
+print(moex[["date", "close", "return"]].round(4))
+print(f"\nИтоговая доходность за неделю: {round(total_return * 100, 2)}%")
+print(f"Дневная волатильность: {round(daily_vol, 4)}")`
+
+const metricsCode = `best_day_idx = moex["return"].idxmax()
+best_day = moex.loc[best_day_idx, "date"].strftime('%Y-%m-%d')
+best_val = moex.loc[best_day_idx, "return"]
+
+print(f"Лучший день: {best_day} ({round(best_val * 100, 2)}%)")`
 
 const metricsPlaygroundCode = `import pandas as pd
 
-aapl = pd.DataFrame(
-    {
-        "date": pd.to_datetime([
-            "2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25",
-            "2024-01-26", "2024-01-29", "2024-01-30", "2024-01-31"
-        ]),
-        "close": [193.89, 195.18, 194.50, 194.17, 192.42, 191.73, 188.04, 184.40],
-    }
-)
-
-aapl["return"] = aapl["close"].pct_change()
-
-total_return = aapl["close"].iloc[-1] / aapl["close"].iloc[0] - 1
-mean_daily_return = aapl["return"].mean()
-daily_volatility = aapl["return"].std(ddof=1)
-max_daily_drop = aapl["return"].min()
-
-metrics = {
-    "total_return": total_return,
-    "mean_daily_return": mean_daily_return,
-    "daily_volatility": daily_volatility,
-    "max_daily_drop": max_daily_drop,
+data = {
+    "date": ["2024-11-01", "2024-11-05", "2024-11-06", "2024-11-07", "2024-11-08"],
+    "close": [2575.25, 2616.51, 2662.88, 2691.31, 2734.56]
 }
 
-best_day = aapl.loc[aapl["return"].idxmax(), ["date", "return"]]
-worst_day = aapl.loc[aapl["return"].idxmin(), ["date", "return"]]
+moex = pd.DataFrame(data)
+moex["date"] = pd.to_datetime(moex["date"])
+moex["return"] = moex["close"].pct_change()
 
-print({key: round(value, 4) for key, value in metrics.items()})
-print()
-print("Лучший день:", best_day.to_dict())
-print("Худший день:", worst_day.to_dict())`
+best_day_idx = moex["return"].idxmax()
+best_day = moex.loc[best_day_idx, "date"].strftime('%Y-%m-%d')
+best_val = moex.loc[best_day_idx, "return"]
+
+print(f"Анализ экстремумов MOEX:")
+print(f"Лучший день периода: {best_day}")
+print(f"Доходность в этот день: {round(best_val * 100, 2)}%")`
 
 const dailyReturns = [
-  { date: '23 Jan', value: 0.0067 },
-  { date: '24 Jan', value: -0.0035 },
-  { date: '25 Jan', value: -0.0017 },
-  { date: '26 Jan', value: -0.0090 },
-  { date: '29 Jan', value: -0.0036 },
-  { date: '30 Jan', value: -0.0192 },
-  { date: '31 Jan', value: -0.0194 },
+  { date: '05 Nov', value: 0.0160 },
+  { date: '06 Nov', value: 0.0177 },
+  { date: '07 Nov', value: 0.0107 },
+  { date: '08 Nov', value: 0.0161 },
 ]
 
 function ReturnsBarChart() {
@@ -124,10 +82,10 @@ function ReturnsBarChart() {
   const zeroY = 110
 
   return (
-    <svg viewBox="0 0 520 220" className="h-full w-full" role="img" aria-label="Дневные доходности Apple в конце января 2024 года">
+    <svg viewBox="0 0 520 220" className="h-full w-full">
       <line x1="40" y1={zeroY} x2="490" y2={zeroY} stroke="#64748b" strokeWidth="2" />
       {dailyReturns.map((item, index) => {
-        const x = 55 + index * 62
+        const x = 90 + index * 90
         const barHeight = (Math.abs(item.value) / maxAbs) * 70
         const y = item.value >= 0 ? zeroY - barHeight : zeroY
 
@@ -136,13 +94,16 @@ function ReturnsBarChart() {
             <rect
               x={x}
               y={y}
-              width="34"
+              width="40"
               height={barHeight}
-              rx="10"
-              fill={item.value >= 0 ? '#059669' : '#e11d48'}
+              rx="8"
+              fill={item.value >= 0 ? '#10b981' : '#f43f5e'}
             />
-            <text x={x + 17} y="195" textAnchor="middle" fontSize="10" fill="#334155">
+            <text x={x + 20} y="195" textAnchor="middle" fontSize="10" fill="#334155">
               {item.date}
+            </text>
+            <text x={x + 20} y={y - 5} textAnchor="middle" fontSize="10" fill="#065f46" fontWeight="bold">
+              +{ (item.value * 100).toFixed(1) }%
             </text>
           </g>
         )
@@ -159,58 +120,46 @@ function Practice1_Screen5({ setContextNotes }) {
   return (
     <article className="space-y-6">
       <CourseHeader
-        badge="Практика 1 · Python и рабочая среда"
-        title="Первый мини-анализ данных в Python"
-        subtitle="Завершаем практику коротким, но полным разбором реального ценового ряда: считаем доходность, волатильность и формулируем корректный аналитический вывод."
+        badge="Практика 1 · Завершение"
+        title="Ваш первый мини-анализ данных в Python"
+        subtitle="Завершаем вводную практику коротким и честным разбором динамики российского рынка в ноябре 2024 года."
       />
 
       <section className="content-block space-y-4">
         <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-          На этом шаге мы собираем все части вместе. У аналитика редко бывает роскошь бесконечно
-          долго изучать один маленький фрагмент данных: чаще нужно быстро построить компактный, но
-          честный вывод и ясно обозначить его границы.
+          На финальном шаге мы собираем все части воедино. Профессиональный аналитик умеет быстро 
+          сделать срез данных и сформулировать честный вывод, не выдавая краткосрочные колебания 
+          за долгосрочные тренды.
         </p>
         <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-          Такой формат мы называем <strong>мини-анализом</strong> (англ. <em>mini-analysis</em>):
-          данные, формула, расчет, визуализация и интерпретация уже присутствуют, но масштаб задачи
-          остается учебно управляемым.
+          Мы проведем <strong>мини-анализ</strong> (англ. <em>mini-analysis</em>) на примере 
+          <strong>Индекса МосБиржи (MOEX)</strong>. В начале ноября 2024 года рынок показал 
+          активное восстановление после затяжного снижения — это отличный пример для расчета 
+          итоговой доходности и дневного риска.
         </p>
         <MathText
           as="p"
-          text="Мини-анализ — это небольшое исследование, в котором уже присутствуют все основные стадии работы аналитика: данные, формула, расчет, визуализация и интерпретация. На учебном уровне этого достаточно, чтобы сформировать правильную структуру мышления."
+          text="Мини-анализ — это полный цикл: загрузка данных, расчет формул, визуализация и интерпретация. Пусть данных немного, но структура работы должна быть эталонной."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
         <MathText
           as="p"
-          text="Если цена в начале интервала обозначена через $P_{\\mathrm{start}}$, а цена в конце через $P_{\\mathrm{end}}$, то итоговая доходность периода выражается как относительное изменение стоимости. Эта запись связывает исходный ряд и итоговый аналитический вывод."
+          text="Итоговая доходность интервала ($R_{\mathrm{total}}$) рассчитывается как изменение стоимости от первого до последнего дня. Это 'взгляд сверху' на результат инвестиции за период."
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
         />
-        <MathBlock formula={String.raw`R = \frac{P_{\mathrm{end}} - P_{\mathrm{start}}}{P_{\mathrm{start}}}`} />
-        <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-          Здесь <strong>Pstart</strong> — цена в начале интервала, <strong>Pend</strong> — цена в
-          конце интервала, а <strong>R</strong> — итоговая доходность за весь рассматриваемый
-          период. Эта формула особенно полезна, когда мы хотим быстро свернуть ряд в один итоговый
-          показатель, не теряя связи с исходными ценами.
-        </p>
-        <MathText
-          as="p"
-          text="При этом учебный мини-анализ не следует подменять полноценной инвестиционной рекомендацией. Короткая выборка полезна для освоения метода, но недостаточна для серьезного заключения без более длинного горизонта и дополнительного контекста."
-          className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-        />
+        <MathBlock formula={String.raw`R_{\mathrm{total}} = \frac{I_{\mathrm{end}} - I_{\mathrm{start}}}{I_{\mathrm{start}}}`} />
       </section>
 
       <SourceNote>
-        Реальные данные примера: закрытия <strong>AAPL</strong> за{' '}
-        <strong>22-31 января 2024 года</strong>. Мы сознательно берем короткий фрагмент, чтобы
-        показать метод, а не имитировать полноформатную рекомендацию.
+        Реальные данные: значения <strong>Индекса МосБиржи (IMOEX)</strong> за первую неделю ноября 2024 года.
       </SourceNote>
 
       <ComparisonTable
-        columns={appleSeries.map((item) => item.date)}
+        columns={moexSeries.map((item) => item.date)}
         rows={[
           {
-            label: 'Цена закрытия, USD',
-            values: appleSeries.map((item) => item.close.toFixed(2)),
+            label: 'Индекс MOEX',
+            values: moexSeries.map((item) => item.close.toFixed(1)),
             highlight: true,
           },
         ]}
@@ -218,122 +167,100 @@ function Practice1_Screen5({ setContextNotes }) {
 
       <section className="space-y-4">
         <section className="content-block">
-          <h3 className="section-title">Python: считаем ключевые показатели</h3>
-          <MathText
-            as="p"
-            text="Ниже код дает три базовые характеристики ряда: итоговую доходность периода, среднюю дневную доходность и дневную волатильность. Дополнительно фиксируется наибольшее дневное снижение."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
+          <h3 className="section-title">Python: расчет итогов недели</h3>
+          <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+            Ниже представлен код для расчета доходности и волатильности. Обратите внимание, 
+            как быстро Python позволяет выделить главные характеристики из списка цен.
+          </p>
           <div className="mt-4">
             <ExecutablePythonBlock
               code={miniAnalysisCode}
-              title="Python: первый мини-анализ реального ряда"
+              title="Python: расчет MOEX за ноябрь 2024"
               packages={['pandas']}
               defaultOpen
-              note="Этот блок можно редактировать прямо на странице: например, добавить новую метрику или изменить интервал наблюдения."
+              note="Попробуйте изменить Pend (последнее значение), чтобы увидеть, как изменится итоговая доходность периода."
             />
           </div>
         </section>
 
         <section className="content-block">
-          <h3 className="section-title">Как интерпретировать показатели</h3>
-          <MathText
-            as="p"
-            text="Итоговая доходность отражает, чем закончился интервал в целом. Средняя дневная доходность показывает среднее направление движения внутри периода. Волатильность измеряет изменчивость, а максимальное дневное снижение помогает увидеть масштаб краткосрочного неблагоприятного движения."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
+          <h3 className="section-title">Интерпретация цифр</h3>
+          <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+            Рост индекса на 6% за неделю — это сильный сигнал, но аналитик также смотрит на 
+            волатильность. Высокий разброс дневных значений говорит о том, что рост сопровождается 
+            неуверенностью участников рынка.
+          </p>
         </section>
       </section>
 
       <PlotViewer
-        title="Дневные доходности AAPL"
-        caption="График показывает, что внутри короткого интервала положительное движение быстро сменилось серией отрицательных доходностей. Это хороший пример того, как визуализация дополняет числовую сводку."
+        title="Дневные доходности IMOEX (Ноябрь 2024)"
+        caption="Зеленые столбцы показывают ежедневный рост. Аналитик видит здесь 'единодушие' рынка в течение нескольких дней, что часто предшествует более широким изменениям или, наоборот, техническим коррекциям."
       >
         <ReturnsBarChart />
       </PlotViewer>
 
-      <ThinkQuestion question="Можно ли назвать актив «плохим», если на коротком фрагменте ряда его итоговая доходность оказалась отрицательной?">
+      <ThinkQuestion question="Можно ли на основе этой недели сделать вывод, что российский рынок будет расти весь следующий год?">
         <p>
-          Нет. Короткий интервал фиксирует локальный эпизод, а не полную инвестиционную историю
-          инструмента. Он может быть полезен для демонстрации метода, но не для окончательного
-          стратегического вывода.
+          Конечно нет. Мини-анализ по определению ограничен во времени. Он фиксирует локальную 
+          динамику (например, реакцию на новости или технический отскок).
         </p>
         <p>
-          Хороший аналитик всегда отделяет результат конкретного окна наблюдений от более общего
-          суждения об активе. Именно эта дисциплина и отличает анализ от поспешной интерпретации.
+          Профессионализм аналитика заключается в умении разделять краткосрочные 'шоки' и 
+          фундаментальные факторы, которые мы будем изучать в следующих практиках.
         </p>
       </ThinkQuestion>
 
       <section className="space-y-4">
         <IdeaCard title="Корректная формулировка вывода">
           <p>
-            На рассматриваемом интервале акции Apple показали отрицательную итоговую доходность и
-            заметную внутрипериодную изменчивость. Следовательно, для очень короткого горизонта
-            конец января 2024 года нельзя назвать спокойным участком ряда.
+            На интервале 1-8 ноября 2024 года индекс МосБиржи продемонстрировал уверенное восстановление 
+            на 6.2%. Такая высокая доходность при умеренной волатильности указывает на позитивный импульс 
+            в данный момент, однако для стратегических решений требуется анализ более длинных рядов.
           </p>
         </IdeaCard>
 
-        <AlertBox title="Почему этого мало для инвестиционной рекомендации">
-          Несколько торговых дней полезны для демонстрации метода, но слишком коротки для
-          полноценного инвестиционного вывода. Корректный аналитик обязан указывать ограничения
-          выборки, а не скрывать их.
+        <AlertBox title="Правило аналитика #1">
+          Всегда указывайте границы вашего исследования. 'На этой неделе...' — звучит профессиональнее, 
+          чем 'Рынок теперь всегда будет...'.
         </AlertBox>
-
-        <IdeaCard title="Область применимости вывода">
-          <p>
-            Теоретически любой вывод живет внутри своего окна наблюдений. То, что верно для конца
-            января 2024 года, не обязано автоматически переноситься на другой месяц, год или фазу
-            рынка. Это называется ограниченной внешней валидностью результата.
-          </p>
-        </IdeaCard>
       </section>
 
       <section className="space-y-4">
         <section className="content-block">
-          <h3 className="section-title">Что еще полезно сказать теоретически</h3>
-          <MathText
-            as="p"
-            text="Даже самый аккуратный мини-анализ не заменяет длинного инвестиционного исследования. Он дает локальный срез поведения ряда, но не отвечает на вопросы о структурном тренде, фундаментальных драйверах бизнеса и сценариях будущего."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-          <MathText
-            as="p"
-            text="Поэтому корректный вывод в инвестиционном анализе почти всегда имеет границы применимости: нужно явно понимать, к какому интервалу, набору данных и предпосылкам он относится."
-            className="mt-3 text-base leading-relaxed text-slate-700 dark:text-slate-200"
-          />
-        </section>
-
-        <section className="content-block">
-          <h3 className="section-title">Полезные функции Python</h3>
+          <h3 className="section-title">Полезные функции Python для финала</h3>
+          <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
+            Для быстрого поиска 'лучшего дня' или форматирования дат используйте idxmax и strftime:
+          </p>
           <div className="mt-4">
             <ExecutablePythonBlock
               code={metricsCode}
-              title="Python: idxmax(), idxmin(), to_dict()"
+              title="Python: поиск экстремумов"
               playgroundCode={metricsPlaygroundCode}
               packages={['pandas']}
-              note="Под короткий сниппет подложена полная подготовка данных, чтобы можно было сразу искать лучший и худший дни."
+              note="В интерактивном режиме вы можете найти дату самого резкого движения в любую сторону."
             />
           </div>
         </section>
       </section>
 
-      <HandbookDetails title="Подробнее: как формулировать вывод без логических натяжек">
+      <HandbookDetails title="Итоги Практики 1">
         <p>
-          Корректный вывод всегда содержит три части: что мы наблюдали, на каких данных это
-          увидели и где заканчивается область применимости результата.
+          Мы прошли путь от базового уравнения инвестиций до работы с реальными временными рядами в Python. 
+          Вы научились:
         </p>
-        <p>
-          Например: «На интервале 22-31 января 2024 года акции AAPL показали отрицательную
-          итоговую доходность и повышенную внутрипериодную изменчивость; этого недостаточно для
-          долгосрочной инвестиционной рекомендации, но достаточно для демонстрации базовых метрик
-          ряда». Такая формулировка честна и профессиональна.
-        </p>
+        <ul className="list-disc ml-5 mt-2 space-y-1 text-slate-700 dark:text-slate-200">
+          <li>Формализовать денежные потоки через CF_t.</li>
+          <li>Учитывать риски и ликвидность на реальных примерах (OFZ, Nikkei).</li>
+          <li>Разлагать выручку технологических гигантов (Tencent).</li>
+          <li>Использовать Python для воспроизводимых расчетов.</li>
+        </ul>
       </HandbookDetails>
 
-      <KeyIdea title="Итог практики 1">
-        Инвестиционный анализ как учебная дисциплина начинается с умения видеть путь от данных к
-        решению: задать объект анализа, выбрать корректные категории, загрузить реальный ряд,
-        посчитать показатели и интерпретировать их без логических натяжек.
+      <KeyIdea title="Ключевой итог">
+        Инвестиционный анализ — это не только математика, но и дисциплина мышления. 
+        Умение переложить реальный рыночный кейс на язык чисел и кода — ваш первый 
+        самый важный навык.
       </KeyIdea>
 
       <nav className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -347,7 +274,7 @@ function Practice1_Screen5({ setContextNotes }) {
           to="/practice/2/screen/1"
           className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          К практике 2
+          Перейти к практике 2
         </Link>
       </nav>
     </article>
