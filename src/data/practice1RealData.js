@@ -66,6 +66,8 @@ export const sseStimulusRallySep2024 = [
   { date: '30 Sep', close: 3336.50, volume: 2500e6, event: 'Golden Week Eve' },
 ]
 
+export const sseSeries = sseStimulusRallySep2024
+
 // Screen 5: MOEX Russia Index (2024-2025)
 export const moexIndex2024 = [
   { date: 'Jan 24', close: 3100 },
@@ -77,3 +79,5 @@ export const moexIndex2024 = [
   { date: 'Jan 25', close: 2700 },
   { date: 'Mar 25', close: 2850 },
 ]
+
+export const moexSeries = moexIndex2024

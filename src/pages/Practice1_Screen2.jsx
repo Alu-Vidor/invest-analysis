@@ -1,3 +1,15 @@
+import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import ComparisonTable from '../components/ComparisonTable'
+import CourseHeader from '../components/CourseHeader'
+import ExecutablePythonBlock from '../components/ExecutablePythonBlock'
+import HandbookDetails from '../components/HandbookDetails'
+import IdeaCard from '../components/IdeaCard'
+import KeyIdea from '../components/KeyIdea'
+import MathBlock from '../components/MathBlock'
+import MathText from '../components/MathText'
+import SourceNote from '../components/SourceNote'
+import ThinkQuestion from '../components/ThinkQuestion'
 import { nikkeiVolatilityAug2024 } from '../data/practice1RealData'
 
 const contextNotes = [
