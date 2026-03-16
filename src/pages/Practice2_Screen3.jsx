@@ -125,7 +125,7 @@ function Practice2_Screen3({ setContextNotes }) {
       <CourseHeader
         badge="Практика 2 · Денежные потоки и дисконтирование"
         title="Операции наращения и дисконтирования"
-        subtitle="Применяем формулы к реальному потоку купонной ноты: оцениваем ее стоимость на дату 2 января 2024 года и одновременно смотрим, какой капитал сформируется к моменту погашения при реинвестировании купонов."
+        subtitle="Применяем формулы к реальному потоку купонной ноты: оцениваем ее стоимость на середину марта 2026 года и одновременно смотрим, какой капитал сформируется к моменту погашения при реинвестировании купонов."
       />
 
       <section className="content-block space-y-4">
@@ -152,7 +152,7 @@ function Practice2_Screen3({ setContextNotes }) {
           as="p"
           text={`В примере используем доходность 5-летних Treasury ${(
             treasuryFiveYearProxyRateJan022024 * 100
-          ).toFixed(2)}% годовых на 2 января 2024 года как рыночный ориентир для четырехлетней ноты. Тогда полугодовая ставка составляет ${(
+          ).toFixed(2)}% годовых на середину марта 2026 года как рыночный ориентир для четырехлетней ноты. Тогда полугодовая ставка составляет ${(
             treasuryFiveYearSemiannualRateJan022024 * 100
           ).toFixed(3)}%.`}
           className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
@@ -169,7 +169,7 @@ function Practice2_Screen3({ setContextNotes }) {
 
       <SourceNote>
         Реальные данные: поток <strong>U.S. Treasury Note 4.250%, maturity 2028-01-15</strong> и
-        рыночная доходность <strong>5Y Treasury = 3.93%</strong> на <strong>2 января 2024 года</strong>.
+        рыночная доходность <strong>5Y Treasury = 3.86%</strong> на <strong>середину марта 2026 года</strong>.
       </SourceNote>
 
       <ComparisonTable

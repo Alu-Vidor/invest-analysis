@@ -23,19 +23,19 @@ const contextNotes = [
 ]
 
 const appleServices = [
-  { quarter: 'Q1 FY24', total: 119.58, services: 23.12 },
-  { quarter: 'Q2 FY24', total: 90.75, services: 23.87 },
-  { quarter: 'Q3 FY24', total: 85.78, services: 24.21 },
-  { quarter: 'Q4 FY24', total: 94.93, services: 24.97 },
+  { quarter: 'Q2 FY25', total: 95.40, services: 26.60 },
+  { quarter: 'Q3 FY25', total: 94.00, services: 27.40 },
+  { quarter: 'Q4 FY25', total: 102.50, services: 28.80 },
+  { quarter: 'Q1 FY26', total: 143.80, services: 30.00 },
 ]
 
 const servicesCode = `import pandas as pd
 
 apple_segments = pd.DataFrame(
     {
-        "quarter": ["Q1 FY24", "Q2 FY24", "Q3 FY24", "Q4 FY24"],
-        "total_revenue_billion_usd": [119.58, 90.75, 85.78, 94.93],
-        "services_revenue_billion_usd": [23.12, 23.87, 24.21, 24.97],
+        "quarter": ["Q2 FY25", "Q3 FY25", "Q4 FY25", "Q1 FY26"],
+        "total_revenue_billion_usd": [95.40, 94.00, 102.50, 143.80],
+        "services_revenue_billion_usd": [26.60, 27.40, 28.80, 30.00],
     }
 )
 
@@ -57,7 +57,7 @@ const servicesToolsCode = `apple_segments["services_share_pct"] = (
 
 leaders = apple_segments.sort_values("services_share_pct", ascending=False)
 recent = apple_segments.tail(2)
-later_quarters = apple_segments.query("quarter != 'Q1 FY24'")
+later_quarters = apple_segments.query("quarter != 'Q2 FY25'")
 
 print(leaders[["quarter", "services_share_pct"]])
 print()
@@ -69,9 +69,9 @@ const servicesToolsPlaygroundCode = `import pandas as pd
 
 apple_segments = pd.DataFrame(
     {
-        "quarter": ["Q1 FY24", "Q2 FY24", "Q3 FY24", "Q4 FY24"],
-        "total_revenue_billion_usd": [119.58, 90.75, 85.78, 94.93],
-        "services_revenue_billion_usd": [23.12, 23.87, 24.21, 24.97],
+        "quarter": ["Q2 FY25", "Q3 FY25", "Q4 FY25", "Q1 FY26"],
+        "total_revenue_billion_usd": [95.40, 94.00, 102.50, 143.80],
+        "services_revenue_billion_usd": [26.60, 27.40, 28.80, 30.00],
     }
 )
 
@@ -90,7 +90,7 @@ apple_segments["services_share_pct"] = (
 
 leaders = apple_segments.sort_values("services_share_pct", ascending=False)
 recent = apple_segments.tail(2)
-later_quarters = apple_segments.query("quarter != 'Q1 FY24'")
+later_quarters = apple_segments.query("quarter != 'Q2 FY25'")
 
 print(leaders[["quarter", "services_share_pct"]])
 print()
@@ -100,7 +100,7 @@ print(later_quarters[["quarter", "services_growth"]])`
 
 function ServicesShareChart() {
   return (
-    <svg viewBox="0 0 520 240" className="h-full w-full" role="img" aria-label="Доля сервисной выручки Apple в 2024 финансовом году">
+    <svg viewBox="0 0 520 240" className="h-full w-full" role="img" aria-label="Доля сервисной выручки Apple в 2025/2026 финансовом году">
       <line x1="50" y1="190" x2="490" y2="190" stroke="#64748b" strokeWidth="2" />
       {appleServices.map((item, index) => {
         const share = item.services / item.total
@@ -115,7 +115,7 @@ function ServicesShareChart() {
             <rect x={x} y={y} width="50" height={totalHeight} rx="12" fill="#cbd5e1" />
             <rect x={x} y={servicesY} width="50" height={servicesHeight} rx="12" fill="#2563eb" />
             <text x={x + 25} y="208" textAnchor="middle" fontSize="12" fill="#334155">
-              {item.quarter.replace(' FY24', '')}
+              {item.quarter.replace(' FY25', '').replace(' FY26', '')}
             </text>
             <text x={x + 25} y={servicesY - 8} textAnchor="middle" fontSize="12" fill="#0f172a">
               {(share * 100).toFixed(1)}%
@@ -240,7 +240,7 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
       </section>
 
       <section className="content-block space-y-4">
-        <h3 className="section-title">Реальный пример: Apple, 2024 финансовый год</h3>
+        <h3 className="section-title">Реальный пример: Apple, 2025–2026 финансовые годы</h3>
         <MathText
           as="p"
           text="Apple раскрывает квартальную выручку сегмента Services в официальной отчетности. Для инвестора это важный источник информации: цифровой сегмент позволяет проверить, какова доля более регулярных доходов внутри крупной технологической компании."
@@ -255,7 +255,7 @@ function Practice1_Screen3({ setContext, setContextNotes }) {
 
       <SourceNote>
         Реальные данные примера: квартальная отчетность <strong>Apple</strong> за{' '}
-        <strong>FY2024</strong>, где отдельно раскрывается сегмент <strong>Services</strong>.
+        <strong>FY2025–FY2026</strong>, где отдельно раскрывается сегмент <strong>Services</strong>.
         Это хороший учебный кейс для анализа структуры выручки цифровой компании на официальных
         данных.
       </SourceNote>

@@ -1,10 +1,10 @@
 export const treasuryCurveJan022024 = [
-  { maturityYears: 1, label: '1 год', yieldPct: 4.8 },
-  { maturityYears: 2, label: '2 года', yieldPct: 4.33 },
-  { maturityYears: 3, label: '3 года', yieldPct: 4.09 },
-  { maturityYears: 5, label: '5 лет', yieldPct: 3.93 },
-  { maturityYears: 10, label: '10 лет', yieldPct: 3.95 },
-  { maturityYears: 30, label: '30 лет', yieldPct: 4.08 },
+  { maturityYears: 1, label: '1 год', yieldPct: 3.64 },
+  { maturityYears: 2, label: '2 года', yieldPct: 3.74 },
+  { maturityYears: 3, label: '3 года', yieldPct: 3.75 },
+  { maturityYears: 5, label: '5 лет', yieldPct: 3.86 },
+  { maturityYears: 10, label: '10 лет', yieldPct: 4.26 },
+  { maturityYears: 30, label: '30 лет', yieldPct: 4.87 },
 ].map((row) => ({
   ...row,
   rate: row.yieldPct / 100,
@@ -48,7 +48,7 @@ export const treasuryNoteSchedule2028 = noteDates.map((date, index) => {
   }
 })
 
-export const treasuryFiveYearProxyRateJan022024 = 0.0393
+export const treasuryFiveYearProxyRateJan022024 = 0.0386
 export const treasuryFiveYearSemiannualRateJan022024 =
   treasuryFiveYearProxyRateJan022024 / 2
 
@@ -84,8 +84,8 @@ export const treasuryNoteFutureValueAtMaturityUsd =
   )
 
 export const freddieMortgageRatesJan042024 = [
-  { product: '30-летняя FRM', years: 30, annualRatePct: 6.62 },
-  { product: '15-летняя FRM', years: 15, annualRatePct: 5.89 },
+  { product: '30-летняя FRM', years: 30, annualRatePct: 6.11 },
+  { product: '15-летняя FRM', years: 15, annualRatePct: 5.50 },
 ].map((row) => ({
   ...row,
   annualRate: row.annualRatePct / 100,
@@ -114,9 +114,9 @@ export const mortgageBenchmarksJan042024 = freddieMortgageRatesJan042024.map(
 
 export const interestOnlyMortgageBenchmarkJan042024 = {
   product: 'Interest-only',
-  annualRatePct: 6.62,
-  annualRate: 0.0662,
+  annualRatePct: 6.11,
+  annualRate: 0.0611,
   months: 120,
-  monthlyInterestUsd: (mortgagePrincipalUsd * 0.0662) / 12,
+  monthlyInterestUsd: (mortgagePrincipalUsd * 0.0611) / 12,
   balloonPaymentUsd: mortgagePrincipalUsd,
 }

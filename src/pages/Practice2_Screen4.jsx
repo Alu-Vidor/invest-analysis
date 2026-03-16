@@ -122,7 +122,7 @@ function Practice2_Screen4({ setContextNotes }) {
       <CourseHeader
         badge="Практика 2 · Платежные схемы и Python"
         title="Аннуитеты и типовые платежные схемы"
-        subtitle="Переходим от единичных потоков к регулярным платежам. В качестве реальной базы берем средние ставки Freddie Mac по ипотеке на 4 января 2024 года и показываем, как форма платежей меняет финансовую нагрузку."
+        subtitle="Переходим от единичных потоков к регулярным платежам. В качестве реальной базы берем средние ставки Freddie Mac по ипотеке на 12 марта 2026 года и показываем, как форма платежей меняет финансовую нагрузку."
       />
 
       <section className="content-block space-y-4">
@@ -158,7 +158,7 @@ function Practice2_Screen4({ setContextNotes }) {
 
       <IdeaCard title="Реальные рыночные ориентиры">
         <p>
-          По данным Freddie Mac PMMS на 4 января 2024 года средняя ставка по 30-летней фиксированной ипотеке
+          По данным Freddie Mac PMMS на 12 марта 2026 года средняя ставка по 30-летней фиксированной ипотеке
           составила {freddieMortgageRatesJan042024[0].annualRatePct.toFixed(2)}%, а по 15-летней -{' '}
           {freddieMortgageRatesJan042024[1].annualRatePct.toFixed(2)}%. Ниже сравниваем эти режимы для суммы{' '}
           {mortgagePrincipalUsd.toLocaleString('en-US')} USD.
@@ -167,7 +167,7 @@ function Practice2_Screen4({ setContextNotes }) {
 
       <SourceNote>
         Реальные рыночные ориентиры: средние ипотечные ставки <strong>Freddie Mac PMMS</strong> на{' '}
-        <strong>4 января 2024 года</strong> для 30-летней и 15-летней фиксированной ипотеки.
+        <strong>12 марта 2026 года</strong> для 30-летней и 15-летней фиксированной ипотеки.
       </SourceNote>
 
       <ComparisonTable

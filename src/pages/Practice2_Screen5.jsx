@@ -192,8 +192,8 @@ function Practice2_Screen5({ setContextNotes }) {
 
       <SourceNote>
         На этом экране мы объединяем два реальных набора данных: <strong>Treasury note 2028</strong>{' '}
-        с оценкой на <strong>2 января 2024 года</strong> и ипотечные ставки{' '}
-        <strong>Freddie Mac PMMS</strong> на <strong>4 января 2024 года</strong>.
+        с оценкой на <strong>середину марта 2026 года</strong> и ипотечные ставки{' '}
+        <strong>Freddie Mac PMMS</strong> на <strong>12 марта 2026 года</strong>.
       </SourceNote>
 
       <ComparisonTable
